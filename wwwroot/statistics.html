@@ -1,0 +1,1568 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>State Land Assessment Dashboard</title>
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js for visualizations -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --success-color: #27ae60;
+            --warning-color: #f39c12;
+            --danger-color: #e74c3c;
+            --info-color: #3498db;
+            --light-bg: #f8f9fa;
+            --card-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            --border-radius: 12px;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            overflow: auto !important;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .dashboard-container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header-card {
+            background: linear-gradient(135deg, #1da869 0%, #304254 100%);
+            color: white;
+            border-radius: var(--border-radius);
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: var(--card-shadow);
+        }
+
+        .filter-card {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 20px;
+            margin-bottom: 25px;
+            box-shadow: var(--card-shadow);
+            border-left: 5px solid var(--secondary-color);
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 20px;
+            height: 100%;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: var(--card-shadow);
+            border-top: 4px solid var(--secondary-color);
+        }
+
+            .stat-card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+            }
+
+            .stat-card.success {
+                border-top-color: var(--success-color);
+            }
+
+            .stat-card.warning {
+                border-top-color: var(--warning-color);
+            }
+
+            .stat-card.danger {
+                border-top-color: var(--danger-color);
+            }
+
+            .stat-card.info {
+                border-top-color: var(--info-color);
+            }
+
+        .stat-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            margin-bottom: 15px;
+        }
+
+            .stat-icon.success {
+                background: rgba(39, 174, 96, 0.1);
+                color: var(--success-color);
+            }
+
+            .stat-icon.warning {
+                background: rgba(243, 156, 18, 0.1);
+                color: var(--warning-color);
+            }
+
+            .stat-icon.danger {
+                background: rgba(231, 76, 60, 0.1);
+                color: var(--danger-color);
+            }
+
+            .stat-icon.info {
+                background: rgba(52, 152, 219, 0.1);
+                color: var(--info-color);
+            }
+
+        .stat-value {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            line-height: 1;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #6c757d;
+            margin-top: 5px;
+        }
+
+        .section-title {
+            color: var(--primary-color);
+            font-weight: 600;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #eaeaea;
+        }
+
+        .section-card {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: var(--card-shadow);
+        }
+
+        .progress-circle {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: conic-gradient(var(--success-color) 0% var(--progress), #eaeaea var(--progress) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 15px;
+        }
+
+        .progress-circle-inner {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.2rem;
+            color: var(--primary-color);
+        }
+
+        .chart-container {
+            height: 300px;
+            position: relative;
+        }
+
+        .table-hover tbody tr:hover {
+            background-color: rgba(52, 152, 219, 0.05);
+        }
+
+        .custom-select {
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+            padding: 8px 12px;
+            transition: border-color 0.3s ease;
+        }
+
+            .custom-select:focus {
+                border-color: var(--secondary-color);
+                box-shadow: 0 0 0 0.25rem rgba(52, 152, 219, 0.25);
+            }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--secondary-color) 0%, #2980b9 100%);
+            border: none;
+            border-radius: 8px;
+            padding: 10px 25px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+            .btn-primary:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3);
+            }
+
+        .badge {
+            font-size: 0.75em;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-weight: 500;
+        }
+
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+
+        .spinner-border {
+            width: 4rem;
+            height: 4rem;
+        }
+
+        .alert {
+            border-radius: var(--border-radius);
+            border: none;
+        }
+
+        .summary-card {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 20px;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 20px;
+        }
+
+        .nav-tabs {
+            border-bottom: 2px solid #eaeaea;
+        }
+
+            .nav-tabs .nav-link {
+                border: none;
+                color: #6c757d;
+                font-weight: 500;
+                padding: 10px 20px;
+                border-radius: 8px 8px 0 0;
+            }
+
+                .nav-tabs .nav-link.active {
+                    background: white;
+                    border-bottom: 3px solid var(--secondary-color);
+                    color: var(--primary-color);
+                }
+
+        .map-container {
+            height: 300px !important;
+            background: linear-gradient(135deg, #1da869 0%, #764ba2 100%);
+            border-radius: var(--border-radius);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            margin-bottom: 25px;
+        }
+
+        @media (max-width: 768px) {
+            .stat-value {
+                font-size: 1.8rem;
+            }
+
+            .section-card {
+                padding: 15px;
+            }
+        }
+    </style>
+
+    <link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+    <div id="sidebarContainer"></div>
+    <div id="sidebarOverlay" class="sidebar-overlay"></div>
+    <!-- Navbar -->
+    <nav class="navbar navbar-custom navbar-expand-lg">
+        <div class="container-fluid" style="background: forestgreen">
+            <i class="fas fa-bars menu-toggle" id="btnToggleSidebar"></i>
+            <a class="navbar-brand text-white" href="#">
+                <i class="fas fa-map-marked-alt"></i>  State Land Management System
+            </a>
+
+            <div class="profile-view d-flex align-items-center">
+
+                <div class="profile-avatar me-2">
+                    <i class="fas fa-user"></i>
+                </div>
+
+                <div class="profile-info me-3">
+                    <div class="welcome-text">Welcome</div>
+                    <div id="currentUserName" class="profile-name"></div>
+                </div>
+                <button class="logout-btn" title="Logout" onclick="clearSession()">
+                    <i class="fas fa-sign-out-alt"></i>
+                </button>
+            </div>
+
+        </div>
+    </nav>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay" style="display: none;">
+        <div class="text-center">
+            <div class="spinner-border text-primary mb-3" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <h5>Loading Dashboard Data...</h5>
+            <p class="text-muted">Please wait while we fetch the latest statistics</p>
+        </div>
+    </div>
+
+    <div class="dashboard-container py-4">
+        <!-- Header -->
+        <div class="header-card">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h1 class="h2 mb-2">
+                        <i class="fas fa-landmark me-2"></i>
+                        State Land Assessment Dashboard
+                    </h1>
+                    <p class="mb-0 opacity-75">Comprehensive overview of land verification and assessment progress</p>
+                </div>
+                <div class="col-md-4 text-md-end">
+                    <div class="d-inline-block bg-white text-primary px-3 py-2 rounded">
+                        <small class="text-muted">Last Updated</small>
+                        <div id="lastUpdated" class="fw-bold">Just now</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!--Filter Start-->
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-success text-white fw-bold">
+                <i class="fas fa-filter me-2"></i> Filter Assessment Data
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label class="form-label fw-medium">Select District</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light"><i class="fas fa-city"></i></span>
+                            <select id="ddlDistrict" class="form-select custom-select">
+                                <option value="">All Districts</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-medium">Select Tehsil</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light"><i class="fas fa-map-marker-alt"></i></span>
+                            <select id="ddlTehsil" class="form-select custom-select" disabled>
+                                <option value="">All Tehsils</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-4 d-flex align-items-end">
+                        <button id="btnLoadStats" class="btn btn-primary w-100">
+                            <i class="fas fa-chart-line me-2"></i>Generate Report
+                        </button>
+                    </div>
+                </div>
+                <div class="mt-3 d-flex justify-content-between">
+                    <small class="text-muted"><i class="fas fa-info-circle me-1"></i> Select filters to view detailed statistics</small>
+                    <button id="btnReset" class="btn btn-sm btn-outline-secondary">
+                        <i class="fas fa-redo me-1"></i>Reset Filters
+                    </button>
+                </div>
+            </div>
+        </div>
+        <!--Filter End-->
+
+
+        <div class="card shadow-sm mb-4" id="quickStats" style="display: none;">
+            <div class="card-header bg-success text-white fw-bold">
+                <i class="fas fa-chart-line me-2"></i> Key Performance Indicators
+            </div>
+            <div class="card-body">
+                <!-- Quick Stats Row -->
+                <div class="row mb-4">
+                    <div class="col-md-3">
+                        <div class="stat-card success">
+                            <div class="stat-icon success">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <div class="stat-value" id="processedKhasras">0</div>
+                            <div class="stat-label">Khasras Processed</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-card info">
+                            <div class="stat-icon info">
+                                <i class="fas fa-percentage"></i>
+                            </div>
+                            <div class="stat-value" id="progressPercentage">0%</div>
+                            <div class="stat-label">Overall Progress</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-card warning">
+                            <div class="stat-icon warning">
+                                <i class="fas fa-tractor"></i>
+                            </div>
+                            <div class="stat-value" id="availableLand">0</div>
+                            <div class="stat-label">Available for Allotment</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-card danger">
+                            <div class="stat-icon danger">
+                                <i class="fas fa-exclamation-triangle"></i>
+                            </div>
+                            <div class="stat-value" id="notAvailable">0</div>
+                            <div class="stat-label">Not Available</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-success text-white fw-bold">
+                <i class="fas fa-chart-line me-2"></i> Land Assessment Progress
+            </div>
+            <div class="card-body">
+                <div id="statisticsContent">
+                    <!-- Empty State -->
+                    <div class="text-center py-5">
+                        <div class="map-container mb-4">
+                            <i class="fas fa-map fa-4x mb-3"></i>
+                            <p>Select filters above to generate statistical reports</p>
+                        </div>
+                        <div class="row justify-content-center">
+                            <div class="col-md-8">
+                                <div class="summary-card">
+                                    <h5 class="mb-3">How to Use This Dashboard</h5>
+                                    <div class="row text-start">
+                                        <div class="col-md-6 mb-3">
+                                            <i class="fas fa-filter text-primary me-2"></i>
+                                            <strong>Select District/Tehsil</strong>
+                                            <p class="text-muted small mb-0">Choose geographical filters to focus on specific regions</p>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <i class="fas fa-chart-bar text-success me-2"></i>
+                                            <strong>Generate Report</strong>
+                                            <p class="text-muted small mb-0">Click "Generate Report" to view detailed statistics</p>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <i class="fas fa-download text-warning me-2"></i>
+                                            <strong>Export Data</strong>
+                                            <p class="text-muted small mb-0">Download reports in PDF or Excel format</p>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <i class="fas fa-eye text-info me-2"></i>
+                                            <strong>Visual Analytics</strong>
+                                            <p class="text-muted small mb-0">View charts and graphs for better insights</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Container (Hidden initially) -->
+        <div id="chartsContainer" class="row mb-4" style="display: none;">
+            <div class="col-md-6">
+                <div class="section-card">
+                    <h5 class="section-title"><i class="fas fa-chart-pie me-2"></i>Land Availability Distribution</h5>
+                    <div class="chart-container">
+                        <canvas id="availabilityChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="section-card">
+                    <h5 class="section-title"><i class="fas fa-chart-bar me-2"></i>Progress by Region</h5>
+                    <div class="chart-container">
+                        <canvas id="progressChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECTION: District Wise -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-success text-white fw-bold">
+                <i class="fas fa-map me-2"></i> District Wise Land Data
+            </div>
+            <div class="card-body">
+                <table id="districtTable" class="table table-striped table-bordered w-100">
+                    <thead class="table-success">
+                        <tr>
+                            <th>District</th>
+                            <th>Land Available</th>
+                            <th>Land Not Available</th>
+                            <th>Total Assessed</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- SECTION: Tehsil Wise -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-success text-white fw-bold">
+                <i class="fas fa-layer-group me-2"></i> Tehsil Wise Land Data
+            </div>
+            <div class="card-body">
+                <table id="tehsilTable" class="table table-striped table-bordered w-100">
+                    <thead class="table-success">
+                        <tr>
+                            <th>District</th>
+                            <th>Tehsil</th>
+                            <th>Land Available</th>
+                            <th>Land Not Available</th>
+                            <th>Total Assessed</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    
+        <!-- SECTION: District Wise Adjacency Verification -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-success text-white fw-bold">
+                <i class="fas fa-layer-group me-2"></i> District Wise Adjacency Verification
+            </div>
+            <div class="card-body">
+                <table id="adjacentDistrictTable" class="table table-striped table-bordered w-100">
+                    <thead class="table-success">
+                        <tr>
+                            <th>District</th>
+                            <th>Number of Adjacent Mauzas</th>
+                            <th>Number of Mauza Adjacency Verified</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Export Modal -->
+    <div class="modal fade" id="exportModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fas fa-download me-2"></i>Export Report</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="mb-3">Select format for exporting the current report:</p>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <button class="btn btn-outline-success w-100 py-3">
+                                <i class="fas fa-file-excel fa-2x mb-2"></i><br>
+                                Export as Excel
+                            </button>
+                        </div>
+                        <div class="col-md-6">
+                            <button class="btn btn-outline-danger w-100 py-3">
+                                <i class="fas fa-file-pdf fa-2x mb-2"></i><br>
+                                Export as PDF
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="bg-light border-top">
+        <div class="container-fluid py-3">
+            <div class="row align-items-center">
+                <div class="col-md-6 text-center text-md-start small text-muted">
+                    <i class="fa-regular fa-copyright me-1"></i>
+                    <span id="footerYear"></span> PULSE. All rights reserved.
+                </div>
+
+                <div class="col-md-6 text-center text-md-end small text-muted">
+                    Powered by PULSE ICT Team
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- DataTables + extensions -->
+    <script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.8/js/dataTables.bootstrap5.min.js"></script>
+
+    <!-- Buttons -->
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.bootstrap5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.print.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.colVis.min.js"></script>
+    <!-- Export dependencies -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- User defined scripts-->
+    <script src="/js/base.js"></script>
+    <script>
+        // Global variables
+        let authToken = localStorage.getItem("pulse_token");
+        let currentUserId = localStorage.getItem("pulse_userId") || 0;
+        let currentDistrictId = null;
+        let currentTehsilId = null;
+        let availabilityChart = null;
+        let progressChart = null;
+
+        // Initialize on document ready
+        $(document).ready(function () {
+            $("#currentUserName").text(localStorage.getItem("pulse_userName") || "Guest");
+            loadDistricts();
+            setupEventListeners();
+            updateLastUpdated();
+
+            
+            loadNonFilteredStats();
+        });
+
+        // Load districts
+        async function loadDistricts() {
+            try {
+                const rawSets = await executeSP("sp_GetAllDistricts", {});
+                const districts = rawSets[0].rows;
+
+                const districtSelect = $('#ddlDistrict');
+                districts.forEach(district => {
+                    districtSelect.append(new Option(
+                        district.DistrictName || district.district_name || district.district_name_english,
+                        district.DistrictId || district.district_id
+                    ));
+                });
+            } catch (error) {
+                console.error("Error loading districts:", error);
+                showToast("Error loading districts", "danger");
+            }
+        }
+
+        // Setup event listeners
+        function setupEventListeners() {
+            // District change
+            $('#ddlDistrict').change(function () {
+                currentDistrictId = $(this).val();
+                const tehsilSelect = $('#ddlTehsil');
+
+                if (currentDistrictId) {
+                    loadTehsils(currentDistrictId);
+                    tehsilSelect.prop('disabled', false);
+                } else {
+                    tehsilSelect.prop('disabled', true);
+                    tehsilSelect.val('');
+                    currentTehsilId = null;
+                }
+            });
+
+            // Tehsil change
+            $('#ddlTehsil').change(function () {
+                currentTehsilId = $(this).val();
+            });
+
+            // Load stats button
+            $('#btnLoadStats').click(function () {
+                loadStatistics();
+            });
+
+            // Reset filters
+            $('#btnReset').click(function () {
+                $('#ddlDistrict').val('').change();
+                $('#ddlTehsil').val('').prop('disabled', true);
+                currentDistrictId = null;
+                currentTehsilId = null;
+                showToast("Filters reset successfully", "info");
+            });
+        }
+
+        // Load tehsils
+        async function loadTehsils(districtId) {
+            try {
+                const rawSets = await executeSP("sp_GetTehsilByDId", { DistrictId: parseInt(districtId) });
+                const tehsils = rawSets[0].rows;
+
+                const tehsilSelect = $('#ddlTehsil');
+                tehsilSelect.empty();
+                tehsilSelect.append('<option value="">All Tehsils</option>');
+
+                tehsils.forEach(tehsil => {
+                    tehsilSelect.append(new Option(
+                        tehsil.TehsilName || tehsil.tehsil_name || tehsil.tehsil_name_english,
+                        tehsil.TehsilId || tehsil.tehsil_id
+                    ));
+                });
+            } catch (error) {
+                console.error("Error loading tehsils:", error);
+                showToast("Error loading tehsils", "danger");
+            }
+        }
+
+        // Load statistics
+        async function loadStatistics() {
+            try {
+                showLoading(true);
+
+                const params = {
+                    UserId: currentUserId
+                };
+
+                if (currentDistrictId) {
+                    params.DistrictId = parseInt(currentDistrictId);
+                }
+
+                if (currentTehsilId) {
+                    params.TehsilId = parseInt(currentTehsilId);
+                }
+                debugger
+                const rawSets = await executeSP("i_GetLandAssessmentStatistics_V2", params);
+
+                displayStatistics(rawSets);
+                updateLastUpdated();
+                showToast("Report generated successfully", "success");
+
+            } catch (error) {
+                console.error("Error loading statistics:", error);
+                showToast("Error loading statistics", "danger");
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // Update the displayStatistics function to handle the new data structure
+        function displayStatistics(data) {
+            debugger
+            // Now extract data using the indexes
+            const plraData = data[0].rows || [];
+            const assessmentData = data[1].rows || [];
+            const availableDetailsData = data[2].rows || [];
+            const reasonsData = data[3].rows || [];
+            const irrigationData = data[4].rows || [];
+            const soilData = data[5].rows || [];
+            const suitabilityData = data[6].rows || [];
+            const departmentData = data[7].rows || [];
+            const districtTehsilMauzaData = data[8].rows || [];
+            //const districtsData = data[9].rows || [];
+            //const tehsilsData = data[10].rows || [];
+
+            let html = '';
+
+            // Show quick stats
+            $('#quickStats').show();
+            $('#chartsContainer').show();
+
+            if (assessmentData && assessmentData.length > 0) {
+                const assessment = assessmentData[0];
+                $('#processedKhasras').text(assessment.TotalKhasrasProcessed || 0);
+                $('#progressPercentage').text((assessment.ProcessedPercentage || 0).toFixed(2) + '%');
+                $('#availableLand').text(assessment.AvailableForAllotment || 0);
+                $('#notAvailable').text(assessment.NotAvailableForAllotment || 0);
+
+                // Update progress circle
+                const progressPercent = assessment.ProcessedPercentage || 0;
+                document.documentElement.style.setProperty('--progress', `${progressPercent}%`);
+            }
+
+            // 1. Overall Progress Section
+            html += `
+                        <div class="section-card">
+                            <div class="row align-items-center">
+                                <div class="col-md-4 text-center">
+                                    <div class="progress-circle">
+                                        <div class="progress-circle-inner">
+                                            ${assessmentData && assessmentData[0] ? (assessmentData[0].ProcessedPercentage || 0).toFixed(2) + '%' : '0%'}
+                                        </div>
+                                    </div>
+                                    <h6 class="mt-2 mb-0">Overall Progress</h6>
+                                </div>
+                                <div class="col-md-8">
+                                    <h5 class="section-title">Assessment Progress Overview</h5>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="d-flex justify-content-between mb-2">
+                                                <span>Khasras Processed</span>
+                                                <span class="fw-bold">${assessmentData && assessmentData[0] ? assessmentData[0].TotalKhasrasProcessed || 0 : 0}</span>
+                                            </div>
+                                            <div class="d-flex justify-content-between mb-2">
+                                                <span>Under BOR</span>
+                                                <span class="fw-bold text-info">${assessmentData && assessmentData[0] ? assessmentData[0].UnderBOR || 0 : 0}</span>
+                                            </div>
+                                            <div class="d-flex justify-content-between mb-2">
+                                                <span>Under Department</span>
+                                                <span class="fw-bold text-warning">${assessmentData && assessmentData[0] ? assessmentData[0].UnderDepartment || 0 : 0}</span>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="d-flex justify-content-between mb-2">
+                                                <span>Available for Allotment</span>
+                                                <span class="fw-bold text-success">${assessmentData && assessmentData[0] ? assessmentData[0].AvailableForAllotment || 0 : 0}</span>
+                                            </div>
+                                            <div class="d-flex justify-content-between mb-2">
+                                                <span>Not Available</span>
+                                                <span class="fw-bold text-danger">${assessmentData && assessmentData[0] ? assessmentData[0].NotAvailableForAllotment || 0 : 0}</span>
+                                            </div>
+                                            <div class="d-flex justify-content-between">
+                                                <span>PLRA Khasras</span>
+                                                <span class="fw-bold">${plraData && plraData[0] ? plraData[0].TotalKhasras || 0 : 0}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+
+            // 2. Detailed Statistics in Tabs
+            html += `
+                        <div class="section-card">
+                            <h5 class="section-title">Detailed Analysis</h5>
+                            <ul class="nav nav-tabs mb-4" id="analysisTabs" role="tablist">
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link active" id="land-tab" data-bs-toggle="tab" data-bs-target="#land-content" type="button">
+                                        <i class="fas fa-landmark me-1"></i>Land Details
+                                    </button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="irrigation-tab" data-bs-toggle="tab" data-bs-target="#irrigation-content" type="button">
+                                        <i class="fas fa-tint me-1"></i>Irrigation
+                                    </button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="soil-tab" data-bs-toggle="tab" data-bs-target="#soil-content" type="button">
+                                        <i class="fas fa-mountain me-1"></i>Soil & Suitability
+                                    </button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="department-tab" data-bs-toggle="tab" data-bs-target="#department-content" type="button">
+                                        <i class="fas fa-building me-1"></i>Departments
+                                    </button>
+                                </li>
+                            </ul>
+
+                            <div class="tab-content" id="analysisContent">
+                                <!-- Land Details Tab -->
+                                <div class="tab-pane fade show active" id="land-content">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <h6><i class="fas fa-check-circle text-success me-2"></i>Available Land Details</h6>
+                                            <div class="table-responsive">
+                                                <table class="table table-sm table-hover">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Category</th>
+                                                            <th class="text-end">Count</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                    `;
+
+            if (availableDetailsData && availableDetailsData.length > 0) {
+                availableDetailsData.forEach(item => {
+                    html += `
+                                <tr>
+                                    <td>${item.Category || 'N/A'}</td>
+                                    <td class="text-end">
+                                        <span class="badge bg-success">${item.Count || 0}</span>
+                                    </td>
+                                </tr>
+                            `;
+                });
+            }
+
+            html += `
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <h6><i class="fas fa-times-circle text-danger me-2"></i>Not Available Reasons</h6>
+                                            <div class="table-responsive">
+                                                <table class="table table-sm table-hover">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Reason</th>
+                                                            <th class="text-end">Count</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                    `;
+
+            if (reasonsData && reasonsData.length > 0) {
+                reasonsData.forEach(item => {
+                    html += `
+                                                    <tr>
+                                                        <td>${item.Reason || 'Unknown'}</td>
+                                                        <td class="text-end">
+                                                            <span class="badge bg-danger">${item.Count || 0}</span>
+                                                        </td>
+                                                    </tr>
+                                                `;
+                });
+            }
+
+            html += `
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Irrigation Tab -->
+                                <div class="tab-pane fade" id="irrigation-content">
+                    `;
+
+            if (irrigationData && irrigationData.length > 0) {
+                html += `
+                            <div class="table-responsive">
+                                <table class="table table-sm table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Water Source</th>
+                                            <th class="text-end">Count</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                        `;
+
+                irrigationData.forEach(item => {
+                    html += `
+                                <tr>
+                                    <td>${item.WaterSource || 'Not Specified'}</td>
+                                    <td class="text-end">
+                                        <span class="badge bg-info">${item.Count || 0}</span>
+                                    </td>
+                                </tr>
+                            `;
+                });
+
+                html += `
+                                </tbody>
+                            </table>
+                        </div>
+                    `;
+            }
+
+            html += `
+                        </div>
+
+                        <!-- Soil & Suitability Tab -->
+                        <div class="tab-pane fade" id="soil-content">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h6>Soil Conditions</h6>
+                                    <div class="table-responsive">
+                                        <table class="table table-sm table-hover">
+                                            <thead>
+                                                <tr>
+                                                    <th>Condition</th>
+                                                    <th class="text-end">Count</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                    `;
+
+            if (soilData && soilData.length > 0) {
+                soilData.forEach(item => {
+                    html += `
+                                            <tr>
+                                                <td>${item.Condition || 'N/A'}</td>
+                                                <td class="text-end">
+                                                    <span class="badge bg-success">${item.Count || 0}</span>
+                                                </td>
+                                            </tr>
+                                        `;
+                });
+            }
+
+            html += `
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <h6>Land Suitability</h6>
+                                    <div class="table-responsive">
+                                        <table class="table table-sm table-hover">
+                                            <thead>
+                                                <tr>
+                                                    <th>Suitability</th>
+                                                    <th class="text-end">Count</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                    `;
+
+            if (suitabilityData && suitabilityData.length > 0) {
+                suitabilityData.forEach(item => {
+                    html += `
+                                <tr>
+                                    <td>${item.Suitability || 'N/A'}</td>
+                                    <td class="text-end">
+                                        <span class="badge bg-warning">${item.Count || 0}</span>
+                                    </td>
+                                </tr>
+                            `;
+                });
+            }
+
+            html += `
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Department Tab -->
+                        <div class="tab-pane fade" id="department-content">
+                    `;
+
+            if (departmentData && departmentData.length > 0) {
+                // Sort departments by count (highest first) and limit to top 50
+                const sortedDepartments = [...departmentData]
+                    .sort((a, b) => (b.Count || 0) - (a.Count || 0))
+                    .slice(0, 50);
+
+                html += `
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle me-2"></i>
+                                Showing top 50 departments out of ${departmentData.length} total
+                            </div>
+                            <div class="table-responsive">
+                                <table class="table table-striped table-bordered w-100">
+                                    <thead class="table-success">
+                                        <tr>
+                                            <th>Department</th>
+                                            <th class="text-end">Count</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                        `;
+
+                sortedDepartments.forEach(item => {
+                    html += `
+                                    <tr>
+                                        <td>${item.Department || 'Not Specified'}</td>
+                                        <td class="text-end">
+                                            <span class="badge bg-secondary">${item.Count || 0}</span>
+                                        </td>
+                                    </tr>
+                                `;
+                });
+
+                html += `
+                                    </tbody>
+                                </table>
+                            </div>
+                        `;
+            }
+
+            html += `
+                            </div>
+                        </div>
+                    </div>
+                    `;
+
+            // 3. Regional Summary
+            if (districtTehsilMauzaData && districtTehsilMauzaData.length > 0) {
+                const title = currentTehsilId ? 'Mauza-wise Summary' :
+                    currentDistrictId ? 'Tehsil-wise Summary' : 'District-wise Summary';
+                const icon = currentTehsilId ? 'fas fa-map-marker-alt' :
+                    currentDistrictId ? 'fas fa-map-marked-alt' : 'fas fa-map';
+
+                // Sort by ProcessingPercentage (highest first)
+                const sortedData = [...districtTehsilMauzaData].sort((a, b) =>
+                    (b.ProcessingPercentage || 0) - (a.ProcessingPercentage || 0)
+                );
+
+                html += `
+                            <div class="section-card">
+                                <div class="d-flex justify-content-between align-items-center mb-4">
+                                    <h5 class="section-title mb-0"><i class="${icon} me-2"></i>${title}</h5>
+                                    <div class="btn-group">
+                                        <button class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-download me-1"></i>Export
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="table-responsive">
+                                    <table class="table table-striped table-bordered w-100 table-hover">
+                                        <thead class="table-success">
+                                            <tr>
+                                                <th>${currentTehsilId ? 'Mauza' : currentDistrictId ? 'Tehsil' : 'District'}</th>
+                                                <th class="text-end">Mauzas in PLRA</th>
+                                                <th class="text-end">Khasras in PLRA</th>
+                                                <th class="text-end">Processed</th>
+                                                <th class="text-end">Progress</th>
+                                                ${currentTehsilId ? '<th class="text-end">Under BOR</th><th class="text-end">Under Dept</th><th class="text-end">Available</th>' : ''}
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                        `;
+
+                sortedData.forEach(item => {
+                    const progressPercent = item.ProcessingPercentage || 0;
+                    const progressColor = progressPercent >= 80 ? 'success' : progressPercent >= 50 ? 'warning' : 'danger';
+
+                    html += `
+                                        <tr>
+                                            <td>
+                                                <strong>${item.DistrictName || item.TehsilName || item.MauzaName || 'N/A'}</strong>
+                                                ${currentDistrictId && !currentTehsilId ? `<br><small class="text-muted">${item.TotalMauzasUnderProcess || 0} mauzas</small>` : ''}
+                                            </td>
+                                            <td class="text-end align-middle">${item.TotalMauzasUnderProcess || 0}</td>
+                                            <td class="text-end align-middle">${item.TotalKhasrasInPLRA || 0}</td>
+                                            <td class="text-end align-middle">
+                                                <span class="fw-bold">${item.ProcessedKhasras || 0}</span>
+                                            </td>
+                                            <td class="text-end align-middle">
+                                                <div class="d-flex align-items-center justify-content-end">
+                                                    <div class="progress me-2" style="width: 100px; height: 8px;">
+                                                        <div class="progress-bar bg-${progressColor}"
+                                                                role="progressbar" style="width: ${progressPercent}%">
+                                                        </div>
+                                                    </div>
+                                                    <span class="badge bg-light text-dark">${progressPercent.toFixed(2)}%</span>
+                                                </div>
+                                            </td>
+                                            ${currentTehsilId ? `
+                                                <td class="text-end align-middle">
+                                                    <span class="badge bg-info">${item.UnderBOR || 0}</span>
+                                                </td>
+                                                <td class="text-end align-middle">
+                                                    <span class="badge bg-warning">${item.UnderDepartment || 0}</span>
+                                                </td>
+                                                <td class="text-end align-middle">
+                                                    <span class="badge bg-success">${item.Available || 0}</span>
+                                                </td>
+                                            ` : ''}
+                                        </tr>
+                                    `;
+                });
+
+                html += `
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        `;
+
+                // Create charts
+                createCharts(assessmentData[0], sortedData);
+            }
+
+            // Update the page
+            $('#statisticsContent').html(html);
+
+            // Initialize Bootstrap tabs
+            const triggerTabList = [].slice.call(document.querySelectorAll('#analysisTabs button'));
+            triggerTabList.forEach(function (triggerEl) {
+                new bootstrap.Tab(triggerEl);
+            });
+
+        }
+
+        async function loadNonFilteredStats() {
+            
+            const rawSets = await executeSP("i_GetNonFilterStats");
+
+            const districtsData = rawSets[0].rows || [];
+            const tehsilsData = rawSets[1].rows || [];
+            const adjacencyData = rawSets[2].rows || [];
+            // ================= District Table =================
+            if ($.fn.DataTable.isDataTable('#districtTable')) {
+                $('#districtTable').DataTable().destroy();
+            }
+
+            $('#districtTable').DataTable({
+                responsive: true,
+                autoWidth: false,
+                pageLength: 10,
+                lengthMenu: [10, 25, 50, 100],
+                language: { emptyTable: "No lots in this view" },
+                dom:
+                    "<'row mb-2'<'col-md-4'l><'col-md-8 text-end'Bf>>" +
+                    "<'row'<'col-12'tr>>" +
+                    "<'row mt-2'<'col-md-5'i><'col-md-7'p>>",
+                buttons: [
+                    {
+                        extend: 'colvis',
+                        text: '<i class="bi bi-layout-three-columns"></i> Columns',
+                        className: 'btn btn-secondary me-2'
+                    },
+                    {
+                        extend: 'copy',
+                        text: '<i class="bi bi-clipboard"></i> Copy',
+                        className: 'btn btn-dark me-2'
+                    },
+                    {
+                        extend: 'csv',
+                        text: '<i class="bi bi-filetype-csv"></i> CSV',
+                        className: 'btn btn-info text-white me-2'
+                    },
+                    {
+                        extend: 'excel',
+                        text: '<i class="bi bi-file-earmark-excel"></i> Excel',
+                        className: 'btn btn-success me-2'
+                    },
+                    {
+                        extend: 'pdf',
+                        text: '<i class="bi bi-file-earmark-pdf"></i> PDF',
+                        className: 'btn btn-danger me-2'
+                    },
+                    {
+                        extend: 'print',
+                        text: '<i class="bi bi-printer"></i> Print',
+                        className: 'btn btn-primary'
+                    }
+                ],
+                data: districtsData.map(d => ({
+                    District: d.DistrictName,
+                    Available: convertSqFtToAkmV2(d.AvailableSqFt || 0),
+                    NotAvailable: convertSqFtToAkmV2(d.NotAvailableSqFt || 0),
+                    Total: convertSqFtToAkmV2((d.AvailableSqFt || 0) + (d.NotAvailableSqFt || 0))
+                })),
+                columns: [
+                    {
+                        data: 'District',
+                        render: function (data) {
+                            return '<span class="fw-bold">' + data + '</span>';
+                        }
+                    },
+                    { data: 'Available' },
+                    { data: 'NotAvailable' },
+                    { data: 'Total' }
+                ],
+            });
+
+            // ================= Tehsil Table =================
+            if ($.fn.DataTable.isDataTable('#tehsilTable')) {
+                $('#tehsilTable').DataTable().destroy();
+            }
+
+            $('#tehsilTable').DataTable({
+                responsive: true,
+                autoWidth: false,
+                pageLength: 10,
+                lengthMenu: [10, 25, 50, 100],
+                language: { emptyTable: "No lots in this view" },
+                dom:
+                    "<'row mb-2'<'col-md-4'l><'col-md-8 text-end'Bf>>" +
+                    "<'row'<'col-12'tr>>" +
+                    "<'row mt-2'<'col-md-5'i><'col-md-7'p>>",
+                buttons: [
+                    {
+                        extend: 'colvis',
+                        text: '<i class="bi bi-layout-three-columns"></i> Columns',
+                        className: 'btn btn-secondary me-2'
+                    },
+                    {
+                        extend: 'copy',
+                        text: '<i class="bi bi-clipboard"></i> Copy',
+                        className: 'btn btn-dark me-2'
+                    },
+                    {
+                        extend: 'csv',
+                        text: '<i class="bi bi-filetype-csv"></i> CSV',
+                        className: 'btn btn-info text-white me-2'
+                    },
+                    {
+                        extend: 'excel',
+                        text: '<i class="bi bi-file-earmark-excel"></i> Excel',
+                        className: 'btn btn-success me-2'
+                    },
+                    {
+                        extend: 'pdf',
+                        text: '<i class="bi bi-file-earmark-pdf"></i> PDF',
+                        className: 'btn btn-danger me-2'
+                    },
+                    {
+                        extend: 'print',
+                        text: '<i class="bi bi-printer"></i> Print',
+                        className: 'btn btn-primary'
+                    }
+                ],
+                data: tehsilsData.map(t => ({
+                    District: t.DistrictName,
+                    Tehsil: t.TehsilName,
+                    Available: convertSqFtToAkmV2(t.AvailableSqFt || 0),
+                    NotAvailable: convertSqFtToAkmV2(t.NotAvailableSqFt || 0),
+                    Total: convertSqFtToAkmV2((t.AvailableSqFt || 0) + (t.NotAvailableSqFt || 0))
+                })),
+                columns: [
+                    {
+                        data: 'District',
+                        render: function (data) {
+                            return '<span class="fw-bold">' + data + '</span>';
+                        }
+                    },
+                    {
+                        data: 'Tehsil',
+                        render: function (data) {
+                            return '<span class="fw-bold">' + data + '</span>';
+                        }
+                    },
+                    { data: 'Available' },
+                    { data: 'NotAvailable' },
+                    { data: 'Total' }
+                ],
+            });
+
+            // ================= Adjacency Table =================
+            if ($.fn.DataTable.isDataTable('#adjacentDistrictTable')) {
+                $('#adjacentDistrictTable').DataTable().destroy();
+            }
+
+            $('#adjacentDistrictTable').DataTable({
+                responsive: true,
+                autoWidth: false,
+                pageLength: 10,
+                lengthMenu: [10, 25, 50, 100],
+                language: { emptyTable: "No lots in this view" },
+                dom:
+                    "<'row mb-2'<'col-md-4'l><'col-md-8 text-end'Bf>>" +
+                    "<'row'<'col-12'tr>>" +
+                    "<'row mt-2'<'col-md-5'i><'col-md-7'p>>",
+                buttons: [
+                    {
+                        extend: 'colvis',
+                        text: '<i class="bi bi-layout-three-columns"></i> Columns',
+                        className: 'btn btn-secondary me-2'
+                    },
+                    {
+                        extend: 'copy',
+                        text: '<i class="bi bi-clipboard"></i> Copy',
+                        className: 'btn btn-dark me-2'
+                    },
+                    {
+                        extend: 'csv',
+                        text: '<i class="bi bi-filetype-csv"></i> CSV',
+                        className: 'btn btn-info text-white me-2'
+                    },
+                    {
+                        extend: 'excel',
+                        text: '<i class="bi bi-file-earmark-excel"></i> Excel',
+                        className: 'btn btn-success me-2'
+                    },
+                    {
+                        extend: 'pdf',
+                        text: '<i class="bi bi-file-earmark-pdf"></i> PDF',
+                        className: 'btn btn-danger me-2'
+                    },
+                    {
+                        extend: 'print',
+                        text: '<i class="bi bi-printer"></i> Print',
+                        className: 'btn btn-primary'
+                    }
+                ],
+                data: adjacencyData.map(d => ({
+                    District: d.DistrictName,
+                    MauzaCount: d.TotalAdjacentMauza,
+                    VerifiedMauzaCount: d.VerifiedMauzaCount || 0
+                })),
+                columns: [
+                    {
+                        data: 'District',
+                        render: function (data) {
+                            return '<span class="fw-bold">' + data + '</span>';
+                        }
+                    },
+                    { data: 'MauzaCount' },
+                    { data: 'VerifiedMauzaCount' }
+                ],
+            });
+        }
+
+        // Also update the createCharts function
+        function createCharts(assessmentData, regionalData) {
+            // Destroy existing charts
+            if (availabilityChart) availabilityChart.destroy();
+            if (progressChart) progressChart.destroy();
+
+            // Availability Chart
+            const availabilityCtx = document.getElementById('availabilityChart').getContext('2d');
+            availabilityChart = new Chart(availabilityCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Available', 'Not Available'],
+                    datasets: [{
+                        data: [assessmentData.AvailableForAllotment || 0, assessmentData.NotAvailableForAllotment || 0],
+                        backgroundColor: ['#27ae60', '#e74c3c'],
+                        borderWidth: 2,
+                        borderColor: '#fff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function (context) {
+                                    const label = context.label || '';
+                                    const value = context.raw || 0;
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = Math.round((value / total) * 100);
+                                    return `${label}: ${value.toLocaleString()} (${percentage}%)`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Progress Chart - show top 10 districts
+            if (regionalData && regionalData.length > 0) {
+                const progressCtx = document.getElementById('progressChart').getContext('2d');
+                const topRegions = regionalData.slice(0, 10); // Show top 10
+                const labels = topRegions.map(item =>
+                    item.DistrictName || item.TehsilName || item.MauzaName
+                ).map(name => name.length > 20 ? name.substring(0, 20) + '...' : name);
+
+                const progressData = topRegions.map(item => item.ProcessingPercentage || 0);
+
+                progressChart = new Chart(progressCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Progress %',
+                            data: progressData,
+                            backgroundColor: progressData.map(p =>
+                                p >= 80 ? '#27ae60' : p >= 50 ? '#f39c12' : '#e74c3c'
+                            ),
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                max: 100,
+                                title: {
+                                    display: true,
+                                    text: 'Percentage'
+                                },
+                                ticks: {
+                                    callback: function (value) {
+                                        return value + '%';
+                                    }
+                                }
+                            },
+                            x: {
+                                ticks: {
+                                    autoSkip: false,
+                                    maxRotation: 45,
+                                    minRotation: 45
+                                }
+                            }
+                        },
+                        plugins: {
+                            tooltip: {
+                                callbacks: {
+                                    label: function (context) {
+                                        const district = topRegions[context.dataIndex];
+                                        const processed = district.ProcessedKhasras || 0;
+                                        const total = district.TotalKhasrasInPLRA || 0;
+                                        return [
+                                            `Progress: ${context.parsed.y.toFixed(2)}%`,
+                                            `Processed: ${processed.toLocaleString()}`,
+                                            `Total: ${total.toLocaleString()}`
+                                        ];
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        }
+        // Show loading
+        function showLoading(show) {
+            if (show) {
+                $('#loadingOverlay').show();
+                $('#btnLoadStats').html('<i class="fas fa-spinner fa-spin me-2"></i>Generating...');
+                $('#btnLoadStats').prop('disabled', true);
+            } else {
+                $('#loadingOverlay').hide();
+                $('#btnLoadStats').html('<i class="fas fa-chart-line me-2"></i>Generate Report');
+                $('#btnLoadStats').prop('disabled', false);
+            }
+        }
+
+        // Show toast notification
+        function showToast(message, type = 'info') {
+            // Remove existing toast
+            $('.toast-container').remove();
+
+            const toastHtml = `
+                                <div class="toast-container position-fixed bottom-0 end-0 p-3">
+                                    <div class="toast align-items-center text-white bg-${type} border-0" role="alert">
+                                        <div class="d-flex">
+                                            <div class="toast-body">
+                                                <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'danger' ? 'exclamation-circle' : 'info-circle'} me-2"></i>
+                                                ${message}
+                                            </div>
+                                            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+
+            $('body').append(toastHtml);
+            const toastEl = $('.toast')[0];
+            const toast = new bootstrap.Toast(toastEl);
+            toast.show();
+
+            // Remove after hide
+            $(toastEl).on('hidden.bs.toast', function () {
+                $(this).closest('.toast-container').remove();
+            });
+        }
+
+        // Update last updated timestamp
+        function updateLastUpdated() {
+            const now = new Date();
+            const options = {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            };
+            $('#lastUpdated').text(now.toLocaleDateString('en-US', options));
+        }
+    </script>
+</body>
+</html>

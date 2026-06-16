@@ -1,0 +1,358 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>State Land Management Dashboard</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Select2 + Bootstrap 5 Theme -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- SweetAlert2 -->
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+    <!-- DataTables -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/dataTables.bootstrap5.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.bootstrap5.min.css">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+
+
+    <link rel="stylesheet" href="css/main.css">
+
+    <!-- Your custom CSS (keep what you need) -->
+    <style>
+        body {
+            overflow: auto !important
+        }
+
+        footer {
+            margin-top: auto;
+        }
+
+        /* Remove dropdown arrow from DataTables length select */
+        .dataTables_length select {
+            appearance: none; /* Standard */
+            -webkit-appearance: none; /* Chrome / Safari */
+            -moz-appearance: none; /* Firefox */
+            background-image: none !important;
+            padding-right: 0.75rem; /* Prevent text clipping */
+        }
+            /* Optional: remove focus outline glow */
+            .dataTables_length select:focus {
+                box-shadow: none;
+            }
+    </style>
+</head>
+<body>
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-custom navbar-expand-lg">
+        <div class="container-fluid" style="background: forestgreen">
+            <a class="navbar-brand text-white" href="#">
+                <i class="fas fa-map-marked-alt"></i>  State Land Management System
+            </a>
+
+            <div class="profile-view d-flex align-items-center">
+
+                <div class="profile-avatar me-2">
+                    <i class="fas fa-user"></i>
+                </div>
+
+                <div class="profile-info me-3">
+                    <div class="welcome-text">Welcome</div>
+                    <div id="currentUserName" class="profile-name"></div>
+                </div>
+                <button class="logout-btn" title="Logout" onclick="window.location.href='login.html'">
+                    <i class="fas fa-sign-out-alt"></i>
+                </button>
+            </div>
+
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container-fluid mt-3">
+
+        <!-- SECTION 1: KPI -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-success text-white fw-bold">
+                <i class="fas fa-chart-line me-2"></i> Key Performance Indicators
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table id="kpiTable" class="table table-bordered table-striped text-center">
+                        <thead class="table-success">
+                            <tr>
+                                <th>Land Assessed (A = B + C)</th>
+                                <th>Land Not Available (B)</th>
+                                <th>Land Available (C)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td id="kpiAssessed">0</td>
+                                <td id="kpiNotAvailable">0</td>
+                                <td id="kpiAvailable">0</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECTION 2: District Wise -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-success text-white fw-bold">
+                <i class="fas fa-map me-2"></i> District Wise Land Data
+            </div>
+            <div class="card-body">
+                <table id="districtTable" class="table table-striped table-bordered w-100">
+                    <thead class="table-success">
+                        <tr>
+                            <th>District</th>
+                            <th>Land Available</th>
+                            <th>Land Not Available</th>
+                            <th>Total Assessed</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- SECTION 3: Tehsil Wise -->
+        <div class="card shadow-sm">
+            <div class="card-header bg-success text-white fw-bold">
+                <i class="fas fa-layer-group me-2"></i> Tehsil Wise Land Data
+            </div>
+            <div class="card-body">
+                <table id="tehsilTable" class="table table-striped table-bordered w-100">
+                    <thead class="table-success">
+                        <tr>
+                            <th>District</th>
+                            <th>Tehsil</th>
+                            <th>Land Available</th>
+                            <th>Land Not Available</th>
+                            <th>Total Assessed</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+
+    <footer class="bg-light border-top">
+        <div class="container-fluid py-3">
+            <div class="row align-items-center">
+                <div class="col-md-6 text-center text-md-start small text-muted">
+                    <i class="fa-regular fa-copyright me-1"></i>
+                    <span id="footerYear"></span> PULSE. All rights reserved.
+                </div>
+
+                <div class="col-md-6 text-center text-md-end small text-muted">
+                    Powered by PULSE ICT Team
+                </div>
+            </div>
+        </div>
+    </footer>
+
+
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <!-- DataTables + extensions -->
+    <script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.8/js/dataTables.bootstrap5.min.js"></script>
+
+    <!-- Buttons -->
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.bootstrap5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.print.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.colVis.min.js"></script>
+    <!-- Export dependencies -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <!-- User defined scripts-->
+    <script src="/js/base.js"></script>
+
+    <script>
+        document.getElementById('footerYear').textContent = new Date().getFullYear();
+        const authToken = localStorage.getItem("pulse_token") || "";
+
+        $(document).ready(async function () {
+            $("#currentUserName").text(localStorage.getItem("pulse_userName") || "Guest");
+            await loadOverviewData();
+        });
+
+        async function loadOverviewData() {
+
+            Swal.fire({
+                title: 'Loading overview...',
+                allowOutsideClick: false,
+                showConfirmButton: false,
+                didOpen: () => Swal.showLoading()
+            });
+
+            const rawSets = await executeSP("i_GetOverviewStats_V1", { UserId: 1 });
+
+            if (!rawSets || rawSets.length < 3) {
+                Swal.close();
+                return;
+            }
+
+            const overview = rawSets[0]?.rows?.[0] || {};
+            const districts = rawSets[1]?.rows || [];
+            const tehsils = rawSets[2]?.rows || [];
+
+            // ================= KPI =================
+            const available = overview.TotalAvailableSqFt || 0;
+            const notAvailable = overview.TotalNotAvailableSqFt || 0;
+            const assessed = available + notAvailable;
+
+            $("#kpiAvailable").text(convertSqFtToAkmV2(available));
+            $("#kpiNotAvailable").text(convertSqFtToAkmV2(notAvailable));
+            $("#kpiAssessed").text(convertSqFtToAkmV2(assessed));
+
+            // ================= District Table =================
+            if ($.fn.DataTable.isDataTable('#districtTable')) {
+                $('#districtTable').DataTable().destroy();
+            }
+
+            $('#districtTable').DataTable({
+                responsive: true,
+                autoWidth: false,
+                pageLength: 10,
+                lengthMenu: [10, 25, 50, 100],
+                language: { emptyTable: "No lots in this view" },
+                dom:
+                    "<'row mb-2'<'col-md-4'l><'col-md-8 text-end'Bf>>" +
+                    "<'row'<'col-12'tr>>" +
+                    "<'row mt-2'<'col-md-5'i><'col-md-7'p>>",
+                buttons: [
+                    {
+                        extend: 'colvis',
+                        text: '<i class="bi bi-layout-three-columns"></i> Columns',
+                        className: 'btn btn-secondary me-2'
+                    },
+                    {
+                        extend: 'copy',
+                        text: '<i class="bi bi-clipboard"></i> Copy',
+                        className: 'btn btn-dark me-2'
+                    },
+                    {
+                        extend: 'csv',
+                        text: '<i class="bi bi-filetype-csv"></i> CSV',
+                        className: 'btn btn-info text-white me-2'
+                    },
+                    {
+                        extend: 'excel',
+                        text: '<i class="bi bi-file-earmark-excel"></i> Excel',
+                        className: 'btn btn-success me-2'
+                    },
+                    {
+                        extend: 'pdf',
+                        text: '<i class="bi bi-file-earmark-pdf"></i> PDF',
+                        className: 'btn btn-danger me-2'
+                    },
+                    {
+                        extend: 'print',
+                        text: '<i class="bi bi-printer"></i> Print',
+                        className: 'btn btn-primary'
+                    }
+                ],
+                data: districts.map(d => ({
+                    District: d.DistrictName,
+                    Available: convertSqFtToAkmV2(d.AvailableSqFt || 0),
+                    NotAvailable: convertSqFtToAkmV2(d.NotAvailableSqFt || 0),
+                    Total: convertSqFtToAkmV2((d.AvailableSqFt || 0) + (d.NotAvailableSqFt || 0))
+                })),
+                columns: [
+                    { data: 'District' },
+                    { data: 'Available' },
+                    { data: 'NotAvailable' },
+                    { data: 'Total' }
+                ],
+            });
+
+            // ================= Tehsil Table =================
+            if ($.fn.DataTable.isDataTable('#tehsilTable')) {
+                $('#tehsilTable').DataTable().destroy();
+            }
+
+            $('#tehsilTable').DataTable({
+                responsive: true,
+                autoWidth: false,
+                pageLength: 10,
+                lengthMenu: [10, 25, 50, 100],
+                language: { emptyTable: "No lots in this view" },
+                dom:
+                    "<'row mb-2'<'col-md-4'l><'col-md-8 text-end'Bf>>" +
+                    "<'row'<'col-12'tr>>" +
+                    "<'row mt-2'<'col-md-5'i><'col-md-7'p>>",
+                buttons: [
+                    {
+                        extend: 'colvis',
+                        text: '<i class="bi bi-layout-three-columns"></i> Columns',
+                        className: 'btn btn-secondary me-2'
+                    },
+                    {
+                        extend: 'copy',
+                        text: '<i class="bi bi-clipboard"></i> Copy',
+                        className: 'btn btn-dark me-2'
+                    },
+                    {
+                        extend: 'csv',
+                        text: '<i class="bi bi-filetype-csv"></i> CSV',
+                        className: 'btn btn-info text-white me-2'
+                    },
+                    {
+                        extend: 'excel',
+                        text: '<i class="bi bi-file-earmark-excel"></i> Excel',
+                        className: 'btn btn-success me-2'
+                    },
+                    {
+                        extend: 'pdf',
+                        text: '<i class="bi bi-file-earmark-pdf"></i> PDF',
+                        className: 'btn btn-danger me-2'
+                    },
+                    {
+                        extend: 'print',
+                        text: '<i class="bi bi-printer"></i> Print',
+                        className: 'btn btn-primary'
+                    }
+                ],
+                data: tehsils.map(t => ({
+                    District: t.DistrictName,
+                    Tehsil: t.TehsilName,
+                    Available: convertSqFtToAkmV2(t.AvailableSqFt || 0),
+                    NotAvailable: convertSqFtToAkmV2(t.NotAvailableSqFt || 0),
+                    Total: convertSqFtToAkmV2((t.AvailableSqFt || 0) + (t.NotAvailableSqFt || 0))
+                })),
+                columns: [
+                    { data: 'District' },
+                    { data: 'Tehsil' },
+                    { data: 'Available' },
+                    { data: 'NotAvailable' },
+                    { data: 'Total' }
+                ],
+            });
+
+            Swal.close();
+        }
+    </script>
+
+</body>
+</html>

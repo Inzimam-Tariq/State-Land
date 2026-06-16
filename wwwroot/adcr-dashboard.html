@@ -1,0 +1,2402 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>State Land Management Dashboard</title>
+
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Select2 with Bootstrap 5 Theme -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Esri ArcGIS CSS -->
+    <link rel="stylesheet" href="https://js.arcgis.com/4.29/esri/themes/light/main.css">
+    <link rel="stylesheet" href="css/main.css">
+
+    <!-- Custom Styles -->
+    <style>
+        /* Compact Khasra List */
+        .compact-khasra-list {
+            position: absolute;
+            top: 250px;
+            left: 20px;
+            width: 150px;
+            max-height: 400px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 8px;
+            padding: 10px;
+            z-index: 999;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            overflow: hidden;
+            border: 1px solid #ddd;
+        }
+
+        .compact-list-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+            padding-bottom: 5px;
+            border-bottom: 1px solid #ddd;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .compact-list-container {
+            max-height: 250px;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+
+            .compact-list-container::-webkit-scrollbar {
+                width: 6px;
+            }
+
+            .compact-list-container::-webkit-scrollbar-track {
+                background: #f1f1f1;
+                border-radius: 3px;
+            }
+
+            .compact-list-container::-webkit-scrollbar-thumb {
+                background: #888;
+                border-radius: 3px;
+            }
+
+                .compact-list-container::-webkit-scrollbar-thumb:hover {
+                    background: #555;
+                }
+
+        .compact-khasra-item {
+            padding: 6px 8px;
+            margin-bottom: 4px;
+            border-radius: 4px;
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+            .compact-khasra-item:hover {
+                background: #e9ecef;
+                transform: translateX(2px);
+            }
+
+            .compact-khasra-item.active {
+                background: #e3f2fd;
+                border-color: #2196f3;
+                box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.1);
+            }
+
+        .compact-khasra-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .compact-khasra-number {
+            font-weight: 600;
+            color: #2c3e50;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            font-size: 0.9rem;
+        }
+
+        .compact-khasra-icons {
+            display: flex;
+            gap: 3px;
+            margin-top: 2px;
+            font-size: 0.7rem;
+        }
+
+            .compact-khasra-icons i {
+                opacity: 0.8;
+            }
+
+        .compact-verification-badge {
+            font-size: 0.7rem;
+            padding: 1px 6px;
+            border-radius: 10px;
+            font-weight: 600;
+            white-space: nowrap;
+            margin-left: 5px;
+        }
+
+        .compact-badge-verified {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .compact-badge-unverified {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        .compact-nav-buttons {
+            margin-top: 10px;
+            display: flex;
+            gap: 5px;
+            justify-content: center;
+        }
+
+            .compact-nav-buttons .btn {
+                padding: 3px 8px;
+                font-size: 0.75rem;
+            }
+
+        .compact-filter-controls {
+            margin: 8px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .compact-toggle-switch {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 0.8rem;
+        }
+
+            .compact-toggle-switch input[type="checkbox"] {
+                width: 14px;
+                height: 14px;
+                margin: 0;
+            }
+
+        /* KPI Counts */
+        .kpi-counts {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .count-item {
+            background: white;
+            padding: 6px 10px;
+            border-radius: 6px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-width: 70px;
+        }
+
+        .count-label {
+            font-size: 0.75rem;
+            color: #666;
+            white-space: nowrap;
+        }
+
+        .count-value {
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        .count-verified {
+            color: #28a745;
+        }
+
+        .count-unverified {
+            color: #dc3545;
+        }
+
+        .count-total {
+            color: #007bff;
+        }
+
+        /* Map Container */
+        #viewDiv {
+            height: calc(100vh - 200px);
+            width: 100%;
+            margin-top: 15px;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        /* Owner Details */
+        .owner-details-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .owner-field-compact {
+            font-size: 0.85rem;
+        }
+
+        .owner-label-compact {
+            font-weight: 600;
+            color: #495057;
+            display: block;
+            margin-bottom: 2px;
+            font-size: 0.8rem;
+        }
+
+        .owner-value-compact {
+            color: #212529;
+            display: block;
+            font-size: 0.85rem;
+        }
+
+        /* Form Improvements */
+        .compact-form .form-row {
+            margin-bottom: 12px;
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+            font-size: 0.9rem;
+        }
+
+        .form-label-cell {
+            font-weight: 600;
+            color: #495057;
+            padding-right: 10px;
+            min-width: 100px;
+            font-size: 0.85rem;
+        }
+
+        .form-control-cell {
+            flex: 1;
+        }
+
+        /* Toast Container */
+        .toast-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1100;
+        }
+
+        /* Layer Controls */
+        .layer-controls {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            background: white;
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            z-index: 1000;
+            display: none;
+            width: 200px;
+        }
+
+        .layer-toggle-btn {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            background: white;
+            padding: 8px;
+            border-radius: 50%;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            cursor: pointer;
+            z-index: 1000;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Responsive Adjustments */
+        @media (max-width: 768px) {
+            .compact-khasra-list {
+                position: relative;
+                top: auto;
+                right: auto;
+                width: 100%;
+                max-height: 200px;
+                margin-top: 10px;
+            }
+
+            .compact-list-container {
+                max-height: 120px;
+            }
+
+            .owner-details-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-custom navbar-expand-lg">
+        <div class="container-fluid" style="background: forestgreen">
+            <a class="navbar-brand text-white" href="#">
+                <i class="fas fa-map-marked-alt"></i> Land Management System
+            </a>
+            <div class="d-flex align-items-center">
+                <span class="text-white me-3" style="font-size: 0.9rem;">
+                    <a class="fas fa-sign-out me-1 text-white" href="login.html"></a> Logout
+                    <i class="fas fa-user-circle me-1"></i>Welcome: <span id="currentUserId"></span>,
+                    Your District is <span id="currentDistrictId"></span>
+                </span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Left Panel - Map & Filters -->
+        <div class="left-panel">
+            <!-- Filter Section -->
+            <div class="filter-section">
+                <div class="filter-title">
+                    <i class="fas fa-filter"></i> Location Selection
+                </div>
+                <div class="row g-2">
+                    <div class="col-md-6">
+                        <select id="ddlTehsil" class="form-select select2">
+                            <option value="">Select Tehsil</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <select id="ddlMouza" class="form-select select2">
+                            <option value="">Select Mouza</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- KPI Counts -->
+                <div class="kpi-counts">
+                    <div class="count-item">
+                        <div class="count-label">Total Khasras</div>
+                        <div class="count-value count-total" id="kpiTotalKhasras">0</div>
+                    </div>
+                    <div class="count-item">
+                        <div class="count-label">Verified</div>
+                        <div class="count-value count-verified" id="kpiVerified">0</div>
+                    </div>
+                    <div class="count-item">
+                        <div class="count-label">Unverified</div>
+                        <div class="count-value count-unverified" id="kpiUnverified">0</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Map Container -->
+            <div id="viewDiv"></div>
+
+            <!-- Compact Khasra List -->
+            <div class="compact-khasra-list" id="compactKhasraList" style="display: none;">
+                <div class="compact-list-title">
+                    <span><i class="fas fa-list"></i> Khasra List</span>
+                    <span class="badge bg-primary" id="compactListCount">0</span>
+                </div>
+
+                <!-- Filter Controls -->
+                <div class="compact-filter-controls">
+                    <div class="compact-toggle-switch">
+                        <input type="checkbox" id="compactToggleVerified" class="form-check-input" checked>
+                        <label for="compactToggleVerified" class="form-check-label">Verified</label>
+                    </div>
+                    <div class="compact-toggle-switch">
+                        <input type="checkbox" id="compactToggleUnverified" class="form-check-input" checked>
+                        <label for="compactToggleUnverified" class="form-check-label">Unverified</label>
+                    </div>
+                </div>
+
+                <!-- Khasra List Container -->
+                <div class="compact-list-container" id="compactListContainer">
+                    <!-- Khasra items will be populated here -->
+                </div>
+
+                <!-- Navigation Buttons -->
+                <div class="compact-nav-buttons">
+                    <button type="button" class="btn btn-sm btn-outline-primary" id="compactBtnPrev">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline-primary" id="compactBtnNext">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline-success" id="compactBtnFirstUnverified">
+                        <i class="fas fa-forward"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Layer Toggle Button -->
+            <div class="layer-toggle-btn" id="layerToggleBtn">
+                <i class="fas fa-layer-group"></i>
+            </div>
+
+            <!-- Layer Controls -->
+            <div class="layer-controls" id="layerControls">
+                <div class="layer-title">
+                    <i class="fas fa-layer-group"></i> Map Layers
+                </div>
+                <div class="layer-item">
+                    <label>
+                        <i class="fas fa-landmark" style="color: #3498db; font-size: 0.9rem;"></i>
+                        <span>Admin Boundaries</span>
+                    </label>
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="toggleAdminLayer" checked>
+                    </div>
+                </div>
+                <div class="layer-item">
+                    <label>
+                        <i class="fas fa-tractor" style="color: #2ecc71; font-size: 0.9rem;"></i>
+                        <span>State Land</span>
+                    </label>
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="toggleStatelandLayer" checked>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Panel - Forms -->
+        <div class="right-panel">
+            <!-- Ownership Details -->
+            <div class="form-section" id="ownershipSection" style="display: none;">
+                <h4 class="section-title">
+                    <i class="fas fa-user-tie"></i> Khasra Details
+                </h4>
+                <div class="owner-card">
+                    <div class="owner-details-grid">
+                        <div class="owner-field-compact">
+                            <span class="owner-label-compact">Khasra No:</span>
+                            <span class="owner-value-compact" id="ownerKhasra">-</span>
+                        </div>
+                        <div class="owner-field-compact">
+                            <span class="owner-label-compact">Khasra Area:</span>
+                            <span class="owner-value-compact" id="ownerAreaKhasraAKM">-</span>
+                        </div>
+                        <div class="owner-field-compact">
+                            <span class="owner-label-compact">Khewat No:</span>
+                            <span class="owner-value-compact" id="ownerKhewat">-</span>
+                        </div>
+                        <div class="owner-field-compact" hidden>
+                            <span class="owner-label-compact">Muraba No:</span>
+                            <span class="owner-value-compact" id="ownerMuraba">-</span>
+                        </div>
+                        <div class="owner-field-compact">
+                            <span class="owner-label-compact">Khatuni Type:</span>
+                            <span class="owner-value-compact" id="khatuniType">-</span>
+                        </div>
+                    </div>
+
+                    <!-- Owner Details -->
+                    <div class="owner-field mt-3">
+                        <span class="owner-label">Owner(s):</span>
+                        <div class="filter-keywords">
+                            <small hidden class="text-muted">Filtered Owners (excluding keywords):</small>
+                            <div id="ownerFilteredList">-</div>
+                            <div class="form-check mt-2" hidden>
+                                <input type="checkbox" class="form-check-input" id="showAllOwners">
+                                <label class="form-check-label" for="showAllOwners">Show All Owners</label>
+                            </div>
+                            <div id="ownerFullList" style="display: none;"></div>
+                        </div>
+                    </div>
+
+                    <!-- Kashtkar Details -->
+                    <div class="owner-field mt-3">
+                        <span class="owner-label">Kashtkar(s):</span>
+                        <div class="filter-keywords">
+                            <small class="text-muted" hidden>Filtered Kashtkars (including keywords):</small>
+                            <div id="kashtkarFilteredList">-</div>
+                            <div class="form-check mt-2" hidden>
+                                <input type="checkbox" class="form-check-input" id="showAllKashtkars">
+                                <label class="form-check-label" for="showAllKashtkars">Show All Kashtkars</label>
+                            </div>
+                            <div id="kashtkarFullList" style="display: none;"></div>
+                        </div>
+                    </div>
+
+                    <!-- Filter Keywords Display -->
+                    <div class="filter-keywords mt-3" hidden>
+                        <small class="text-muted">Filter Keywords:</small>
+                        <div class="keyword-list" id="filterKeywords">
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Land Assessment Form -->
+            <div class="form-section" id="assessmentForm" style="display: none;">
+                <h4 class="section-title">
+                    <i class="fas fa-clipboard-check"></i> Land Assessment
+                </h4>
+                <form id="landForm" class="compact-form">
+                    <!-- Hidden validation fields -->
+                    <div class="form-group" style="display:none">
+                        <label class="form-label">Khasra No</label>
+                        <div class="original-value">Original: <strong id="originalKhasraId">-</strong></div>
+                        <div class="validation-group">
+                            <div class="validation-question">
+                                <span class="validation-label">Is Khasra No. Correct?</span>
+                                <div class="option-group">
+                                    <div class="option-item">
+                                        <input type="radio" id="khasraCorrectYes" name="isKhasraCorrect" value="yes">
+                                        <label for="khasraCorrectYes">Yes</label>
+                                    </div>
+                                    <div class="option-item">
+                                        <input type="radio" id="khasraCorrectNo" name="isKhasraCorrect" value="no">
+                                        <label for="khasraCorrectNo">No</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="correctKhasraFields" class="correct-value-fields">
+                            <div class="correct-value-label">Correct Khasra No.</div>
+                            <input type="text" class="form-control form-control-sm" id="correctKhasra" placeholder="Enter correct Khasra number">
+                        </div>
+                    </div>
+
+                    <!-- Khewat No -->
+                    <div class="form-group" style="display:none">
+                        <label class="form-label">Khewat No</label>
+                        <div class="original-value">Original: <strong id="originalKhewat">-</strong></div>
+                        <div class="validation-group">
+                            <div class="validation-question">
+                                <span class="validation-label">Is Khewat No. Correct?</span>
+                                <div class="option-group">
+                                    <div class="option-item">
+                                        <input type="radio" id="khewatCorrectYes" name="isKhewatCorrect" value="yes">
+                                        <label for="khewatCorrectYes">Yes</label>
+                                    </div>
+                                    <div class="option-item">
+                                        <input type="radio" id="khewatCorrectNo" name="isKhewatCorrect" value="no">
+                                        <label for="khewatCorrectNo">No</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="correctKhewatFields" class="correct-value-fields">
+                            <div class="correct-value-label">Correct Khewat No.</div>
+                            <input type="text" class="form-control form-control-sm" id="correctKhewat" placeholder="Enter correct Khewat number">
+                        </div>
+                    </div>
+
+                    <!-- Area -->
+                    <div class="form-group" style="display:none">
+                        <label class="form-label">Area</label>
+                        <div class="original-value">Original: <strong id="originalArea">-</strong></div>
+                        <div class="validation-group">
+                            <div class="validation-question">
+                                <span class="validation-label">Is Area Correct?</span>
+                                <div class="option-group">
+                                    <div class="option-item">
+                                        <input type="radio" id="areaCorrectYes" name="isAreaCorrect" value="yes">
+                                        <label for="areaCorrectYes">Yes</label>
+                                    </div>
+                                    <div class="option-item">
+                                        <input type="radio" id="areaCorrectNo" name="isAreaCorrect" value="no">
+                                        <label for="areaCorrectNo">No</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="correctAreaFields" class="correct-value-fields">
+                            <div class="correct-value-label">Correct Area (A-K-M)</div>
+                            <div class="area-input-group">
+                                <div class="flex-fill">
+                                    <input type="number" class="form-control form-control-sm area-input" id="correctAreaA" min="0" placeholder="Acres">
+                                    <div class="area-label text-center">Acres</div>
+                                </div>
+                                <div class="flex-fill">
+                                    <input type="number" class="form-control form-control-sm area-input" id="correctAreaK" min="0" max="7" placeholder="Kanal">
+                                    <div class="area-label text-center">Kanal</div>
+                                </div>
+                                <div class="flex-fill">
+                                    <input type="number" class="form-control form-control-sm area-input" id="correctAreaM" min="0" max="19" step="0.01" placeholder="Marla">
+                                    <div class="area-label text-center">Marla</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Litigation Status -->
+                    <div class="form-row">
+                        <div class="form-label-cell">
+                            <label class="form-label">Under Any Litigation</label>
+                        </div>
+                        <div class="form-control-cell">
+                            <div class="option-group horizontal">
+                                <div class="option-item">
+                                    <input type="radio" id="litigationYes" name="litigation" value="yes">
+                                    <label for="litigationYes">Yes</label>
+                                </div>
+                                <div class="option-item">
+                                    <input type="radio" id="litigationNo" name="litigation" value="no">
+                                    <label for="litigationNo">No</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Possession -->
+                    <div class="form-row">
+                        <div class="form-label-cell">
+                            <label class="form-label">Available for Possession</label>
+                        </div>
+                        <div class="form-control-cell">
+                            <div class="option-group horizontal">
+                                <div class="option-item">
+                                    <input type="radio" id="PossessionYes" name="Possession" value="yes">
+                                    <label for="PossessionYes">Yes</label>
+                                </div>
+                                <div class="option-item">
+                                    <input type="radio" id="PossessionNo" name="Possession" value="no">
+                                    <label for="PossessionNo">No</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Land Purpose -->
+                    <div class="form-row">
+                        <div class="form-label-cell">
+                            <label class="form-label">Purpose</label>
+                        </div>
+                        <div class="form-control-cell">
+                            <div class="option-group horizontal">
+                                <div class="option-item">
+                                    <input type="radio" id="landAvailableYes" name="landAvailable" value="yes">
+                                    <label for="landAvailableYes">Yes</label>
+                                </div>
+                                <div class="option-item">
+                                    <input type="radio" id="landAvailableNo" name="landAvailable" value="no">
+                                    <label for="landAvailableNo">No</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Irrigation Source -->
+                    <div class="form-row">
+                        <div class="form-label-cell">
+                            <label class="form-label">Irrigation Source</label>
+                        </div>
+                        <div class="form-control-cell">
+                            <div class="water-section">
+                                <div class="option-group horizontal">
+                                    <div class="option-item">
+                                        <input type="radio" id="waterAvailableYes" name="waterAvailable" value="yes">
+                                        <label for="waterAvailableYes">Yes</label>
+                                    </div>
+                                    <div class="option-item">
+                                        <input type="radio" id="waterAvailableNo" name="waterAvailable" value="no">
+                                        <label for="waterAvailableNo">No</label>
+                                    </div>
+                                </div>
+                                <div id="waterSourceFields" class="water-source-fields horizontal">
+                                    <select class="form-control form-control-sm" id="waterSource">
+                                        <option value="">-- Select Source --</option>
+                                        <option value="Canal">Canal</option>
+                                        <option value="Tubewell">Tubewell</option>
+                                        <option value="Barani">Barani</option>
+                                        <option value="Well">Well</option>
+                                        <option value="RodhKohi">Rodh Kohi</option>
+                                        <option value="Talaab">Talaab</option>
+                                        <option value="Jheel">Jheel</option>
+                                        <option value="Other">Other</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Cultivable -->
+                    <div class="form-row">
+                        <div class="form-label-cell">
+                            <label class="form-label">Cultivable</label>
+                        </div>
+                        <div class="form-control-cell">
+                            <div class="option-group horizontal">
+                                <div class="option-item">
+                                    <input type="radio" id="cultivatedYes" name="isCultivated" value="yes">
+                                    <label for="cultivatedYes">Yes</label>
+                                </div>
+                                <div class="option-item">
+                                    <input type="radio" id="cultivatedNo" name="isCultivated" value="no">
+                                    <label for="cultivatedNo">No</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Land Type (Banjar) -->
+                    <div class="form-row">
+                        <div class="form-label-cell">
+                            <label class="form-label">Land Type (Banjar)</label>
+                        </div>
+                        <div class="form-control-cell">
+                            <div class="option-group horizontal">
+                                <div class="option-item">
+                                    <input type="radio" id="banjerJaded" name="banjerType" value="jadeed">
+                                    <label for="banjerJaded">Jadeed</label>
+                                </div>
+                                <div class="option-item">
+                                    <input type="radio" id="banjerQaseem" name="banjerType" value="qadeem">
+                                    <label for="banjerQaseem">Qadeem</label>
+                                </div>
+                                <div class="option-item">
+                                    <input type="radio" id="banjerNotSpecified" name="banjerType" value="Not Specified">
+                                    <label for="banjerNotSpecified">Not Specified</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Soil Condition -->
+                    <div class="form-row">
+                        <div class="form-label-cell">
+                            <label class="form-label">Soil Condition</label>
+                        </div>
+                        <div class="form-control-cell">
+                            <div class="option-group horizontal">
+                                <div class="option-item">
+                                    <input type="checkbox" id="soilGood" name="soilCondition" value="good">
+                                    <label for="soilGood">Good</label>
+                                </div>
+                                <div class="option-item">
+                                    <input type="checkbox" id="soilSatisfactory" name="soilCondition" value="satisfactory">
+                                    <label for="soilSatisfactory">Satisfactory</label>
+                                </div>
+                                <div class="option-item">
+                                    <input type="checkbox" id="soilPoor" name="soilCondition" value="poor">
+                                    <label for="soilPoor">Poor</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Land Suitability -->
+                    <div class="form-row">
+                        <div class="form-label-cell">
+                            <label class="form-label">Land Suitability</label>
+                        </div>
+                        <div class="form-control-cell">
+                            <div class="option-group horizontal">
+                                <div class="option-item">
+                                    <input type="checkbox" id="fitAgriculture" name="suitability" value="agriculture">
+                                    <label for="fitAgriculture">Agriculture</label>
+                                </div>
+                                <div class="option-item">
+                                    <input type="checkbox" id="fitLivestock" name="suitability" value="livestock">
+                                    <label for="fitLivestock">Livestock</label>
+                                </div>
+                                <div class="option-item">
+                                    <input type="checkbox" id="fitForest" name="suitability" value="forest">
+                                    <label for="fitForest">Forest</label>
+                                </div>
+                                <div class="option-item">
+                                    <input type="checkbox" id="fitFisheries" name="suitability" value="fisheries">
+                                    <label for="fitFisheries">Fisheries</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Remarks -->
+                    <div class="form-row">
+                        <div class="form-label-cell">
+                            <label for="remarks" class="form-label">Remarks</label>
+                        </div>
+                        <div class="form-control-cell">
+                            <textarea class="form-control form-control-sm" id="remarks" rows="2" placeholder="Enter additional remarks..."></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Last saved indicator -->
+                    <div id="lastSavedInfo" style="display: none;">
+                        <div class="last-saved">
+                            <i class="fas fa-check-circle text-success"></i>
+                            <span>Last saved: <span id="lastSavedTime">-</span></span>
+                        </div>
+                    </div>
+
+                    <!-- Buttons -->
+                    <div class="form-row button-row">
+                        <div class="form-label-cell"></div>
+                        <div class="form-control-cell">
+                            <div class="button-group">
+                                <button type="button" class="btn-custom btn-submit" id="btnSubmit">
+                                    <i class="fas fa-save"></i> Save
+                                </button>
+                                <button type="button" class="btn-custom btn-validate" id="btnValidate">
+                                    <i class="fas fa-check-double"></i> Validate & Save
+                                </button>
+                                <button type="button" class="btn-custom btn-clear" id="btnClear">
+                                    <i class="fas fa-eraser"></i> Clear
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- No Data Message -->
+            <div id="noDataMessage" class="no-data-container">
+                <div class="no-data-icon">
+                    <i class="fas fa-map-marker-alt"></i>
+                </div>
+                <h3 class="no-data-title">No Land Selected</h3>
+                <p class="no-data-text">
+                    Select a land parcel from the map or dropdown
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Script Imports -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script src="https://js.arcgis.com/4.29/"></script>
+
+    <script>
+        // Global variables
+        let map, view, statelandLayer, adminBoundariesLayer, verificationGraphicsLayer, khasraLabelsGraphicsLayer;
+        const authToken = localStorage.getItem("pulse_token");
+        let districtId = localStorage.getItem("districtId") || 1;
+        let districtName = localStorage.getItem("districtName") || 1;
+        let selectedFeature = null;
+        let currentMouzaId = null;
+        let currentTehsilId = null;
+        let currentKhasraId = null;
+        let currentUserId = localStorage.getItem("userId") || 0;
+        let currentUserName = localStorage.getItem("userName") || "Guest";
+        let allKhasras = []; // All khasras from GIS layer
+        let verifiedKhasrasData = []; // Verified khasras from database
+        let verifiedKhasraIds = []; // Array of verified khasra IDs
+        let currentKhasraIndex = 0;
+        let filteredKhasras = [];
+        let ownerFilterKeywords = ['STATE', 'GOVERNMENT', 'GOVT', 'PROVINCE', 'PROVINCIAL'];
+        let kashtkarIncludeKeywords = ['STATE', 'GOVERNMENT', 'GOVT', 'PROVINCE', 'PROVINCIAL'];
+        let ownerExcludeFirstNames = ['STATE', 'GOVERNMENT', 'GOVT', 'PROVINCIAL'];
+        let currentKhasraData = null;
+        let verificationStats = {};
+
+        // Initialize when DOM is ready
+        $(document).ready(function () {
+            // Initialize Select2
+            $('.select2').select2({
+                theme: 'bootstrap-5',
+                width: '100%',
+                allowClear: true,
+                minimumResultsForSearch: 10
+            });
+
+            // Display current user info
+            document.getElementById('currentUserId').textContent = currentUserName;
+            document.getElementById('currentDistrictId').textContent = districtName;
+
+            // Setup validation toggle listeners
+            setupValidationToggles();
+
+            // Setup owner/kashtkar filter toggles
+            $('#showAllOwners').change(function () {
+                if (this.checked) {
+                    $('#ownerFullList').show();
+                    $('#ownerFilteredList').hide();
+                } else {
+                    $('#ownerFullList').hide();
+                    $('#ownerFilteredList').show();
+                }
+            });
+
+            $('#showAllKashtkars').change(function () {
+                if (this.checked) {
+                    $('#kashtkarFullList').show();
+                    $('#kashtkarFilteredList').hide();
+                } else {
+                    $('#kashtkarFullList').hide();
+                    $('#kashtkarFilteredList').show();
+                }
+            });
+
+            // Setup compact khasra list filter toggles
+            $('#compactToggleVerified').change(updateCompactKhasraListDisplay);
+            $('#compactToggleUnverified').change(updateCompactKhasraListDisplay);
+
+            // Setup compact navigation buttons
+            $('#compactBtnPrev').click(navigateToPreviousKhasra);
+            $('#compactBtnNext').click(navigateToNextKhasra);
+            $('#compactBtnFirstUnverified').click(navigateToFirstUnverified);
+
+            // Setup form buttons
+            document.getElementById('btnSubmit').addEventListener('click', submitForm);
+            document.getElementById('btnValidate').addEventListener('click', validateForm);
+            document.getElementById('btnClear').addEventListener('click', clearForm);
+
+            // Initialize map
+            initMap();
+        });
+
+        // Setup validation toggle listeners
+        function setupValidationToggles() {
+            $('input[name="isAreaCorrect"]').change(function () {
+                const areaFields = document.getElementById('correctAreaFields');
+                if (this.value === 'no') {
+                    areaFields.classList.add('show');
+                } else {
+                    areaFields.classList.remove('show');
+                    document.getElementById('correctAreaA').value = '';
+                    document.getElementById('correctAreaK').value = '';
+                    document.getElementById('correctAreaM').value = '';
+                }
+            });
+
+            $('input[name="isKhasraCorrect"]').change(function () {
+                const khasraFields = document.getElementById('correctKhasraFields');
+                if (this.value === 'no') {
+                    khasraFields.classList.add('show');
+                } else {
+                    khasraFields.classList.remove('show');
+                    document.getElementById('correctKhasra').value = '';
+                }
+            });
+
+            $('input[name="isKhewatCorrect"]').change(function () {
+                const khewatFields = document.getElementById('correctKhewatFields');
+                if (this.value === 'no') {
+                    khewatFields.classList.add('show');
+                } else {
+                    khewatFields.classList.remove('show');
+                    document.getElementById('correctKhewat').value = '';
+                }
+            });
+
+            $('input[name="waterAvailable"]').change(function () {
+                const waterSourceFields = document.getElementById('waterSourceFields');
+                if (this.value === 'yes') {
+                    waterSourceFields.classList.add('show');
+                } else {
+                    waterSourceFields.classList.remove('show');
+                    document.getElementById('waterSource').value = '';
+                }
+            });
+        }
+
+        // Initialize map
+        function initMap() {
+            require([
+                "esri/identity/IdentityManager",
+                "esri/Map",
+                "esri/views/MapView",
+                "esri/layers/MapImageLayer",
+                "esri/layers/FeatureLayer",
+                "esri/geometry/Extent",
+                "esri/symbols/SimpleFillSymbol",
+                "esri/symbols/SimpleLineSymbol",
+                "esri/Graphic",
+                "esri/Color",
+                "esri/layers/GraphicsLayer",
+                "esri/symbols/TextSymbol",
+                "esri/geometry/Point"
+            ], function (
+                esriId, Map, MapView, MapImageLayer, FeatureLayer,
+                Extent, SimpleFillSymbol, SimpleLineSymbol,
+                Graphic, Color, GraphicsLayer, TextSymbol, Point
+            ) {
+                // Store references
+                window.esriModules = {
+                    SimpleFillSymbol, SimpleLineSymbol, Graphic, Color,
+                    GraphicsLayer, TextSymbol, Point
+                };
+
+                // Main initialization
+                async function initialize() {
+                    try {
+                        // Get authentication token
+                        const response = await fetch("/api/gis/token");
+                        if (!response.ok) throw new Error("Failed to get token");
+
+                        const data = await response.json();
+                        const token = data.token;
+
+                        // Register token
+                        esriId.registerToken({
+                            server: "https://gismaps.pulse.gop.pk/arcgis/rest/services",
+                            token: token
+                        });
+
+                        // Create Map
+                        map = new Map({
+                            basemap: "topo-vector"
+                        });
+
+                        // Create MapView
+                        view = new MapView({
+                            container: "viewDiv",
+                            map: map,
+                            center: [72.8, 31.5],
+                            zoom: 7,
+                            padding: {
+                                top: 50,
+                                bottom: 0
+                            },
+                            popup: {
+                                dockEnabled: true,
+                                dockOptions: {
+                                    position: "top-right",
+                                    breakpoint: false
+                                }
+                            }
+                        });
+
+                        // Initialize layers
+                        await initLayers();
+
+                        // Load district data
+                        await loadDistrictData();
+
+                        // Setup event listeners
+                        setupMapEventListeners();
+
+                        // Setup layer toggle button
+                        document.getElementById('layerToggleBtn').addEventListener('click', function () {
+                            const controls = document.getElementById('layerControls');
+                            controls.style.display = controls.style.display === 'block' ? 'none' : 'block';
+                        });
+
+                        // Close layer controls when clicking outside
+                        document.addEventListener('click', function (event) {
+                            const controls = document.getElementById('layerControls');
+                            const toggleBtn = document.getElementById('layerToggleBtn');
+                            if (controls && !controls.contains(event.target) &&
+                                toggleBtn && !toggleBtn.contains(event.target)) {
+                                controls.style.display = 'none';
+                            }
+                        });
+
+                        // Create verification graphics layer
+                        verificationGraphicsLayer = new GraphicsLayer({
+                            title: "Verification Status",
+                            listMode: "hide"
+                        });
+                        map.add(verificationGraphicsLayer);
+
+                        // Create khasra labels graphics layer
+                        khasraLabelsGraphicsLayer = new GraphicsLayer({
+                            title: "Khasra Labels",
+                            listMode: "hide"
+                        });
+                        map.add(khasraLabelsGraphicsLayer);
+
+                    } catch (error) {
+                        console.error("Error initializing map:", error);
+                        showToast('error', 'Error', 'Failed to initialize map. Please refresh the page.');
+                    }
+                }
+                // Load district data
+                async function loadDistrictData() {
+                    try {
+                        const tehsils = await fetchTehsils(districtId);
+                        populateTehsilDropdown(tehsils);
+                    } catch (error) {
+                        console.error("Error loading district data:", error);
+                        showToast('error', 'Error', 'Failed to load district data.');
+                    }
+                }
+
+                // Initialize layers
+                async function initLayers() {
+                    // Stateland Layer
+                    statelandLayer = new FeatureLayer({
+                        url: "https://gismaps.pulse.gop.pk/arcgis/rest/services/Stateland/Stateland_Project/MapServer/1",
+                        title: "State Land",
+                        definitionExpression: "1=0",
+                        outFields: ["*"],
+                        popupTemplate: {
+                            title: "State Land - {Mouza}",
+                            content: `
+                                        <div style="font-size: 0.85rem; line-height: 1.4;">
+                                            <div><strong>District:</strong> {District}</div>
+                                            <div><strong>Tehsil:</strong> {Tehsil}</div>
+                                            <div><strong>Mouza:</strong> {Mouza}</div>
+                                            <div><strong>Khasra No:</strong> {K}</div>
+                                            <div><strong>Khasra ID:</strong> {Khasra_ID}</div>
+                                            <div><strong>Area (Sq Ft):</strong> {Shape_Area} sq units</div>
+                                            <div><strong>Type:</strong> {Type}</div>
+                                        </div>
+                                    `
+                        },
+                        renderer: {
+                            type: "simple",
+                            symbol: {
+                                type: "simple-fill",
+                                color: [46, 204, 113, 0.1],
+                                outline: {
+                                    color: [39, 174, 96, 0.5],
+                                    width: 1
+                                }
+                            }
+                        },
+                        opacity: 0.3,
+                        visible: true
+                    });
+
+                    // Admin Boundaries Layer
+                    adminBoundariesLayer = new MapImageLayer({
+                        url: "https://gismaps.pulse.gop.pk/arcgis/rest/services/Punjab/Admin__Boundaries/MapServer",
+                        title: "Admin Boundaries",
+                        opacity: 0.2,
+                        visible: true,
+                        sublayers: [
+                            { id: 0, visible: true },
+                            { id: 1, visible: true },
+                            { id: 2, visible: true }
+                        ]
+                    });
+
+                    // Add layers to map
+                    map.add(adminBoundariesLayer);
+                    map.add(statelandLayer);
+
+                    // Setup layer toggle events
+                    document.getElementById('toggleAdminLayer').addEventListener('change', function () {
+                        adminBoundariesLayer.visible = this.checked;
+                    });
+
+                    document.getElementById('toggleStatelandLayer').addEventListener('change', function () {
+                        statelandLayer.visible = this.checked;
+                    });
+                }
+
+                // Setup map event listeners
+                function setupMapEventListeners() {
+                    // Map click event
+                    view.on("click", async function (event) {
+                        try {
+                            const response = await view.hitTest(event);
+                            const results = response.results;
+
+                            for (const result of results) {
+                                if (result.graphic && result.graphic.layer === statelandLayer) {
+                                    const feature = result.graphic;
+                                    const khasraId = feature.attributes.Khasra_ID;
+                                    selectKhasraFromList(khasraId);
+                                    break;
+                                }
+                                if (result.graphic && result.graphic.layer === verificationGraphicsLayer) {
+                                    const khasraId = result.graphic.attributes.Khasra_ID;
+                                    selectKhasraFromList(khasraId);
+                                    break;
+                                }
+                            }
+                        } catch (error) {
+                            console.error("Error in map click:", error);
+                        }
+                    });
+                }
+
+                // Initialize the application
+                initialize();
+            });
+        }
+
+        // Fetch tehsils
+        async function fetchTehsils(districtId) {
+            try {
+                const res = await fetch("/api/Gis/ExecuteStoredProcedure", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify({
+                        procedureName: "sp_GetTehsilsByDistrict",
+                        parameters: {}
+                    })
+                });
+
+                if (!res.ok) throw new Error("Failed to fetch tehsils");
+                const data = await res.json();
+                return data.response || data;
+            } catch (error) {
+                console.error("Error fetching tehsils:", error);
+                return [];
+            }
+        }
+
+        // Fetch mouzas
+        async function fetchMouzas(tehsilId) {
+            try {
+                const res = await fetch("/api/Gis/ExecuteStoredProcedure", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify({
+                        procedureName: "sp_GetMauzasByTehsil",
+                        parameters: { TehsilId: parseInt(tehsilId) }
+                    })
+                });
+
+                if (!res.ok) throw new Error("Failed to fetch mouzas");
+                const data = await res.json();
+                return data.response || data;
+            } catch (error) {
+                console.error("Error fetching mouzas:", error);
+                return [];
+            }
+        }
+
+        // Fetch ownership data
+        async function fetchOwnership(khasraId) {
+            try {
+                const res = await fetch("/api/Gis/ExecuteStoredProcedure", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify({
+                        procedureName: "GetKhasraDetails",
+                        parameters: {
+                            UserId: currentUserId,
+                            KhasraId: parseInt(khasraId)
+                        }
+                    })
+                });
+
+                if (!res.ok) throw new Error("Failed to fetch ownership data");
+                const data = await res.json();
+                return data.response || data;
+            } catch (error) {
+                console.error("Error fetching ownership data:", error);
+                return [];
+            }
+        }
+
+        // Fetch verification data - Gets verified khasras from database
+        // Fetch verification data - Gets verified khasras from database
+        async function fetchVerificationData(mauzaId) {
+            try {
+                const res = await fetch("/api/Gis/ExecuteStoredProcedure", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify({
+                        procedureName: "sp_GetKhasraVerificationStatus",
+                        parameters: {
+                            MauzaId: parseInt(mauzaId),
+                            UserId: currentUserId
+                        }
+                    })
+                });
+
+                if (!res.ok) throw new Error("Failed to fetch verification data");
+                const data = await res.json();
+
+                // Debug: Log the response to see structure
+                console.log("Verification API Response:", data);
+
+                // Handle different response structures
+                let verifiedData = [];
+                let stats = {};
+
+                if (Array.isArray(data)) {
+                    // If response is an array (multiple result sets)
+                    if (data.length > 0 && Array.isArray(data[0])) {
+                        // First array contains verified khasras
+                        verifiedData = data[0];
+                    } else if (data.length > 0) {
+                        // Single array of khasras
+                        verifiedData = data;
+                    }
+
+                    // Get stats from second result set if available
+                    if (data.length > 1 && Array.isArray(data[1]) && data[1].length > 0) {
+                        stats = data[1][0] || {};
+                    }
+                }
+                else if (data.response) {
+                    // If response has a response property
+                    if (Array.isArray(data.response)) {
+                        verifiedData = data.response;
+                    } else {
+                        verifiedData = [data.response];
+                    }
+                }
+                else if (typeof data === 'object') {
+                    // If it's a single object, wrap it in array
+                    verifiedData = [data];
+                }
+
+                // Extract KhasraId from each verified khasra
+                const verifiedKhasraIds = verifiedData
+                    .filter(k => k && k.KhasraId)
+                    .map(k => parseInt(k.KhasraId));
+
+                return {
+                    verifiedKhasras: verifiedData,
+                    verifiedKhasraIds: verifiedKhasraIds,
+                    stats: stats
+                };
+            } catch (error) {
+                console.error("Error fetching verification data:", error);
+                return {
+                    verifiedKhasras: [],
+                    verifiedKhasraIds: [],
+                    stats: {}
+                };
+            }
+        }
+        // Populate tehsil dropdown
+        function populateTehsilDropdown(tehsils) {
+            $('#ddlTehsil').empty().append('<option value="">Select Tehsil</option>');
+            tehsils.forEach(tehsil => {
+                $('#ddlTehsil').append(new Option(tehsil.TehsilName, tehsil.TehsilId));
+            });
+            $('#ddlTehsil').trigger('change');
+
+            // Setup tehsil change event
+            $('#ddlTehsil').off('change').on('change', async function () {
+                const tehsilId = this.value;
+                currentTehsilId = tehsilId;
+
+                if (!tehsilId) {
+                    $('#ddlMouza').empty().append('<option value="">Select Mouza</option>').trigger('change');
+                    statelandLayer.definitionExpression = "1=0";
+                    hideCompactKhasraList();
+                    return;
+                }
+
+                try {
+                    showToast('info', 'Loading', 'Loading mouzas...');
+                    const mouzas = await fetchMouzas(tehsilId);
+                    populateMouzaDropdown(mouzas);
+
+                    if (mouzas.length > 0 && mouzas[0].GeoExtent) {
+                        const extent = parseExtent(mouzas[0].GeoExtent);
+                        if (extent) view.goTo(extent);
+                    }
+                } catch (error) {
+                    console.error("Error loading mouzas:", error);
+                    showToast('error', 'Error', 'Failed to load mouzas data.');
+                }
+            });
+        }
+
+        // Populate mouza dropdown
+        function populateMouzaDropdown(mouzas) {
+            $('#ddlMouza').empty().append('<option value="">Select Mouza</option>');
+            mouzas.forEach(mouza => {
+                $('#ddlMouza').append(new Option(mouza.MauzaName, mouza.MauzaId));
+            });
+            $('#ddlMouza').trigger('change');
+
+            // Setup mouza change event
+            $('#ddlMouza').off('change').on('change', async function () {
+                const mouzaId = this.value;
+                currentMouzaId = mouzaId;
+
+                if (!mouzaId) {
+                    statelandLayer.definitionExpression = "1=0";
+                    hideCompactKhasraList();
+                    clearForm();
+                    showNoData();
+                    return;
+                }
+
+                try {
+                    showToast('info', 'Loading', 'Loading khasras for selected mouza...');
+                    await loadKhasrasForMouza(mouzaId);
+                } catch (error) {
+                    console.error("Error loading khasras:", error);
+                    showToast('error', 'Error', 'Failed to load khasra data.');
+                }
+            });
+        }
+
+        // Parse extent from string
+        function parseExtent(geoExtentStr) {
+            if (!geoExtentStr) return null;
+            const coords = geoExtentStr.split(",").map(Number);
+            if (coords.length !== 4) return null;
+            return {
+                xmin: coords[0],
+                ymin: coords[1],
+                xmax: coords[2],
+                ymax: coords[3],
+                spatialReference: { wkid: 4326 }
+            };
+        }
+
+        // Load all khasras for a mouza from GIS layer
+        // Load all khasras for a mouza from GIS layer
+        async function loadKhasrasForMouza(mouzaId) {
+            try {
+                // Query stateland layer for all khasras in this mouza
+                const query = statelandLayer.createQuery();
+                query.where = `Mouza_ID = ${mouzaId}`;
+                query.returnGeometry = true;
+                query.outFields = ["*"];
+                query.orderByFields = ["K ASC"]; // Sort by Khasra number
+                query.returnCentroid = true;
+
+                const results = await statelandLayer.queryFeatures(query);
+
+                if (results.features.length > 0) {
+                    allKhasras = results.features;
+
+                    // Get verification data from database
+                    const verificationData = await fetchVerificationData(mouzaId);
+                    verifiedKhasrasData = verificationData.verifiedKhasras || [];
+                    verifiedKhasraIds = verificationData.verifiedKhasraIds || [];
+                    verificationStats = verificationData.stats || {};
+
+                    // Debug: Log verification data
+                    console.log("Total Khasras from GIS:", allKhasras.length);
+                    console.log("Verified Khasras from DB:", verifiedKhasraIds.length);
+                    console.log("Verified IDs:", verifiedKhasraIds);
+
+                    // Update KPI counts
+                    updateKPIcounts(allKhasras.length, verifiedKhasraIds.length, verificationStats);
+
+                    // Update layer definition expression to show all khasras
+                    statelandLayer.definitionExpression = `Mouza_ID = ${mouzaId}`;
+
+                    // Update verification graphics and labels
+                    updateVerificationGraphics();
+                    addKhasraLabels();
+
+                    // Show compact khasra list
+                    showCompactKhasraList();
+
+                    // Zoom to features
+                    await view.goTo(results.features, { duration: 1000 });
+
+                    // Select first khasra (preferably unverified)
+                    await selectFirstKhasra();
+
+                    showToast('success', 'Loaded', `Loaded ${allKhasras.length} khasras`);
+                } else {
+                    showToast('info', 'No Data', 'No state land parcels found for selected mouza.');
+                    hideCompactKhasraList();
+                }
+            } catch (error) {
+                console.error("Error loading khasras:", error);
+                showToast('error', 'Error', 'Failed to load khasra data.');
+            }
+        }
+        // Update verification graphics on map
+        function updateVerificationGraphics() {
+            const { Graphic, SimpleFillSymbol, SimpleLineSymbol, Color } = window.esriModules;
+
+            // Clear existing graphics
+            verificationGraphicsLayer.removeAll();
+
+            // Add graphics for each khasra with appropriate colors
+            allKhasras.forEach(feature => {
+                const khasraId = feature.attributes.Khasra_ID;
+                const isVerified = verifiedKhasraIds.includes(khasraId);
+                const verifiedData = verifiedKhasrasData.find(v => v.KhasraId === khasraId);
+
+                // Choose color based on verification status
+                let fillColor, outlineColor;
+
+                if (isVerified && verifiedData) {
+                    // Verified khasra - green
+                    fillColor = [46, 204, 113, 0.4];
+                    outlineColor = [39, 174, 96, 1];
+
+                    // Check for specific conditions
+                    if (verifiedData.Litigation) {
+                        // Under litigation - orange
+                        fillColor = [255, 165, 0, 0.4];
+                        outlineColor = [255, 140, 0, 1];
+                    } else if (verifiedData.IsCultivated) {
+                        // Cultivated - dark green
+                        fillColor = [34, 139, 34, 0.4];
+                        outlineColor = [0, 100, 0, 1];
+                    } else if (verifiedData.IsAreaCorrect === 0) {
+                        // Area incorrect - yellow
+                        fillColor = [255, 255, 0, 0.4];
+                        outlineColor = [255, 215, 0, 1];
+                    }
+                } else {
+                    // Unverified - red
+                    fillColor = [231, 76, 60, 0.4];
+                    outlineColor = [192, 57, 43, 1];
+                }
+
+                const symbol = new SimpleFillSymbol({
+                    color: fillColor,
+                    outline: new SimpleLineSymbol({
+                        color: outlineColor,
+                        width: 2
+                    })
+                });
+
+                const graphic = new Graphic({
+                    geometry: feature.geometry,
+                    symbol: symbol,
+                    attributes: {
+                        Khasra_ID: khasraId,
+                        isVerified: isVerified,
+                        Khasra_No: feature.attributes.K || feature.attributes.Khasra_No,
+                        Area: feature.attributes.Shape_Area,
+                        verifiedData: verifiedData || null
+                    }
+                });
+
+                verificationGraphicsLayer.add(graphic);
+            });
+        }
+
+        // Add khasra labels to map
+        function addKhasraLabels() {
+            const { Graphic, TextSymbol, Point } = window.esriModules;
+
+            // Clear existing labels
+            khasraLabelsGraphicsLayer.removeAll();
+
+            // Add labels for each khasra
+            allKhasras.forEach(feature => {
+                const khasraNo = feature.attributes.K || feature.attributes.Khasra_No || '';
+                const khasraId = feature.attributes.Khasra_ID;
+                const isVerified = verifiedKhasraIds.includes(khasraId);
+
+                // Get centroid for label placement
+                let centerPoint;
+                if (feature.geometry.centroid) {
+                    centerPoint = feature.geometry.centroid;
+                } else {
+                    const extent = feature.geometry.extent;
+                    centerPoint = new Point({
+                        x: (extent.xmin + extent.xmax) / 2,
+                        y: (extent.ymin + extent.ymax) / 2,
+                        spatialReference: feature.geometry.spatialReference
+                    });
+                }
+
+                // Create text symbol for label
+                const textSymbol = new TextSymbol({
+                    text: khasraNo,
+                    color: isVerified ? "white" : "black",
+                    haloColor: isVerified ? "green" : "white",
+                    haloSize: 1,
+                    font: {
+                        size: isVerified ? "12px" : "10px",
+                        weight: isVerified ? "bold" : "normal",
+                        family: "Arial"
+                    }
+                });
+
+                const labelGraphic = new Graphic({
+                    geometry: centerPoint,
+                    symbol: textSymbol,
+                    attributes: {
+                        Khasra_ID: khasraId,
+                        Khasra_No: khasraNo
+                    }
+                });
+
+                khasraLabelsGraphicsLayer.add(labelGraphic);
+            });
+        }
+
+        // Show compact khasra list
+        function showCompactKhasraList() {
+            document.getElementById('compactKhasraList').style.display = 'block';
+            updateCompactKhasraListDisplay();
+        }
+
+        // Hide compact khasra list
+        function hideCompactKhasraList() {
+            document.getElementById('compactKhasraList').style.display = 'none';
+            allKhasras = [];
+            verifiedKhasrasData = [];
+            verifiedKhasraIds = [];
+            filteredKhasras = [];
+            document.getElementById('compactListCount').textContent = '0';
+            document.getElementById('compactListContainer').innerHTML = '';
+        }
+
+        // Update compact khasra list display
+        function updateCompactKhasraListDisplay() {
+            const container = document.getElementById('compactListContainer');
+            const showVerified = $('#compactToggleVerified').is(':checked');
+            const showUnverified = $('#compactToggleUnverified').is(':checked');
+
+            filteredKhasras = allKhasras.filter(feature => {
+                const khasraId = feature.attributes.Khasra_ID;
+                const isVerified = verifiedKhasraIds.includes(khasraId);
+
+                if (isVerified && showVerified) return true;
+                if (!isVerified && showUnverified) return true;
+                return false;
+            });
+
+            container.innerHTML = '';
+            filteredKhasras.forEach((feature, index) => {
+                const khasraId = feature.attributes.Khasra_ID;
+                const khasraNo = feature.attributes.K || feature.attributes.Khasra_No || 'N/A';
+                const isVerified = verifiedKhasraIds.includes(khasraId);
+                const verifiedData = verifiedKhasrasData.find(v => v.KhasraId === khasraId);
+                const isActive = khasraId === currentKhasraId;
+
+                const item = document.createElement('div');
+                item.className = `compact-khasra-item ${isActive ? 'active' : ''}`;
+
+                // Create compact item with icons
+                let statusIcons = '';
+                if (isVerified && verifiedData) {
+                    if (verifiedData.IsCultivated) statusIcons += '<i class="fas fa-seedling text-success" title="Cultivated"></i>';
+                    if (verifiedData.Litigation) statusIcons += '<i class="fas fa-gavel text-danger ms-1" title="Under Litigation"></i>';
+                    if (verifiedData.WaterAvailable) statusIcons += '<i class="fas fa-tint text-primary ms-1" title="Water Available"></i>';
+                }
+
+                item.innerHTML = `
+                            <div class="compact-khasra-info">
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <span class="compact-khasra-number">${khasraNo}</span>
+                                    <div class="compact-khasra-icons">${statusIcons}</div>
+                                </div>
+                            </div>
+                            <span class="compact-verification-badge ${isVerified ? 'compact-badge-verified' : 'compact-badge-unverified'}">
+                                ${isVerified ? '✓' : '✗'}
+                            </span>
+                        `;
+
+                item.addEventListener('click', () => {
+                    selectKhasraFromList(khasraId);
+                });
+
+                container.appendChild(item);
+            });
+
+            document.getElementById('compactListCount').textContent = filteredKhasras.length;
+        }
+
+        // Select khasra from list
+        async function selectKhasraFromList(khasraId) {
+            try {
+                // Find the feature
+                const feature = allKhasras.find(f => f.attributes.Khasra_ID === khasraId);
+                if (!feature) {
+                    showToast('error', 'Error', 'Khasra not found in list');
+                    return;
+                }
+
+                // Update current index
+                currentKhasraId = khasraId;
+                currentKhasraIndex = filteredKhasras.findIndex(f => f.attributes.Khasra_ID === khasraId);
+
+                // Highlight on map
+                highlightFeature(feature);
+
+                // Load ownership data
+                await loadOwnershipData(khasraId);
+
+                // Update list display
+                updateCompactKhasraListDisplay();
+
+                // Zoom to feature
+                view.goTo(feature.geometry, {
+                    duration: 500,
+                    padding: { top: 50, bottom: 50, left: 50, right: 50 }
+                });
+
+            } catch (error) {
+                console.error("Error selecting khasra:", error);
+                showToast('error', 'Error', 'Failed to select khasra');
+            }
+        }
+
+        // Highlight feature on map
+        function highlightFeature(feature) {
+            const { Graphic, SimpleFillSymbol, SimpleLineSymbol, GraphicsLayer } = window.esriModules;
+
+            // Clear previous highlights
+            const highlightLayer = map.layers.find(l => l.title === "Highlight");
+            if (highlightLayer) {
+                map.remove(highlightLayer);
+            }
+
+            // Create highlight graphics layer
+            const highlightGraphicsLayer = new GraphicsLayer({
+                title: "Highlight",
+                listMode: "hide"
+            });
+
+            const highlightSymbol = new SimpleFillSymbol({
+                color: [52, 152, 219, 0.2],
+                outline: {
+                    color: [41, 128, 185, 1],
+                    width: 3
+                }
+            });
+
+            const graphic = new Graphic({
+                geometry: feature.geometry,
+                symbol: highlightSymbol
+            });
+
+            highlightGraphicsLayer.add(graphic);
+            map.add(highlightGraphicsLayer);
+
+            // Bring to front
+            map.reorder(highlightGraphicsLayer, map.layers.length - 1);
+        }
+
+        // Select first khasra (preferably unverified)
+        async function selectFirstKhasra() {
+            if (filteredKhasras.length > 0) {
+                // Try to find first unverified
+                let firstKhasra = filteredKhasras.find(f => !verifiedKhasraIds.includes(f.attributes.Khasra_ID));
+                if (!firstKhasra) {
+                    firstKhasra = filteredKhasras[0];
+                }
+                await selectKhasraFromList(firstKhasra.attributes.Khasra_ID);
+            }
+        }
+
+        // Navigation functions
+        function navigateToPreviousKhasra() {
+            if (filteredKhasras.length > 1) {
+                let newIndex = currentKhasraIndex - 1;
+                if (newIndex < 0) newIndex = filteredKhasras.length - 1;
+                selectKhasraFromList(filteredKhasras[newIndex].attributes.Khasra_ID);
+            }
+        }
+
+        function navigateToNextKhasra() {
+            if (filteredKhasras.length > 1) {
+                let newIndex = currentKhasraIndex + 1;
+                if (newIndex >= filteredKhasras.length) newIndex = 0;
+                selectKhasraFromList(filteredKhasras[newIndex].attributes.Khasra_ID);
+            }
+        }
+
+        function navigateToFirstUnverified() {
+            const firstUnverified = filteredKhasras.find(f => !verifiedKhasraIds.includes(f.attributes.Khasra_ID));
+            if (firstUnverified) {
+                selectKhasraFromList(firstUnverified.attributes.Khasra_ID);
+            } else {
+                showToast('info', 'No Unverified', 'All khasras are verified for this mouza.');
+            }
+        }
+
+        // Update KPI counts
+        function updateKPIcounts(totalCount, verifiedCount, stats = {}) {
+            document.getElementById('kpiTotalKhasras').textContent = totalCount || 0;
+            document.getElementById('kpiVerified').textContent = verifiedCount || 0;
+            document.getElementById('kpiUnverified').textContent = (totalCount - verifiedCount) || 0;
+        }
+
+        // Convert Sq Ft to A-K-M
+        function convertSqFtToAKM(sqFt) {
+            if (!sqFt || sqFt <= 0) return '0 M';
+
+            const MARLA_PER_ACRE = 160;
+            const MARLA_PER_KANAL = 20;
+            const SQFT_PER_MARLA = 272.25;
+
+            let totalMarla = sqFt / SQFT_PER_MARLA;
+            const acres = Math.floor(totalMarla / MARLA_PER_ACRE);
+            totalMarla = totalMarla - (acres * MARLA_PER_ACRE);
+            const kanal = Math.floor(totalMarla / MARLA_PER_KANAL);
+            totalMarla = totalMarla - (kanal * MARLA_PER_KANAL);
+            const marla = Math.round(totalMarla * 100) / 100;
+
+            let result = '';
+            if (acres > 0) result += acres + ' A';
+            if (kanal > 0) {
+                if (result) result += ' - ';
+                result += kanal + ' K';
+            }
+            if (marla > 0) {
+                if (result) result += ' - ';
+                result += marla + ' M';
+            }
+
+            if (!result) result = '0 M';
+            return result;
+        }
+
+        // Load ownership data
+        async function loadOwnershipData(khasraId) {
+            try {
+                currentKhasraData = await fetchOwnership(khasraId);
+
+                if (currentKhasraData && currentKhasraData.length > 0) {
+                    const firstRow = currentKhasraData[0];
+
+                    // Update basic khasra details
+                    document.getElementById('ownerKhasra').textContent = firstRow.khasra_no || '-';
+                    document.getElementById('ownerKhewat').textContent = firstRow.khewat_no || '-';
+                    document.getElementById('ownerMuraba').textContent = firstRow.muraba_no || '-';
+                    document.getElementById('khatuniType').textContent = firstRow.khatuni_type_name || '-';
+
+                    // Convert and display area
+                    if (firstRow.khasra_area) {
+                        const areaAKM = convertSqFtToAKM(firstRow.khasra_area);
+                        document.getElementById('ownerAreaKhasraAKM').textContent = areaAKM;
+                        document.getElementById('originalArea').textContent = areaAKM;
+                    } else {
+                        document.getElementById('ownerAreaKhasraAKM').textContent = '-';
+                        document.getElementById('originalArea').textContent = '-';
+                    }
+
+                    // Set original khasra and khewat
+                    document.getElementById('originalKhasraId').textContent = firstRow.khasra_no || '-';
+                    document.getElementById('originalKhewat').textContent = firstRow.khewat_no || '-';
+
+                    // Process owners and kashtkars with filtering
+                    processOwnershipData(currentKhasraData);
+
+                    // Show form sections
+                    document.getElementById('ownershipSection').style.display = 'block';
+                    document.getElementById('assessmentForm').style.display = 'block';
+                    document.getElementById('noDataMessage').style.display = 'none';
+
+                    // Load previously saved data if exists
+                    await loadSavedAssessmentData(khasraId);
+                } else {
+                    showNoData();
+                    showToast('info', 'No Ownership Data', 'No ownership details found for this khasra.');
+                }
+            } catch (error) {
+                console.error("Error loading ownership data:", error);
+                showNoData();
+                showToast('error', 'Error', 'Failed to load ownership data.');
+            }
+        }
+
+        // Process ownership data with filtering
+        function processOwnershipData(data) {
+            const uniqueOwners = new Map();
+            const uniqueKashtkars = new Set();
+            const allOwners = [];
+            const allKashtkars = [];
+
+            data.forEach(row => {
+                console.log(row);
+                // Process owner
+                if (row.first_name) {
+                    //const ownerName = `${row.first_name} ${row.last_name}`.trim();
+                    const ownerName = `${row.first_name}`.trim();
+                    const owner = {
+                        name: ownerName,
+                        first_name: row.first_name,
+                        last_name: row.last_name,
+                        person_id: row.person_id
+                    };
+                    console.log(owner)
+                    if (!uniqueOwners.has(row.person_id)) {
+                        uniqueOwners.set(row.person_id, owner);
+                        allOwners.push(owner);
+                    }
+                }
+
+                // Process kashtkar
+                if (row.KashatkarName && row.KashatkarName.trim()) {
+                    const kashtkar = row.KashatkarName.trim();
+                    if (!uniqueKashtkars.has(kashtkar)) {
+                        uniqueKashtkars.add(kashtkar);
+                        allKashtkars.push(kashtkar);
+                    }
+                }
+            });
+
+            // Apply filters for owners (EXCLUDE those containing keywords in first name)
+            const filteredOwners = allOwners.filter(owner => {
+                const firstNameUpper = owner.first_name.toUpperCase();
+                return !ownerExcludeFirstNames.some(keyword =>
+                    firstNameUpper.includes(keyword)
+                );
+            });
+
+            // Apply filters for kashtkars (INCLUDE those containing keywords)
+            const filteredKashtkars = allKashtkars.filter(kashtkar => {
+                const kashtkarUpper = kashtkar.toUpperCase();
+                return kashtkarIncludeKeywords.some(keyword =>
+                    kashtkarUpper.includes(keyword)
+                );
+            });
+
+            // Display filtered owners
+            if (filteredOwners.length > 0) {
+                const ownerNames = filteredOwners.map(o => o.name).join(', ');
+                document.getElementById('ownerFilteredList').innerHTML = `
+                            <div class="owner-names">${ownerNames}</div>
+                            <small class="text-muted">(${filteredOwners.length} owner(s))</small>
+                        `;
+            } else {
+                document.getElementById('ownerFilteredList').innerHTML =
+                    '<div class="text-muted">No owners found</div>';
+            }
+
+            // Display all owners (for toggle)
+            if (allOwners.length > 0) {
+                const allOwnerNames = allOwners.map(o => o.name).join(', ');
+                document.getElementById('ownerFullList').innerHTML = `
+                            <div class="owner-names">${allOwnerNames}</div>
+                            <small class="text-muted">(${allOwners.length} total owner(s))</small>
+                        `;
+            }
+
+            // Display filtered kashtkars
+            if (filteredKashtkars.length > 0) {
+                const kashtkarNames = filteredKashtkars.join(', ');
+                document.getElementById('kashtkarFilteredList').innerHTML = `
+                            <div class="kashtkar-names">${kashtkarNames}</div>
+                            <small class="text-muted">(${filteredKashtkars.length} filtered kashtkar(s))</small>
+                        `;
+            } else {
+                document.getElementById('kashtkarFilteredList').innerHTML =
+                    '<div class="text-muted">No kashtkars</div>';
+            }
+
+            // Display all kashtkars (for toggle)
+            if (allKashtkars.length > 0) {
+                const allKashtkarNames = allKashtkars.join(', ');
+                document.getElementById('kashtkarFullList').innerHTML = `
+                            <div class="kashtkar-names">${allKashtkarNames}</div>
+                            <small class="text-muted">(${allKashtkars.length} total kashtkar(s))</small>
+                        `;
+            }
+
+            // Reset toggles
+            $('#showAllOwners').prop('checked', false);
+            $('#showAllKashtkars').prop('checked', false);
+            $('#ownerFullList').hide();
+            $('#kashtkarFullList').hide();
+        }
+
+        // Load saved assessment data
+        async function loadSavedAssessmentData(khasraId) {
+            try {
+                const response = await fetch("/api/Gis/ExecuteStoredProcedure", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify({
+                        procedureName: "sp_GetLandAssessment",
+                        parameters: {
+                            KhasraId: parseInt(khasraId),
+                            UserId: currentUserId
+                        }
+                    })
+                });
+
+                if (response.ok) {
+                    const savedData = await response.json();
+                    const data = savedData.response || (savedData.length > 0 ? savedData[0] : null);
+
+                    if (data) {
+                        // Populate form with saved data
+                        populateFormWithSavedData(data);
+
+                        // Show last saved time
+                        if (data.UpdatedAt || data.CreatedAt) {
+                            const lastSavedDiv = document.getElementById('lastSavedInfo');
+                            const lastSavedTime = document.getElementById('lastSavedTime');
+                            const savedDate = new Date(data.UpdatedAt || data.CreatedAt);
+                            lastSavedTime.textContent = savedDate.toLocaleString();
+                            lastSavedDiv.style.display = 'block';
+                        }
+                    } else {
+                        document.getElementById('lastSavedInfo').style.display = 'none';
+                    }
+                }
+            } catch (error) {
+                console.error("Error loading saved assessment data:", error);
+                document.getElementById('lastSavedInfo').style.display = 'none';
+            }
+        }
+
+        // Populate form with saved data
+        function populateFormWithSavedData(data) {
+            // Khasra validation
+            if (data.IsKhasraCorrect !== null && data.IsKhasraCorrect !== undefined) {
+                const radioBtn = data.IsKhasraCorrect ?
+                    document.getElementById('khasraCorrectYes') :
+                    document.getElementById('khasraCorrectNo');
+                if (radioBtn) {
+                    radioBtn.checked = true;
+                    radioBtn.dispatchEvent(new Event('change'));
+                }
+            }
+            if (data.CorrectKhasra) {
+                document.getElementById('correctKhasra').value = data.CorrectKhasra;
+            }
+
+            // Khewat validation
+            if (data.IsKhewatCorrect !== null && data.IsKhewatCorrect !== undefined) {
+                const radioBtn = data.IsKhewatCorrect ?
+                    document.getElementById('khewatCorrectYes') :
+                    document.getElementById('khewatCorrectNo');
+                if (radioBtn) {
+                    radioBtn.checked = true;
+                    radioBtn.dispatchEvent(new Event('change'));
+                }
+            }
+            if (data.CorrectKhewat) {
+                document.getElementById('correctKhewat').value = data.CorrectKhewat;
+            }
+
+            // Area validation
+            if (data.IsAreaCorrect !== null && data.IsAreaCorrect !== undefined) {
+                const radioBtn = data.IsAreaCorrect ?
+                    document.getElementById('areaCorrectYes') :
+                    document.getElementById('areaCorrectNo');
+                if (radioBtn) {
+                    radioBtn.checked = true;
+                    radioBtn.dispatchEvent(new Event('change'));
+                }
+            }
+            if (data.CorrectAreaA !== null && data.CorrectAreaA !== undefined) {
+                document.getElementById('correctAreaA').value = data.CorrectAreaA;
+            }
+            if (data.CorrectAreaK !== null && data.CorrectAreaK !== undefined) {
+                document.getElementById('correctAreaK').value = data.CorrectAreaK;
+            }
+            if (data.CorrectAreaM !== null && data.CorrectAreaM !== undefined) {
+                document.getElementById('correctAreaM').value = data.CorrectAreaM;
+            }
+
+            // NEW FIELDS: Possession and Land Purpose
+            if (data.Possession !== null && data.Possession !== undefined) {
+                const radioBtn = data.Possession ?
+                    document.getElementById('PossessionYes') :
+                    document.getElementById('PossessionNo');
+                if (radioBtn) radioBtn.checked = true;
+            }
+
+            if (data.LandPurpose) {
+                document.getElementById('landPurpose').value = data.LandPurpose;
+            }
+
+            // Other fields
+            if (data.Litigation !== null && data.Litigation !== undefined) {
+                const radioBtn = data.Litigation ?
+                    document.getElementById('litigationYes') :
+                    document.getElementById('litigationNo');
+                if (radioBtn) radioBtn.checked = true;
+            }
+
+            if (data.LandAvailable !== null && data.LandAvailable !== undefined) {
+                const radioBtn = data.LandAvailable ?
+                    document.getElementById('landAvailableYes') :
+                    document.getElementById('landAvailableNo');
+                if (radioBtn) radioBtn.checked = true;
+            }
+
+            if (data.WaterAvailable !== null && data.WaterAvailable !== undefined) {
+                const radioBtn = data.WaterAvailable ?
+                    document.getElementById('waterAvailableYes') :
+                    document.getElementById('waterAvailableNo');
+                if (radioBtn) {
+                    radioBtn.checked = true;
+                    radioBtn.dispatchEvent(new Event('change'));
+                }
+            }
+            if (data.WaterSource) {
+                document.getElementById('waterSource').value = data.WaterSource;
+            }
+
+            if (data.IsCultivated !== null && data.IsCultivated !== undefined) {
+                const radioBtn = data.IsCultivated ?
+                    document.getElementById('cultivatedYes') :
+                    document.getElementById('cultivatedNo');
+                if (radioBtn) radioBtn.checked = true;
+            }
+
+            if (data.BanjerType) {
+                const radioBtn = document.querySelector(`input[name="banjerType"][value="${data.BanjerType}"]`);
+                if (radioBtn) radioBtn.checked = true;
+            }
+
+            if (data.SoilCondition) {
+                const conditions = data.SoilCondition.split(',');
+                document.querySelectorAll('input[name="soilCondition"]').forEach(cb => {
+                    cb.checked = conditions.includes(cb.value);
+                });
+            }
+
+            if (data.Suitability) {
+                const suitability = data.Suitability.split(',');
+                document.querySelectorAll('input[name="suitability"]').forEach(cb => {
+                    cb.checked = suitability.includes(cb.value);
+                });
+            }
+
+            if (data.Remarks) {
+                document.getElementById('remarks').value = data.Remarks;
+            }
+        }
+
+        // Show no data message
+        function showNoData() {
+            document.getElementById('ownershipSection').style.display = 'none';
+            document.getElementById('assessmentForm').style.display = 'none';
+            document.getElementById('noDataMessage').style.display = 'block';
+            document.getElementById('lastSavedInfo').style.display = 'none';
+        }
+
+        // Collect form data
+        function collectFormData() {
+            const soilCondition = Array.from(document.querySelectorAll('input[name="soilCondition"]:checked'))
+                .map(cb => cb.value);
+            const suitability = Array.from(document.querySelectorAll('input[name="suitability"]:checked'))
+                .map(cb => cb.value);
+
+            // Helper function to get radio button value
+            const getRadioValue = (name) => {
+                const radio = document.querySelector(`input[name="${name}"]:checked`);
+                return radio ? radio.value === 'yes' : null;
+            };
+
+            const formData = {
+                KhasraId: parseInt(currentKhasraId),
+                MauzaId: currentMouzaId ? parseInt(currentMouzaId) : null,
+                TehsilId: currentTehsilId ? parseInt(currentTehsilId) : null,
+                DistrictId: districtId ? parseInt(districtId) : null,
+
+                // Validation fields
+                IsKhasraCorrect: getRadioValue('isKhasraCorrect'),
+                CorrectKhasra: document.getElementById('correctKhasra').value || null,
+
+                IsKhewatCorrect: getRadioValue('isKhewatCorrect'),
+                CorrectKhewat: document.getElementById('correctKhewat').value || null,
+
+                IsAreaCorrect: getRadioValue('isAreaCorrect'),
+                CorrectAreaA: document.getElementById('correctAreaA').value ?
+                    parseInt(document.getElementById('correctAreaA').value) : null,
+                CorrectAreaK: document.getElementById('correctAreaK').value ?
+                    parseInt(document.getElementById('correctAreaK').value) : null,
+                CorrectAreaM: document.getElementById('correctAreaM').value ?
+                    parseFloat(document.getElementById('correctAreaM').value) : null,
+
+                // NEW FIELDS
+                Possession: getRadioValue('Possession'),
+                LandPurpose: document.getElementById('landPurpose').value || null,
+
+                // Other fields
+                Litigation: getRadioValue('litigation'),
+                LandAvailable: getRadioValue('landAvailable'),
+                WaterAvailable: getRadioValue('waterAvailable'),
+                WaterSource: document.getElementById('waterSource').value || null,
+                IsCultivated: getRadioValue('isCultivated'),
+                BanjerType: document.querySelector('input[name="banjerType"]:checked')?.value || null,
+                SoilCondition: soilCondition.length > 0 ? soilCondition.join(',') : null,
+                Suitability: suitability.length > 0 ? suitability.join(',') : null,
+                Remarks: document.getElementById('remarks').value || null,
+
+                UserId: currentUserId
+            };
+
+            return formData;
+        }
+
+        // Submit form
+        async function submitForm() {
+            if (!currentKhasraId) {
+                showToast('warning', 'Warning', 'Please select a khasra first.');
+                return;
+            }
+
+            const formData = collectFormData();
+
+            console.log(formData);
+
+
+            try {
+                // Show loading state
+                const submitBtn = document.getElementById('btnSubmit');
+                const originalText = submitBtn.innerHTML;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+                submitBtn.disabled = true;
+
+                const response = await fetch("/api/Gis/ExecuteStoredProcedure", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify({
+                        procedureName: "sp_SaveLandAssessment",
+                        parameters: formData
+                    })
+                });
+
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+
+                if (response.ok) {
+                    const result = await response.json();
+                    showToast('success', 'Success', 'Land assessment data saved successfully.');
+
+                    // Update last saved time
+                    const lastSavedDiv = document.getElementById('lastSavedInfo');
+                    const lastSavedTime = document.getElementById('lastSavedTime');
+                    const now = new Date();
+                    lastSavedTime.textContent = now.toLocaleString();
+                    lastSavedDiv.style.display = 'block';
+
+                    // Refresh verification status
+                    if (currentMouzaId) {
+                        const verificationData = await fetchVerificationData(currentMouzaId);
+                        verifiedKhasrasData = verificationData.verifiedKhasras || [];
+                        verifiedKhasraIds = verifiedKhasrasData.map(k => k.KhasraId);
+                        verificationStats = verificationData.stats || {};
+                        updateKPIcounts(allKhasras.length, verifiedKhasraIds.length, verificationStats);
+                        updateVerificationGraphics();
+                        updateCompactKhasraListDisplay();
+
+                        // Automatically go to next unverified if exists
+                        setTimeout(() => {
+                            navigateToFirstUnverified();
+                        }, 1000);
+                    }
+
+                } else {
+                    const error = await response.text();
+                    showToast('error', 'Error', `Failed to save data: ${error}`);
+                }
+            } catch (error) {
+                console.error("Error submitting form:", error);
+                showToast('error', 'Error', 'Failed to save data. Please try again.');
+            }
+        }
+
+        // Validate form
+        // Validate form
+        function validateForm() {
+            // Validate required fields
+            const requiredFields = [
+                { name: 'litigation', message: 'Please select litigation status.' },
+                { name: 'Possession', message: 'Please select possession status.' },
+                { name: 'landAvailable', message: 'Please select land purpose.' },
+                { name: 'waterAvailable', message: 'Please select water availability.' },
+                { name: 'isCultivated', message: 'Please select if land is cultivated.' }
+            ];
+
+            for (const field of requiredFields) {
+                const radio = document.querySelector(`input[name="${field.name}"]:checked`);
+                if (!radio) {
+                    showToast('warning', 'Missing Information', field.message);
+                    return false; // Stop here if validation fails
+                }
+            }
+
+            // Validate correction fields when "No" is selected
+            const isKhasraCorrect = document.querySelector('input[name="isKhasraCorrect"]:checked');
+            if (isKhasraCorrect && isKhasraCorrect.value === 'no') {
+                const correctKhasra = document.getElementById('correctKhasra').value;
+                if (!correctKhasra) {
+                    showToast('warning', 'Missing Information', 'Please enter correct Khasra number.');
+                    return false; // Stop here if validation fails
+                }
+            }
+
+            const isKhewatCorrect = document.querySelector('input[name="isKhewatCorrect"]:checked');
+            if (isKhewatCorrect && isKhewatCorrect.value === 'no') {
+                const correctKhewat = document.getElementById('correctKhewat').value;
+                if (!correctKhewat) {
+                    showToast('warning', 'Missing Information', 'Please enter correct Khewat number.');
+                    return false; // Stop here if validation fails
+                }
+            }
+
+            const isAreaCorrect = document.querySelector('input[name="isAreaCorrect"]:checked');
+            if (isAreaCorrect && isAreaCorrect.value === 'no') {
+                const areaA = document.getElementById('correctAreaA').value;
+                const areaK = document.getElementById('correctAreaK').value;
+                const areaM = document.getElementById('correctAreaM').value;
+
+                if (!areaA && !areaK && !areaM) {
+                    showToast('warning', 'Missing Information', 'Please enter correct area.');
+                    return false; // Stop here if validation fails
+                }
+            }
+
+            const waterAvailable = document.querySelector('input[name="waterAvailable"]:checked');
+            if (waterAvailable && waterAvailable.value === 'yes') {
+                const waterSource = document.getElementById('waterSource').value;
+                if (!waterSource) {
+                    showToast('warning', 'Missing Information', 'Please select water source.');
+                    return false; // Stop here if validation fails
+                }
+            }
+
+            // Show success and submit
+            showToast('success', 'Validation', 'All fields validated successfully.');
+            submitForm(); // Only call submitForm() when all validations pass
+            return true;
+        }
+        // Clear form
+        function clearForm() {
+            if (confirm('Are you sure you want to clear all form data?')) {
+                document.getElementById('landForm').reset();
+                document.getElementById('waterSource').value = '';
+                document.getElementById('landPurpose').value = '';
+                document.getElementById('correctKhasra').value = '';
+                document.getElementById('correctKhewat').value = '';
+                document.getElementById('correctAreaA').value = '';
+                document.getElementById('correctAreaK').value = '';
+                document.getElementById('correctAreaM').value = '';
+                document.getElementById('remarks').value = '';
+
+                // Hide all correction fields
+                document.querySelectorAll('.correct-value-fields').forEach(field => {
+                    field.classList.remove('show');
+                });
+                document.getElementById('waterSourceFields').classList.remove('show');
+
+                document.getElementById('lastSavedInfo').style.display = 'none';
+                showToast('info', 'Cleared', 'Form has been cleared.');
+            }
+        }
+
+        // Show toast message
+        function showToast(type, title, message) {
+            const toastId = 'toast-' + Date.now();
+            const toastHtml = `
+                        <div id="${toastId}" class="toast" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="5000">
+                            <div class="toast-header bg-${type} text-white">
+                                <strong class="me-auto">${title}</strong>
+                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
+                            </div>
+                            <div class="toast-body">
+                                ${message}
+                            </div>
+                        </div>
+                    `;
+
+            document.getElementById('toastContainer').insertAdjacentHTML('beforeend', toastHtml);
+
+            const toastElement = document.getElementById(toastId);
+            const toast = new bootstrap.Toast(toastElement);
+            toast.show();
+
+            toastElement.addEventListener('hidden.bs.toast', function () {
+                this.remove();
+            });
+        }
+    </script>
+</body>
+</html>

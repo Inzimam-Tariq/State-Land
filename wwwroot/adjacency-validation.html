@@ -1,0 +1,620 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>Muaza Adjacency Validation Dashboard - Apna Khait Apna Rozgar</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Select2 + Bootstrap 5 Theme -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- SweetAlert2 -->
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+    <!-- DataTables -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/dataTables.bootstrap5.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.bootstrap5.min.css">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+
+    <link rel="stylesheet" href="css/main.css">
+    <style>
+
+        html, body {
+            height: 100% !important;
+            margin: 0;
+            overflow: hidden; /* ← Important: no body scroll by default */
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+        }
+
+        footer {
+            margin-top: auto;
+            flex-shrink: 0;
+        }
+
+        /* ==================== THIS IS THE ONLY CHANGE YOU NEED ==================== */
+        #mainContentContainer {
+            flex: 1 1 auto;
+            overflow-y: auto; /* ← Makes this container scrollable */
+            padding-bottom: 20px;
+            min-height: 0;
+        }
+        /* ======================================================================== */
+
+
+
+        /* CARD DESIGN */
+        .card {
+            background: #ffffff;
+            border-radius: 14px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        }
+
+            .card label {
+                font-weight: 600;
+                margin-bottom: 8px;
+                display: block;
+                color: #2c3e50;
+            }
+
+        /* DROPDOWN */
+        #ddlTehsil {
+            height: 40px;
+        }
+
+        .select2-container .select2-selection--single {
+            height: 40px !important;
+            border-radius: 8px !important;
+            border: 1px solid #ccc !important;
+        }
+
+        /* TABLE */
+        table.dataTable {
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+            table.dataTable th {
+                background: #228B22;
+                color: #fff;
+            }
+
+            table.dataTable tbody tr {
+                transition: 0.2s;
+            }
+
+                table.dataTable tbody tr:hover {
+                    background: rgba(46, 125, 50, 0.1);
+                }
+
+        /* BUTTON */
+        .btn-primary {
+            background: linear-gradient(135deg, #11998e, #38ef7d);
+            border: none;
+            border-radius: 6px;
+            /*            padding: 5px 10px;*/
+            font-size: 13px;
+        }
+
+            .btn-primary:hover {
+                opacity: 0.9;
+            }
+
+        /* MODAL */
+        .modal-content {
+            background: #ffffff;
+            color: #333;
+            border-radius: 12px;
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, #11998e, #38ef7d);
+            color: #fff;
+            border-top-left-radius: 12px;
+            border-top-right-radius: 12px;
+        }
+
+        .modal-footer {
+            border-top: none;
+        }
+
+        /* CHECKBOX LIST */
+        .checkbox-item {
+            padding: 10px;
+            margin-bottom: 6px;
+            border-radius: 8px;
+            background: #f5f5f5;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: 0.2s;
+        }
+
+            .checkbox-item:hover {
+                background: #e8f5e9;
+            }
+
+            .checkbox-item.unchecked {
+                background: #fdecea;
+                color: #c62828;
+            }
+
+        /* REMARKS */
+        textarea {
+            border-radius: 8px !important;
+            border: 1px solid #ccc !important;
+        }
+
+        /* STATUS BADGES */
+        .status {
+            padding: 5px 10px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+            /* 🟡 Pending Review */
+            .status.pending {
+                background: #fff3cd;
+                color: #856404;
+            }
+
+            /* 🟢 First Attempt Done */
+            .status.verified {
+                background: #d4edda;
+                color: #155724;
+            }
+
+            /* 🔵 Finalized */
+            .status.finalized {
+                background: #d1ecf1;
+                color: #0c5460;
+            }
+
+            /* 🔴 Incorrect (optional if you still want to show errors) */
+            .status.incorrect {
+                background: #f8d7da;
+                color: #721c24;
+            }
+
+        .guide-section {
+            margin-bottom: 18px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .guide-section h6 {
+            font-weight: 700;
+            color: #2e7d32;
+            margin-bottom: 6px;
+        }
+
+        .guide-section p, .guide-section ul {
+            margin: 0;
+            font-size: 14px;
+            color: #333;
+        }
+
+        .guide-section ul {
+            padding-left: 18px;
+        }
+
+        #guideModal .modal-header {
+            background: linear-gradient(135deg, #11998e, #38ef7d);
+            color: white;
+        }
+
+    </style>
+</head>
+
+<body>
+    <div id="sidebarContainer"></div>
+    <div id="sidebarOverlay" class="sidebar-overlay"></div>
+    <!-- NAVBAR -->
+    <nav class="navbar navbar-custom navbar-expand-lg">
+        <div class="container-fluid" style="background: forestgreen">
+            <i class="fas fa-bars menu-toggle" id="btnToggleSidebar"></i>
+            <a class="navbar-brand text-white" href="#">
+                <i class="fas fa-map-marked-alt"></i>  Apna Khait Apna Rozgar
+            </a>
+
+            <div class="profile-view d-flex align-items-center">
+
+                <div class="profile-avatar me-2">
+                    <i class="fas fa-user"></i>
+                </div>
+
+                <div class="profile-info me-3">
+                    <div class="welcome-text">Welcome</div>
+                    <div id="currentUserName" class="profile-name"></div>
+                </div>
+
+                <!-- Help Button -->
+                <button class="help-btn me-2 btn btn-light btn-sm"
+                        id="btnOpenGuide"
+                        title="Show Guide">
+                    <i class="fas fa-question-circle"></i>
+                </button>
+
+                <button class="logout-btn" title="Logout" onclick="clearSession()">
+                    <i class="fas fa-sign-out-alt"></i>
+                </button>
+            </div>
+
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container-fluid mt-3" id="mainContentContainer">
+        <!--<h5 style="margin-bottom:15px; color:#2e7d32;">Mauza Adjacency Records</h5>-->
+        <!-- DROPDOWNS -->
+        <div class="container-fluid mt-2">
+            <div class="card mb-3">
+                <label>Select Tehsil</label>
+                <select id="ddlTehsil" style="width:100%"></select>
+            </div>
+        </div>
+
+        <div class="card">
+            <table id="tblMauza" class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Mauza</th>
+                        <th>Adjacent Count</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+            </table>
+        </div>
+
+        <div class="modal fade" id="validationModal">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 id="modalTitle"></h5>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-2">
+                            <button class="btn btn-sm btn-light" onclick="selectAll()">Select All</button>
+                            <button class="btn btn-sm btn-light" onclick="deselectAll()">Deselect All</button>
+                        </div>
+                        <div id="adjacentList"></div>
+
+                        <textarea id="remarks" class="form-control mt-3" placeholder="Enter remarks"></textarea>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button class="btn btn-lg btn-primary" onclick="submitValidation()"><i class="bi bi-check-circle"></i> Submit</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="guideModal" tabindex="-1">
+            <div class="modal-dialog modal-lg modal-dialog-scrollable">
+                <div class="modal-content">
+
+                    <div class="modal-header">
+                        <h5 class="modal-title">Adjacency Validation Guide</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    </div>
+
+                    <div class="modal-body">
+
+                        <div class="guide-section">
+                            <h6>1. Purpose</h6>
+                            <p>
+                                This module validates whether Mauza adjacency relationships are correctly defined in the system.
+                                Field staff can approve or correct adjacency mappings.
+                            </p>
+                        </div>
+
+                        <div class="guide-section">
+                            <h6>2. Workflow Overview</h6>
+                            <ul>
+                                <li>Select a Tehsil from dropdown</li>
+                                <li>System loads Mauza adjacency summary</li>
+                                <li>Click <b>Validate</b> to review details</li>
+                                <li>Check/uncheck incorrect adjacents</li>
+                                <li>Submit with remarks</li>
+                            </ul>
+                        </div>
+
+                        <div class="guide-section">
+                            <h6>3. Status Meaning</h6>
+                            <ul>
+                                <li><span class="status pending">Pending Review</span> → Not yet validated</li>
+                                <li><span class="status verified">Verified (1/2)</span> → First validation completed</li>
+                                <li><span class="status finalized">Finalized</span> → Validation locked</li>
+                            </ul>
+                        </div>
+
+                        <div class="guide-section">
+                            <h6>4. Rules</h6>
+                            <ul>
+                                <li>Each Mauza has maximum 2 validation attempts</li>
+                                <li>After second attempt, record becomes locked</li>
+                                <li>Remarks are mandatory for corrective actions</li>
+                            </ul>
+                        </div>
+
+                        <div class="guide-section">
+                            <h6>5. Best Practices</h6>
+                            <ul>
+                                <li>Verify adjacency using field knowledge or maps</li>
+                                <li>Avoid marking all as correct without validation</li>
+                                <li>Add meaningful remarks for corrections</li>
+                            </ul>
+                        </div>
+
+                    </div>
+
+                    <div class="modal-footer">
+                        <button class="btn btn-success" data-bs-dismiss="modal">Got it</button>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <footer class="bg-light border-top mt-auto">
+        <div class="container-fluid py-3">
+            <div class="row align-items-center">
+                <div class="col-md-6 text-center text-md-start small text-muted">
+                    <i class="fa-regular fa-copyright me-1"></i>
+                    <span id="footerYear"></span> PULSE. All rights reserved.
+                </div>
+
+                <div class="col-md-6 text-center text-md-end small text-muted">
+                    Powered by PULSE ICT Team
+                </div>
+            </div>
+        </div>
+    </footer>
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <!-- DataTables + extensions -->
+    <script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.8/js/dataTables.bootstrap5.min.js"></script>
+
+    <!-- Buttons -->
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.bootstrap5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.print.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.colVis.min.js"></script>
+    <!-- Export dependencies -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <!-- User defined scripts-->
+    <script src="/js/base.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            $("#currentUserName").text(localStorage.getItem("pulse_userName") || "Guest");
+
+            $('#ddlTehsil').select2({
+                placeholder: "Select Tehsil",
+                allowClear: true
+            });
+
+            loadTehsils();
+
+            if (!localStorage.getItem("adjacencyGuideSeen")) {
+                $('#guideModal').modal('show');
+                localStorage.setItem("adjacencyGuideSeen", "1");
+            }
+
+        });
+        $('#btnOpenGuide').on('click', function () {
+            $('#guideModal').modal('show');
+        });
+
+        function loadTehsils() {
+            executeSP("sp_GetTehsilsByDistrict", {}) // your SP
+                .then(res => {
+                    debugger
+                    const data = res?.[0]?.rows;
+
+                    // 👉 Add placeholder as first option
+                    let options = [{
+                        id: '',
+                        text: 'Select Item'
+                    }];
+
+                    // 👉 Append actual data
+                    options = options.concat(
+                        data.map(x => ({
+                            id: x.TehsilId,
+                            text: x.TehsilName
+                        }))
+                    );
+
+                    $('#ddlTehsil').empty().select2({
+                        data: options
+                    });
+                }).catch(err => {
+                    alert("Something went wrong");
+                    console.error(err);
+                });
+        }
+        let table;
+
+        $('#ddlTehsil').on('change', function () {
+            let tehsilId = $(this).val();
+            loadTable(tehsilId);
+        });
+
+        function loadTable(tehsilId) {
+
+            if ($.fn.DataTable.isDataTable('#tblMauza')) {
+                $('#tblMauza').DataTable().clear().destroy();
+            }
+
+            executeSP("i_GetAdjacentMauzasByTehsilId", { TehsilId: tehsilId })
+                .then(res => {
+                    debugger
+
+                    table = $('#tblMauza').DataTable({
+                        data: res[0]?.rows,
+                        columns: [
+                            { data: 'MauzaName' },
+                            { data: 'AdjacentCount' },
+                            {
+                                data: null,
+                                render: function (d) {
+
+                                    // Not verified yet
+                                    if (!d.VerifiedBy) {
+                                        return '<span class="status pending">Pending Review</span>';
+                                    }
+
+                                    // First attempt done, second not used
+                                    if (d.VerifiedBy && !d.UpdatedBy) {
+                                        return '<span class="status verified">Verified (1/2)</span>';
+                                    }
+
+                                    // Finalized (second attempt used)
+                                    if (d.VerifiedBy && d.UpdatedBy) {
+                                        return '<span class="status finalized">Finalized</span>';
+                                    }
+
+                                    return '<span class="status pending">Pending</span>';
+                                }
+                            },
+                            {
+                                data: null,
+                                render: function (d) {
+                                    let name = d.MauzaName.replace(/'/g, "\\'");
+
+                                    if (d.VerifiedBy && d.UpdatedBy) {
+                                        return `<button class="btn btn-sm btn-secondary" disabled>🔒 Locked</button>`;
+                                    }
+                                    return `<button class="btn btn-sm btn-primary" onclick="openValidation(${d.MauzaId}, '${name}')">Validate</button>`;
+                                }
+                            }
+                        ]
+                    });
+
+                }).catch(err => {
+                    alert("Something went wrong");
+                    console.error(err);
+                });
+        }
+
+        let currentMauzaId = 0;
+
+        function openValidation(mauzaId, mauzaName) {
+            currentMauzaId = mauzaId;
+
+            $('#modalTitle').text("Validate: " + mauzaName);
+            $('#remarks').val('');
+            $('#adjacentList').html('<div class="text-center">Loading...</div>');
+
+            executeSP("i_GetAdjacentsByMauza", { MauzaId: mauzaId })
+                .then(res => {
+
+                    let html = "";
+
+                    res[0]?.rows.forEach(x => {
+                        html += `
+                                <div class="checkbox-item">
+                                    <input type="checkbox" class="adjChk" value="${x.AdjacentMauzaId}" ${x.IsAdjacentCorrect ? 'checked' : ''} />
+                                    <span>${x.AdjacentMauzaName}</span>
+                                </div>`;
+                    });
+
+                    $('#adjacentList').html(html);
+
+                    $('#validationModal').modal('show');
+
+                    bindCheckboxEvents();
+                }).catch(err => {
+                    alert("Something went wrong");
+                    console.error(err);
+                });
+        }
+
+        function bindCheckboxEvents() {
+            $('.adjChk').on('change', function () {
+                if (!this.checked) {
+                    $(this).parent().addClass('unchecked');
+                } else {
+                    $(this).parent().removeClass('unchecked');
+                }
+            });
+        }
+
+        function submitValidation() {
+
+            let selected = [];
+
+            $('.adjChk:checked').each(function () {
+                let val = $(this).val();
+
+                // ✅ Ignore empty / placeholder / invalid values
+                if (val && !isNaN(val)) {
+                    selected.push(parseInt(val));
+                }
+            });
+
+            let remarks = $('#remarks').val().trim();
+
+            // ✅ Validation
+            if (selected.length === 0 && !remarks) {
+                alert("Remarks required when all adjacents are unchecked");
+                return;
+            }
+
+            let payload = {
+                MauzaId: currentMauzaId,
+                SelectedAdjacents: selected.length > 0 ? selected.join(',') : '', // safe fallback
+                Remarks: remarks
+            };
+
+            executeSP("i_UpdateAdjacentValidation", payload)
+                .then(res => {
+
+                    $('#validationModal').modal('hide');
+
+                    // ✅ Reset UI state (important)
+                    $('#remarks').val('');
+                    $('.adjChk').prop('checked', true);
+
+                    // Refresh table
+                    $('#ddlTehsil').trigger('change');
+
+                }).catch(err => {
+                    alert("Something went wrong");
+                    console.error(err);
+                });
+        }
+
+        function selectAll() {
+            $('.adjChk').prop('checked', true).trigger('change');
+        }
+
+        function deselectAll() {
+            $('.adjChk').prop('checked', false).trigger('change');
+        }
+
+    </script>
+</body>
+</html>

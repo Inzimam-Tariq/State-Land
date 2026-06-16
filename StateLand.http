@@ -1,0 +1,6 @@
+@StateLand_HostAddress = http://localhost:5244
+
+GET {{StateLand_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

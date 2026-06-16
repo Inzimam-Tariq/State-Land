@@ -1,0 +1,412 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="css/style.css"  rel="stylesheet">
+<style lang="scss">   
+    .info-card {
+        .status-title {
+            font-weight: 400;
+            font-size: 14px;
+            line-height: 20px;
+            letter-spacing: -0.15px;
+            color: #6A7282;
+        }
+        .application-status {
+            font-weight: 600;
+            font-size: 16px;
+            line-height: 28px;
+            letter-spacing: -0.44px;
+            color: #293753;
+        }
+    }
+
+    .info-card-highlight {
+        background: #E9F6ED;
+        border-radius: 14px;
+        padding: 24px;
+        border: none;
+        .deadline{
+            font-weight: 500;
+            font-size: 14px;
+            line-height: 20px;
+            letter-spacing: -0.15px;
+            color: #101828;
+        }
+        .deadline-note{
+            font-weight: 400;
+            font-size: 12px;
+            line-height: 16px;
+            letter-spacing: 0px;
+            color: #4A5565;
+        }
+        .schedule-view{
+            font-weight: 500;
+            font-size: 14px;
+            line-height:24px;
+            letter-spacing: -0.16px;
+            color: #565C67;
+        }
+    }
+
+
+        .progress-card{
+           .title {
+                font-weight: 600;
+                font-size: 14px;
+                line-height: 20px;
+                letter-spacing: -0.15px;
+                color: #293753;
+           }
+           .sub-title{
+            font-weight: 400;
+            font-size: 12px;
+            line-height: 16px;
+            letter-spacing: 0px;
+            color: #6A7282;
+           }
+        }
+
+    .step {
+        position: relative;
+        padding-left: 2.5rem;
+        padding-bottom: 2rem;
+        .step-content {
+            margin-left: 1rem;
+            .step-title {
+                font-weight: 500;
+                font-size: 16px;      
+                line-height: 24px;
+                letter-spacing: -0.31px;
+                color: #171F2F;
+            }
+            .step-detail{
+                font-weight: 400;
+                font-size: 14px;
+                line-height: 20px;
+                letter-spacing: -0.15px;
+                color: #4A5565;
+            }
+            .step-status{
+                font-weight: 400;
+                font-size: 14px;
+                line-height: 16px;
+                letter-spacing: 0px;
+                color: #000000;
+            }
+        }
+    }
+
+    .step::before {
+      content: '';
+      position: absolute;
+      left: 0.9rem;
+      top: 1rem;
+      width: 2px;
+      height: calc(100% - 1rem);
+      background-color: #04A452;
+      z-index: 0;
+    }
+
+    .step:last-child::before {
+      height: 0;
+    }
+
+     .step:last-child {
+        padding-bottom: 0 !important;
+    }
+
+    .step-icon {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 2rem;
+      height: 2rem;
+      border-radius: 50%;
+      /* background-color: #dee2e6; */
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1;
+    }
+
+    .step-icon.completed {
+      background-color: #04A452;
+      color: white;
+    }
+    .disabled {
+        opacity: 0.4;
+    }
+    .rejection-reason-link{
+        font-weight: 500;
+        font-size: 14px;
+        line-height: 20px;
+        letter-spacing: -0.15px;
+        text-decoration: underline;
+        color: #F1A75D;
+    }
+
+    .recent-activity-card{
+        .title {
+            font-weight: 600;
+            font-size: 14px;
+            line-height: 20px;
+            letter-spacing: -0.15px;
+            color: #293753;
+        }
+        .sub-title{
+            font-weight: 400;
+            font-size: 12px;
+            line-height: 16px;
+            letter-spacing: 0px;
+            color: #6A7282;
+        }
+    }
+</style>
+</head>
+<body>
+
+<!-- Topbar -->
+<div id="topbar"></div>
+
+<!-- Sidebar -->
+<div id="sidebar"></div> 
+
+<!-- Main Content -->
+<div class="content">
+    <!-- Spinner overlay -->
+    <div id="spinner-overlay" class="spinner-overlay d-none">
+        <div class="spinner-border text-success" role="status" style="width: 3rem; height: 3rem;">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <span class="content-title">Hello, Muhammad</span>
+            <p class="content-subtitle">Track and manage your land lease application</p>
+        </div>
+        <div>
+            <button class="btn primary-btn">
+                Update Your Profile
+                <i class="bi bi-arrow-right ms-2"></i> 
+            </button>
+        </div>
+    </div>
+
+    
+  <!-- TOP STATUS CARDS -->
+    <div class="row g-4 mb-4 mt-1">
+        <div class="col-12 col-md-12 col-lg-4">
+            <div class="info-card dashboard-card h-100">
+                <div class="mb-3">
+                    <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M0 14C0 6.26801 6.26801 0 14 0H34C41.732 0 48 6.26801 48 14V34C48 41.732 41.732 48 34 48H14C6.26801 48 0 41.732 0 34V14Z" fill="#E9F6ED"/>
+                        <path d="M31 33V31C31 29.9391 30.5786 28.9217 29.8284 28.1716C29.0783 27.4214 28.0609 27 27 27H21C19.9391 27 18.9217 27.4214 18.1716 28.1716C17.4214 28.9217 17 29.9391 17 31V33" stroke="#04A452" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M24 23C26.2091 23 28 21.2091 28 19C28 16.7909 26.2091 15 24 15C21.7909 15 20 16.7909 20 19C20 21.2091 21.7909 23 24 23Z" stroke="#04A452" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>   
+                </div>
+                <p class="status-title mb-1">Applicant Status</p>
+                <p class="application-status">Profile Update Pending</p>
+            </div>
+        </div>
+
+        <div class="col-12 col-md-12 col-lg-4"> 
+            <div class="info-card dashboard-card h-100">
+                <div class="mb-3">
+                    <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M0 14C0 6.26801 6.26801 0 14 0H34C41.732 0 48 6.26801 48 14V34C48 41.732 41.732 48 34 48H14C6.26801 48 0 41.732 0 34V14Z" fill="#E9F6ED"/>
+                        <path d="M27 14H21C20.4477 14 20 14.4477 20 15V17C20 17.5523 20.4477 18 21 18H27C27.5523 18 28 17.5523 28 17V15C28 14.4477 27.5523 14 27 14Z" stroke="#07AB57" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M28 16H30C30.5304 16 31.0391 16.2107 31.4142 16.5858C31.7893 16.9609 32 17.4696 32 18V32C32 32.5304 31.7893 33.0391 31.4142 33.4142C31.0391 33.7893 30.5304 34 30 34H18C17.4696 34 16.9609 33.7893 16.5858 33.4142C16.2107 33.0391 16 32.5304 16 32V18C16 17.4696 16.2107 16.9609 16.5858 16.5858C16.9609 16.2107 17.4696 16 18 16H20" stroke="#07AB57" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M24 23H28" stroke="#07AB57" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M24 28H28" stroke="#07AB57" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M20 23H20.009" stroke="#07AB57" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M20 28H20.009" stroke="#07AB57" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>  
+                <p class="status-title mb-1">Application Status</p>
+                <p class="application-status">Not Started</p>
+            </div>
+        </div>
+
+        <div class="col-12 col-md-12 col-lg-4">
+            <div class="info-card-highlight h-100">
+                <div class="mb-3">
+                   <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M0 14C0 6.26801 6.26801 0 14 0H34C41.732 0 48 6.26801 48 14V34C48 41.732 41.732 48 34 48H14C6.26801 48 0 41.732 0 34V14Z" fill="white"/>
+                        <path d="M14 24C14 20.229 14 18.343 15.172 17.172C16.344 16.001 18.229 16 22 16H26C29.771 16 31.657 16 32.828 17.172C33.999 18.344 34 20.229 34 24V26C34 29.771 34 31.657 32.828 32.828C31.656 33.999 29.771 34 26 34H22C18.229 34 16.343 34 15.172 32.828C14.001 31.656 14 29.771 14 26V24Z" stroke="#04A452" stroke-width="1.5"/>
+                        <path d="M19 16V14.5M29 16V14.5M14.5 21H33.5" stroke="#04A452" stroke-width="1.5" stroke-linecap="round"/>
+                        <path d="M19 28.5C19.1326 28.5 19.2597 28.5527 19.3535 28.6465C19.4473 28.7403 19.5 28.8674 19.5 29C19.5 29.1326 19.4473 29.2597 19.3535 29.3535C19.2597 29.4473 19.1326 29.5 19 29.5C18.8674 29.5 18.7403 29.4473 18.6465 29.3535C18.5527 29.2597 18.5 29.1326 18.5 29C18.5 28.8674 18.5527 28.7403 18.6465 28.6465C18.7403 28.5527 18.8674 28.5 19 28.5ZM24 28.5C24.1326 28.5 24.2597 28.5527 24.3535 28.6465C24.4473 28.7403 24.5 28.8674 24.5 29C24.5 29.1326 24.4473 29.2597 24.3535 29.3535C24.2597 29.4473 24.1326 29.5 24 29.5C23.8674 29.5 23.7403 29.4473 23.6465 29.3535C23.5527 29.2597 23.5 29.1326 23.5 29C23.5 28.8674 23.5527 28.7403 23.6465 28.6465C23.7403 28.5527 23.8674 28.5 24 28.5ZM29 28.5C29.1326 28.5 29.2597 28.5527 29.3535 28.6465C29.4473 28.7403 29.5 28.8674 29.5 29C29.5 29.1326 29.4473 29.2597 29.3535 29.3535C29.2597 29.4473 29.1326 29.5 29 29.5C28.8674 29.5 28.7403 29.4473 28.6465 29.3535C28.5527 29.2597 28.5 29.1326 28.5 29C28.5 28.8674 28.5527 28.7403 28.6465 28.6465C28.7403 28.5527 28.8674 28.5 29 28.5ZM19 24.5C19.1326 24.5 19.2597 24.5527 19.3535 24.6465C19.4473 24.7403 19.5 24.8674 19.5 25C19.5 25.1326 19.4473 25.2597 19.3535 25.3535C19.2597 25.4473 19.1326 25.5 19 25.5C18.8674 25.5 18.7403 25.4473 18.6465 25.3535C18.5527 25.2597 18.5 25.1326 18.5 25C18.5 24.8674 18.5527 24.7403 18.6465 24.6465C18.7403 24.5527 18.8674 24.5 19 24.5ZM24 24.5C24.1326 24.5 24.2597 24.5527 24.3535 24.6465C24.4473 24.7403 24.5 24.8674 24.5 25C24.5 25.1326 24.4473 25.2597 24.3535 25.3535C24.2597 25.4473 24.1326 25.5 24 25.5C23.8674 25.5 23.7403 25.4473 23.6465 25.3535C23.5527 25.2597 23.5 25.1326 23.5 25C23.5 24.8674 23.5527 24.7403 23.6465 24.6465C23.7403 24.5527 23.8674 24.5 24 24.5ZM29 24.5C29.1326 24.5 29.2597 24.5527 29.3535 24.6465C29.4473 24.7403 29.5 24.8674 29.5 25C29.5 25.1326 29.4473 25.2597 29.3535 25.3535C29.2597 25.4473 29.1326 25.5 29 25.5C28.8674 25.5 28.7403 25.4473 28.6465 25.3535C28.5527 25.2597 28.5 25.1326 28.5 25C28.5 24.8674 28.5527 24.7403 28.6465 24.6465C28.7403 24.5527 28.8674 24.5 29 24.5Z" fill="#04A452" stroke="#04A452"/>
+                    </svg>
+                </div>
+                <p class="deadline mb-1">Application Deadline: April 16, 2026</p>
+                <p class="deadline-note mb-1">
+                    Please adhere to the application schedule to avoid any inconvenience.
+                </p>
+                <a href="#" class="schedule-view mb-0">View Full Schedule</a>
+            </div>
+        </div>
+
+    </div>
+
+
+    
+<!-- ELIGIBILITY PROGRESS -->
+    
+    <div class="card dashboard-card progress-card p-4 mb-4">
+        <h5 class="title mb-1">Applicant Eligibility Progress</h5>
+        <p class="sub-title mb-4">Track your eligibility status from application submission through committee review to final decision.</p>
+        <div id="steps-container">
+        <!-- Steps will be injected here -->
+        </div>
+
+    </div>
+    
+<!-- RECENT ACTIVITY --> 
+    <div class="dashboard-card recent-activity-card">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h6 class="title">Recent Activity</h6>
+                <p class="sub-title">Your activity feed will show important updates once you submit your application.</p>
+            </div>
+           <div><i class="bi bi-bell" style="font-size: 18px !important; color: #99A1AF;"></i></div>
+        </div>
+        
+    </div>
+
+</div>
+
+<script src="js/layout.js"></script>
+<script>
+
+    
+const showSpinner = () => { document.getElementById('spinner-overlay').classList.remove('d-none'); }
+const hideSpinner = () => {document.getElementById('spinner-overlay').classList.add('d-none'); }
+
+// Simulate API call with a function
+const fetchSteps = () => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve([
+        {
+          title: "Profile Updated",
+          detail: "Your profile has been successfully updated",
+          status: "approved",
+          date: "March 8, 2026",
+          icon: "../images/dashboard/success.png",
+          disabled: false
+        },
+        {
+          title: "Application Submission",
+          detail: "Submit your land lease application to proceed.",
+          status: "pending",
+          date: "March 10, 2026",
+          icon: "../images/dashboard/pending.png",
+          disabled: false
+        }, 
+         {
+          title: "Scrutiny Committee Review",
+          detail: "Your application has been rejected by the Tehsil Scrutiny Committee View Reasons",
+          status: "rejected",
+          date: "March 18, 2026", 
+          icon: "../images/dashboard/info-circle.svg",
+          disabled: false
+        },
+        {
+          title: "Scrutiny Committee Review",
+          detail: "Your application will be reviewed by the Tehsil Scrutiny Committee",
+          status: "pending",
+          date: "March 8, 2026",
+          icon: "../images/dashboard/pending-disabled.png",
+          disabled: true
+        }
+      ]);
+    }, 1000); // simulate network delay
+  });
+}
+
+// Render steps dynamically
+const renderSteps = async () => {
+    showSpinner(); // show spinner before API call
+    try{
+        const stepsData = await fetchSteps(); // get data from "API"
+        hideSpinner();
+        const container = document.getElementById('steps-container');
+        container.innerHTML = ''; // clear any existing steps
+        
+        let firstPendingFound = false;
+
+        stepsData.forEach(step => {
+            
+            // Make step disabled if there are more than 1 pending and this is not the first pending
+            if (step.status === 'pending') {
+                if (!firstPendingFound) {
+                    firstPendingFound = true;
+                    step['disabled'] = false;
+                } else {
+                    step['disabled'] = true;
+                }
+            }
+
+
+            const stepDiv = document.createElement('div');
+            stepDiv.className = `step${step.disabled ? ' disabled' : ''} ${step.status === 'rejected' ? ' rejected' : ''}`;
+            stepDiv.innerHTML = `
+                    <div class="step-icon">
+                        <img src="${step.icon}" alt="${step.title} icon">
+                    </div>
+                    <div class="step-content d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="step-title mb-1">${step.title}</h6>
+                            <p class="step-detail mb-0">${step.detail}</p>
+                            ${step.status === 'rejected' ? '<a href="#" class="rejection-reason-link mb-0">View Reason</a>' : ''}
+                        </div>
+                    <div>
+                    <span class="step-status">${step.status === 'pending' ? step.status : step.date}</span>
+                </div>
+            </div>
+            `;
+
+            container.appendChild(stepDiv);
+        });
+        // Change the line color if the next step is disabled
+        const steps = container.querySelectorAll('.step');
+        steps.forEach((step, i) => {
+            const nextStep = steps[i + 1];
+            if (nextStep && nextStep.classList.contains('disabled'))  {
+                step.style.setProperty('--line-color', '#edf2f7');
+            }else if (nextStep && nextStep.classList.contains('rejected'))  {
+                step.style.setProperty('--line-color', '#F1A75D');
+            }
+            else{
+                step.style.setProperty('--line-color', '#04A452'); // default color
+            }
+        });
+    }catch(error){
+        console.error("Error fetching steps:", error);
+    }finally{
+        hideSpinner(); // ensure spinner is hidden even if there's an error
+    }
+}
+
+// Apply CSS variable for ::before
+const style = document.createElement('style');
+style.innerHTML = `
+.step::before {
+  background-color: var(--line-color, #04A452);
+}
+`;
+document.head.appendChild(style);
+
+// Call the function to render steps
+renderSteps();
+</script>
+
+</body>
+</html>

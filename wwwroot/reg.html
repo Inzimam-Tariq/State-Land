@@ -1,0 +1,891 @@
+﻿<!DOCTYPE html>
+<html lang="ur" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>اپنا کھیت اپنا روزگار - اراضی پورٹل</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Nastaliq+Urdu:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.rtl.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <style>
+        :root {
+            --primary: #0b4f3a;
+            --primary-light: #1a755a;
+            --accent: #d97706;
+        }
+
+        body {
+            font-family: 'Noto Nastaliq Urdu', system-ui, sans-serif;
+            background: linear-gradient(135deg, #e9f5ee 0%, #f8f9fa 100%);
+            color: #2c3e50;
+            min-height: 100vh;
+        }
+
+        .header {
+            background: linear-gradient(90deg, var(--primary), var(--primary-light));
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .card {
+            border: none;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+            transition: all 0.3s;
+        }
+
+            .card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 12px 30px rgba(0,0,0,0.14);
+            }
+
+        .card-header {
+            background: linear-gradient(90deg, var(--primary), var(--primary-light));
+            color: white;
+            border-bottom: none;
+            padding: 1.25rem 1.5rem;
+        }
+
+        .card-title {
+            margin: 0;
+            font-size: 1.4rem;
+        }
+
+        .card-body {
+            padding: 1.5rem;
+            cursor: pointer;
+        }
+
+        .card-footer {
+            background: #f8f9fa;
+            border-top: 1px solid #dee2e6;
+            padding: 1rem 1.5rem;
+            text-align: center;
+        }
+
+        .form-control, .form-select {
+            border-radius: 12px;
+            padding: 14px 18px;
+            font-size: 1.1rem;
+        }
+
+            .form-control:focus, .form-select:focus {
+                border-color: var(--primary);
+                box-shadow: 0 0 0 0.25rem rgba(11,79,58,0.25);
+            }
+
+        .btn-primary {
+            background-color: var(--primary);
+            border-color: var(--primary);
+            border-radius: 50px;
+            padding: 12px 32px;
+            font-weight: 600;
+        }
+
+            .btn-primary:hover {
+                background-color: var(--primary-light);
+            }
+
+        .btn-outline-primary {
+            border-radius: 50px;
+        }
+
+        .nav-tabs .nav-link {
+            border: none;
+            border-bottom: 3px solid transparent;
+            color: #6c757d;
+            font-weight: 600;
+            padding: 1rem 2rem;
+            font-size: 1.1rem;
+        }
+
+            .nav-tabs .nav-link.active {
+                color: var(--primary);
+                border-bottom-color: var(--primary);
+            }
+
+        .lot-badge {
+            font-size: 0.9rem;
+            padding: 6px 14px;
+        }
+
+        .modal-content {
+            border-radius: 20px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.25);
+        }
+
+        .otp-input {
+            width: 100%;
+            max-width: 320px;
+            height: 70px;
+            font-size: 2.5rem;
+            text-align: center;
+            letter-spacing: 14px;
+            border-radius: 12px;
+        }
+
+            .otp-input:focus {
+                border-color: var(--primary);
+                box-shadow: 0 0 0 0.25rem rgba(11,79,58,0.25);
+            }
+
+        footer {
+            background: rgba(11,79,58,0.05);
+            border-top: 1px solid rgba(11,79,58,0.1);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container-fluid px-3 px-md-5 py-4">
+        <!-- Header -->
+        <nav class="navbar header rounded-4 mb-5">
+            <div class="container-fluid">
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-seedling fs-1 me-3 text-warning"></i>
+                    <h1 class="h3 mb-0 text-white fw-bold">اپنا کھیت اپنا روزگار</h1>
+                </div>
+                <div class="d-flex align-items-center gap-3 bg-white bg-opacity-25 rounded-pill px-4 py-2">
+                    <span id="displayName" class="text-white fw-bold">مہمان</span>
+                    <button id="loginBtn" class="btn btn-outline-light rounded-pill px-4">
+                        <i class="fas fa-sign-in-alt me-2"></i>لاگ ان / رجسٹر
+                    </button>
+                </div>
+            </div>
+        </nav>
+
+        <div id="mainContent"></div>
+    </div>
+
+    <!-- Auth Modal -->
+    <div class="modal fade" id="authModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0"><i class="fas fa-user-plus me-2"></i>رجسٹریشن</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                
+                <div class="modal-body">
+                    <div id="regStep1">
+                        <div class="row g-4">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">شناختی کارڈ نمبر</label>
+                                <input type="text" id="cnicInput" class="form-control" placeholder="1234512345671" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">موبائل نمبر</label>
+                                <input type="text" id="mobileInput" class="form-control" placeholder="03001234567" required>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label fw-bold">مکمل نام</label>
+                                <input type="text" id="nameInput" class="form-control" placeholder="احمد علی" required>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold">ضلع</label>
+                                <select id="regDistrict" class="form-select" required></select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold">تحصیل</label>
+                                <select id="regTehsil" class="form-select" required></select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold">موضع (رہائش)</label>
+                                <select id="regMauza" class="form-select" required></select>
+                            </div>
+                        </div>
+                        <div class="text-center mt-4">
+                            <button class="btn btn-primary btn-lg px-5" id="sendOtpBtn">
+                                <i class="fas fa-paper-plane me-2"></i>بھیجیں OTP
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="regStep2" style="display:none;">
+                        <p class="text-center mb-4 fw-bold fs-5">OTP کوڈ (6 ہندسے - کوئی بھی 6 نمبر درج کریں)</p>
+                        <div class="d-flex justify-content-center mb-4">
+                            <input type="text" id="otpInput" class="otp-input form-control" maxlength="6" placeholder="______" required>
+                        </div>
+                        <div class="text-center">
+                            <button class="btn btn-primary btn-lg px-5" id="verifyOtpBtn">
+                                <i class="fas fa-check-circle me-2"></i>تصدیق کریں
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lot Detail Modal -->
+    <div class="modal fade" id="lotDetailModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-centered">
+            <div class="modal-content card">
+                <div class="card-header">
+                    <h2 class="card-title mb-0" id="lotDetailTitle">لاٹ تفصیل</h2>
+                </div>
+                <div class="card-body">
+                    <div id="lotDetailBody" class="row g-3"></div>
+                    <div id="mapPreview" style="height:400px; border-radius:12px; border:1px solid #dee2e6; margin-top:20px;"></div>
+                </div>
+                <div class="card-footer text-end">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">بند کریں</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Agreement Modal -->
+    <div class="modal fade" id="agreementModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content card">
+                <div class="card-header">
+                    <h2 class="card-title mb-0"><i class="fas fa-file-contract me-2"></i> شرائط اپنا کھیت اپنا روزگار اسکیم</h2>
+                </div>
+                <div class="card-body" style="max-height:60vh;overflow-y:auto;font-size:1.15rem;line-height:1.8;">
+                    <p>◆ درخواست دہنده کا پاکستانی شہری ہونا لازمی ہے۔</p>
+                    <p>◆ صرف وہی افراد درخواست دے سکتے ہیں جن کا رہائشی موضع منتخبہ موضع یا مجاور موضع ہو۔</p>
+                    <p>◆ ہر درخواست میں کم از کم ایک لاٹ کا انتخاب ضروری ہے۔</p>
+                    <p>◆ نیلامی کے بعد اراضی صرف مجوزہ استعمال (زرعی/رہائشی) کے لیے ہوگی۔</p>
+                    <p>◆ اسکیم "اپنا کھیت اپنا روزگار" کے تحت قسطوں کی سہولت دستیاب ہے۔</p>
+                </div>
+                <div class="card-footer text-end">
+                    <button class="btn btn-primary btn-lg px-5" id="acceptAgreementBtn">
+                        <i class="fas fa-check me-2"></i> میں شرائط سے متفق ہوں
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        (function () {
+            const districts = [
+                { id: 1, name: 'سرگودھا' },
+                { id: 2, name: 'فیصل آباد' }
+            ];
+            const tehsils = [
+                { id: 1, districtId: 1, name: 'سرگودھا سٹی' },
+                { id: 2, districtId: 1, name: 'بھلوال' },
+                { id: 3, districtId: 2, name: 'فیصل آباد صدر' }
+            ];
+            const mauzas = [
+                { id: 1, tehsilId: 1, name: 'مور', districtId: 1 },
+                { id: 2, tehsilId: 1, name: 'بھلوال', districtId: 1 },
+                { id: 3, tehsilId: 1, name: 'چک نمبر ۴', districtId: 1 },
+                { id: 4, tehsilId: 2, name: 'ساہیانوالہ', districtId: 1 },
+                { id: 5, tehsilId: 3, name: 'جڑانوالہ', districtId: 2 }
+            ];
+            const adjacentMauzas = [
+                { mauzaId: 1, adjacentMauzaId: 2 },
+                { mauzaId: 1, adjacentMauzaId: 3 },
+                { mauzaId: 2, adjacentMauzaId: 1 },
+                { mauzaId: 3, adjacentMauzaId: 1 }
+            ];
+            const lots = [
+                { guid: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11', mauzaId: 1, lotNumber: '1', name: 'لاٹ 1 (مور)', totalArea: '12 ایکڑ', usage: 'زرعی', khasras: [{ khasra: '125', kheat: 1, muraba: 2 }, { khasra: '126', kheat: 1, muraba: 2 }], mapAvailable: true, coordinates: [31.45, 72.67], suitability: 'زرعی موزوں', leaseAmount: '500,000 روپے سالانہ', remarks: 'زیریں آبپاش', schemeName: 'اپنا کھیت اپنا روزگار' },
+                { guid: 'b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a22', mauzaId: 1, lotNumber: '2', name: 'لاٹ 2 (مور)', totalArea: '8 ایکڑ', usage: 'رہائشی', khasras: [{ khasra: '201', kheat: 2, muraba: 1 }], mapAvailable: false, suitability: 'رہائشی پلاٹ', leaseAmount: '300,000 روپے سالانہ', remarks: 'مختص', schemeName: 'اپنا کھیت اپنا روزگار' },
+                { guid: 'c2eebc99-9c0b-4ef8-bb6d-6bb9bd380a33', mauzaId: 2, lotNumber: '3', name: 'لاٹ سی (بھلوال)', totalArea: '15 ایکڑ', usage: 'زرعی', khasras: [{ khasra: '330', kheat: 3, muraba: 5 }], mapAvailable: true, coordinates: [31.55, 72.60], suitability: 'زرعی بہترین', leaseAmount: '800,000 روپے سالانہ', remarks: 'کنواں', schemeName: 'اپنا کھیت اپنا روزگار' },
+                { guid: 'd3eebc99-9c0b-4ef8-bb6d-6bb9bd380a44', mauzaId: 3, lotNumber: '4', name: 'لاٹ ڈی (چک)', totalArea: '5 ایکڑ', usage: 'تجارتی', khasras: [{ khasra: '450', kheat: 1, muraba: 3 }], mapAvailable: false, suitability: 'دوکانوں کا پلاٹ', leaseAmount: '600,000 روپے سالانہ', remarks: 'سڑک کنارے', schemeName: 'اپنا کھیت اپنا روزگار' },
+                { guid: 'e4eebc99-9c0b-4ef8-bb6d-6bb9bd380a55', mauzaId: 1, lotNumber: '5', name: 'لاٹ ای (مور)', totalArea: '20 ایکڑ', usage: 'زرعی', khasras: [{ khasra: '500', kheat: 2, muraba: 4 }, { khasra: '501', kheat: 2, muraba: 4 }], mapAvailable: true, coordinates: [31.48, 72.70], suitability: 'زرعی', leaseAmount: '1,000,000 روپے سالانہ', remarks: 'سرکاری ٹیوب ویل', schemeName: 'اپنا کھیت اپنا روزگار' },
+            ];
+
+            let users = [];
+            let applications = [];
+            let currentUser = null;
+            let selectedLots = [];
+            let currentMauzaId = 1;
+            let adjacentEnabled = false;
+            let pendingRegistration = {};
+
+            const authModal = new bootstrap.Modal(document.getElementById('authModal'));
+            const lotModal = new bootstrap.Modal(document.getElementById('lotDetailModal'));
+            const agreementModal = new bootstrap.Modal(document.getElementById('agreementModal'));
+
+            const mainContent = document.getElementById('mainContent');
+            const displayName = document.getElementById('displayName');
+            const loginBtn = document.getElementById('loginBtn');
+
+            currentUser = {
+                id: 1,
+                name: "احمد علی",
+                cnic: "1234512345671",
+                mobile: "03001234567",
+                residentMauzaId: 1
+            };
+
+            users.push(currentUser);
+
+            function initApp() {
+                renderAuthDistrict();
+                if (!currentUser) authModal.show();
+                updateUserMenu();
+                showDashboard();
+            }
+
+            function updateUserMenu() {
+                if (currentUser) {
+                    displayName.innerHTML = `<i class="fas fa-user-circle me-2"></i>${currentUser.name}`;
+                    loginBtn.innerHTML = '<i class="fas fa-sign-out-alt me-2"></i>لاگ آؤٹ';
+                } else {
+                    displayName.textContent = 'مہمان';
+                    loginBtn.innerHTML = '<i class="fas fa-sign-in-alt me-2"></i>لاگ ان / رجسٹر';
+                }
+            }
+
+            function showDashboard() {
+                if (!currentUser) {
+                    mainContent.innerHTML = `
+                    <div class="card text-center p-5 animate__animated animate__fadeIn">
+                        <i class="fas fa-user-lock fa-5x text-primary mb-4"></i>
+                        <h2 class="mb-4">براہ کرم رجسٹریشن مکمل کریں</h2>
+                        <button class="btn btn-primary btn-lg px-5" onclick="authModal.show()">
+                            <i class="fas fa-user-plus me-2"></i>رجسٹر کریں
+                        </button>
+                    </div>`;
+                    return;
+                }
+
+                mainContent.innerHTML = `
+                <ul class="nav nav-tabs mb-4 justify-content-center">
+                    <li class="nav-item">
+                        <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#newApp" type="button">
+                            <i class="fas fa-file-signature me-2"></i>نئی درخواست
+                        </button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#myApps" type="button">
+                            <i class="fas fa-list-alt me-2"></i>میری درخواستیں
+                        </button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#profile" type="button">
+                            <i class="fas fa-id-card me-2"></i>پروفائل
+                        </button>
+                    </li>
+                </ul>
+
+                <div class="tab-content">
+                    <div class="tab-pane fade show active" id="newApp"></div>
+                    <div class="tab-pane fade" id="myApps"></div>
+                    <div class="tab-pane fade" id="profile"></div>
+                </div>`;
+
+                renderNewApplication();
+                renderMyApplications();
+                renderProfile();
+            }
+
+            function renderAuthDistrict() {
+                const regDistrict = document.getElementById('regDistrict');
+                if (!regDistrict) return;
+
+                regDistrict.innerHTML = districts.map(d => `<option value="${d.id}">${d.name}</option>`).join('');
+                regDistrict.addEventListener('change', () => {
+                    const dId = parseInt(regDistrict.value);
+                    const filtered = tehsils.filter(t => t.districtId === dId);
+                    const regTehsil = document.getElementById('regTehsil');
+                    regTehsil.innerHTML = filtered.map(t => `<option value="${t.id}">${t.name}</option>`).join('');
+                    regTehsil.dispatchEvent(new Event('change'));
+                });
+                const regTehsil = document.getElementById('regTehsil');
+                regTehsil.addEventListener('change', () => {
+                    const tId = parseInt(regTehsil.value);
+                    const filtered = mauzas.filter(m => m.tehsilId === tId);
+                    document.getElementById('regMauza').innerHTML = filtered.map(m => `<option value="${m.id}">${m.name}</option>`).join('');
+                });
+                regDistrict.dispatchEvent(new Event('change'));
+            }
+
+            document.getElementById('sendOtpBtn').addEventListener('click', () => {
+                const cnic = document.getElementById('cnicInput').value.trim();
+                const mobile = document.getElementById('mobileInput').value.trim();
+                const name = document.getElementById('nameInput').value.trim();
+                const mauzaId = parseInt(document.getElementById('regMauza').value);
+
+                if (!cnic || !mobile || !name || isNaN(mauzaId)) {
+                    alert('تمام فیلڈز بھریں');
+                    return;
+                }
+
+                pendingRegistration = { cnic, mobile, name, mauzaId };
+                document.getElementById('regStep1').style.display = 'none';
+                document.getElementById('regStep2').style.display = 'block';
+                alert('OTP 6 ہندسے (سیمولیشن: کوئی بھی 6 نمبر داخل کریں)');
+            });
+
+            document.getElementById('verifyOtpBtn').addEventListener('click', () => {
+                const otp = document.getElementById('otpInput').value.trim();
+                if (otp.length !== 6 || isNaN(otp)) {
+                    alert('درست 6 ہندسوں کا OTP درج کریں');
+                    return;
+                }
+
+                let user = users.find(u => u.cnic === pendingRegistration.cnic);
+                if (!user) {
+                    user = {
+                        id: users.length + 1,
+                        name: pendingRegistration.name,
+                        cnic: pendingRegistration.cnic,
+                        mobile: pendingRegistration.mobile,
+                        residentMauzaId: pendingRegistration.mauzaId
+                    };
+                    users.push(user);
+                } else {
+                    user.name = pendingRegistration.name;
+                    user.mobile = pendingRegistration.mobile;
+                    user.residentMauzaId = pendingRegistration.mauzaId;
+                }
+
+                currentUser = user;
+                updateUserMenu();
+                authModal.hide();
+                document.getElementById('regStep1').style.display = 'block';
+                document.getElementById('regStep2').style.display = 'none';
+                document.getElementById('otpInput').value = '';
+                showDashboard();
+            });
+
+            document.getElementById('acceptAgreementBtn').addEventListener('click', () => {
+                agreementModal.hide();
+                if (selectedLots.length === 0) return;
+                const newId = applications.length + 1000;
+                applications.push({
+                    id: newId,
+                    userId: currentUser.id,
+                    lotGuids: [...selectedLots],
+                    status: 'زیر التواء',
+                    auctionDate: 'مقرر نہیں',
+                    steps: ['درخواست موصول']
+                });
+                selectedLots = [];
+                alert('آپ کی درخواست کامیابی سے جمع ہو گئی۔ درخواست نمبر: ' + newId);
+                showDashboard();
+                // Switch to myApps tab
+                const myAppsTab = document.getElementById('myApps-tab');
+                if (myAppsTab) myAppsTab.click();
+            });
+
+            loginBtn.addEventListener('click', () => {
+                if (currentUser) {
+                    currentUser = null;
+                    selectedLots = [];
+                    updateUserMenu();
+                    showDashboard();
+                } else {
+                    authModal.show();
+                }
+            });
+
+            // ──────────────────────────────
+            // New Application Tab
+            // ──────────────────────────────
+
+            function getAllowedMauzas() {
+                if (!currentUser) return [];
+                const residentId = currentUser.residentMauzaId;
+                let allowed = [mauzas.find(m => m.id === residentId)];
+                if (adjacentEnabled) {
+                    const adjIds = adjacentMauzas.filter(a => a.mauzaId === residentId).map(a => a.adjacentMauzaId);
+                    adjIds.forEach(id => {
+                        const m = mauzas.find(mz => mz.id === id);
+                        if (m) allowed.push(m);
+                    });
+                }
+                return allowed.filter((v, i, a) => a.findIndex(t => t.id === v.id) === i);
+            }
+
+            function renderNewApplication() {
+                const container = document.getElementById('newApp');
+                if (!container) return;
+
+                const allowedMauzas = getAllowedMauzas();
+                let mauzaOptions = allowedMauzas.map(m => `<option value="${m.id}" ${m.id === currentMauzaId ? 'selected' : ''}>${m.name}</option>`).join('');
+
+                container.innerHTML = `
+                <div class="card p-4 animate__animated animate__fadeIn">
+                    <h3 class="mb-4"><i class="fas fa-map-marked-alt me-2"></i> (اپنا کھیت اپنا روزگار)</h3>
+
+                    <div class="row g-3 mb-4 align-items-end">
+                        <div class="col-md-3">
+                            <label class="form-label fw-bold">ضلع</label>
+                            <select id="appDistrict" class="form-select"><option>سرگودھا</option></select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label fw-bold">تحصیل</label>
+                            <select id="appTehsil" class="form-select"><option>سرگودھا سٹی</option></select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label fw-bold">موضع</label>
+                            <select id="appMauza" class="form-select">${mauzaOptions}</select>
+                        </div>
+                        <div class="col-md-3 d-flex align-items-center">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="adjacentCheck" ${adjacentEnabled ? 'checked' : ''}>
+                                <label class="form-check-label fw-bold" for="adjacentCheck">مجاور مواضع شامل کریں</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row g-4" id="lotsContainer"></div>
+
+                    <div class="card bg-light mt-5 p-4 border border-2 border-dashed border-primary">
+                        <h4 class="mb-3"><i class="fas fa-check-circle me-2 text-success"></i>منتخب کردہ لاٹس (کل: <span id="selectedCount">0</span>)</h4>
+                        <div id="selectedLotsList"></div>
+                        <div style="margin-top:20px; display:flex; gap:15px; flex-wrap:wrap; justify-content:center;">
+                            <button class="btn btn-primary btn-lg px-5" id="showAgreementBtn" disabled><i class="fas fa-file-contract me-2"></i> شرائط پڑھیں اور درخواست جمع کروائیں</button>
+                            <button class="btn btn-outline-primary btn-lg px-5" id="clearSelectionBtn"><i class="fas fa-times me-2"></i> صاف کریں</button>
+                        </div>
+                    </div>
+                </div>`;
+
+                document.getElementById('adjacentCheck').addEventListener('change', (e) => {
+                    adjacentEnabled = e.target.checked;
+                    renderNewApplication();
+                });
+                document.getElementById('appMauza').addEventListener('change', (e) => {
+                    currentMauzaId = parseInt(e.target.value);
+                    displayLotsForMauza(currentMauzaId);
+                });
+                document.getElementById('clearSelectionBtn')?.addEventListener('click', () => {
+                    selectedLots = [];
+                    displayLotsForMauza(currentMauzaId);
+                    updateSelectedPanel();
+                });
+                document.getElementById('showAgreementBtn')?.addEventListener('click', () => {
+                    if (selectedLots.length === 0) return;
+                    agreementModal.show();
+                });
+                displayLotsForMauza(currentMauzaId);
+                updateSelectedPanel();
+            }
+
+            function displayLotsForMauza(mauzaId) {
+                const lotsContainer = document.getElementById('lotsContainer');
+                if (!lotsContainer) return;
+
+                const filteredLots = lots.filter(l => l.mauzaId === mauzaId);
+                const residentMauzaId = currentUser.residentMauzaId;
+                const isResident = (mauzaId === residentMauzaId);
+
+                let html = '';
+                filteredLots.forEach(lot => {
+                    const lotInSelected = selectedLots.includes(lot.guid);
+
+                    // Map status click handler will be added later via event delegation
+                    const mapStatus = lot.mapAvailable
+                        ? `<span class="text-success fw-bold map-available-link" role="button" data-lot-guid="${lot.guid}">دستیاب (دیکھیں)</span>`
+                        : `<span class="text-danger">نہیں دستیاب</span>`;
+
+                    html += `
+        <div class="col-md-6 col-lg-4">
+            <div class="lot-card card h-100" data-lot-guid="${lot.guid}">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">${lot.name} (نمبر ${lot.lotNumber})</h5>
+                    <span class="p-2 badge ${isResident ? 'bg-success' : 'bg-info'}">${isResident ? 'آبادی' : 'مجاور'}</span>
+                </div>
+                <div class="card-body">
+                    <div class="row g-2 small">
+                        <div class="col-5 fw-bold">رقبہ:</div>
+                        <div class="col-7">${lot.totalArea}</div>
+                        
+                        <div class="col-5 fw-bold">استعمال:</div>
+                        <div class="col-7">${lot.usage}</div>
+                        
+                        <div class="col-5 fw-bold">موزونیت:</div>
+                        <div class="col-7">${lot.suitability}</div>
+                        
+                        <div class="col-5 fw-bold">لیز رقم:</div>
+                        <div class="col-7">${lot.leaseAmount}</div>
+                        
+                        <div class="col-5 fw-bold">ریمارکس:</div>
+                        <div class="col-7">${lot.remarks}</div>
+                        
+                        <div class="col-5 fw-bold">خسرے:</div>
+                        <div class="col-7">${lot.khasras.map(k => k.khasra).join('، ')} (کھیت ${lot.khasras[0]?.kheat || '-'}, مرقہ ${lot.khasras[0]?.muraba || '-'})</div>
+                        
+                        <div class="col-5 fw-bold">GUID:</div>
+                        <div class="col-7 text-muted">${lot.guid.substring(0, 8)}...</div>
+                        
+                        <div class="col-5 fw-bold">نقشہ:</div>
+                        <div class="col-7">${mapStatus}</div>
+                    </div>
+                </div>
+                <div class="card-footer bg-transparent border-0 text-center">
+                    <button class="btn ${lotInSelected ? 'btn-success' : 'btn-outline-primary'} w-100 select-lot-btn" data-lot-guid="${lot.guid}">
+                        ${lotInSelected ? 'منتخب شدہ' : 'شامل کریں'}
+                    </button>
+                </div>
+            </div>
+        </div>`;
+                });
+
+                lotsContainer.innerHTML = html || '<div class="col-12 text-center py-5 text-muted">اس موضع میں کوئی لاٹس موجود نہیں</div>';
+
+                // Event delegation for card click (open details) and select button
+                lotsContainer.addEventListener('click', function (e) {
+                    const target = e.target;
+
+                    // If clicked on select button → handle selection
+                    if (target.classList.contains('select-lot-btn') || target.closest('.select-lot-btn')) {
+                        e.stopPropagation();
+                        const btn = target.closest('.select-lot-btn');
+                        const guid = btn.dataset.lotGuid;
+                        if (selectedLots.includes(guid)) {
+                            selectedLots = selectedLots.filter(g => g !== guid);
+                        } else {
+                            selectedLots.push(guid);
+                        }
+                        displayLotsForMauza(mauzaId);
+                        updateSelectedPanel();
+                        return;
+                    }
+
+                    // If clicked on "نقشہ دستیاب" link → open modal
+                    if (target.classList.contains('map-available-link') || target.closest('.map-available-link')) {
+                        e.stopPropagation();
+                        const link = target.closest('.map-available-link');
+                        const guid = link.dataset.lotGuid;
+                        showLotDetails(guid);
+                        return;
+                    }
+
+                    // Otherwise → open full lot details modal
+                    const card = target.closest('.lot-card');
+                    if (card) {
+                        const guid = card.dataset.lotGuid;
+                        if (guid) showLotDetails(guid);
+                    }
+                });
+            }
+
+            function showLotDetails(lotGuid) {
+                const lot = lots.find(l => l.guid === lotGuid);
+                if (!lot) return;
+
+                document.getElementById('lotDetailTitle').textContent = `${lot.name} (نمبر ${lot.lotNumber})`;
+
+                const body = document.getElementById('lotDetailBody');
+                body.innerHTML = `
+        <div class="row g-3">
+            <div class="col-md-4 fw-bold">رقبہ:</div><div class="col-md-8">${lot.totalArea}</div>
+            <div class="col-md-4 fw-bold">استعمال:</div><div class="col-md-8">${lot.usage}</div>
+            <div class="col-md-4 fw-bold">موزونیت:</div><div class="col-md-8">${lot.suitability}</div>
+            <div class="col-md-4 fw-bold">لیز رقم:</div><div class="col-md-8">${lot.leaseAmount}</div>
+            <div class="col-md-4 fw-bold">ریمارکس:</div><div class="col-md-8">${lot.remarks}</div>
+            <div class="col-md-4 fw-bold">خسرے:</div>
+            <div class="col-md-8">
+                ${lot.khasras.map(k => `کھسرا ${k.khasra} (کھیت ${k.kheat}, مرقہ ${k.muraba})`).join('<br>')}
+            </div>
+            <div class="col-md-4 fw-bold">GUID:</div><div class="col-md-8 text-muted">${lot.guid}</div>
+            <div class="col-md-4 fw-bold">اسکیم:</div><div class="col-md-8">${lot.schemeName || 'اپنا کھیت اپنا روزگار'}</div>
+        </div>
+    `;
+
+                const mapDiv = document.getElementById('mapPreview');
+                mapDiv.innerHTML = '';
+
+                if (lot.mapAvailable && lot.coordinates) {
+                    setTimeout(() => {
+                        const map = L.map('mapPreview').setView(lot.coordinates, 13);
+                        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+                        }).addTo(map);
+                        L.marker(lot.coordinates).addTo(map).bindPopup(lot.name);
+                    }, 300);
+                } else {
+                    mapDiv.innerHTML = '<div class="text-center py-5 text-muted fs-5">نقشہ دستیاب نہیں</div>';
+                }
+
+                lotModal.show();
+            }
+
+            function updateSelectedPanel() {
+                const listDiv = document.getElementById('selectedLotsList');
+                const countSpan = document.getElementById('selectedCount');
+                if (!listDiv) return;
+                const selectedLotsData = lots.filter(l => selectedLots.includes(l.guid));
+                countSpan.innerText = selectedLots.length;
+                let html = '';
+                selectedLotsData.forEach(l => {
+                    html += `<div class="selected-lot-item d-flex justify-content-between align-items-center bg-white p-3 mb-2 rounded border"><span><i class="fas fa-check-circle text-success"></i> ${l.name} (${l.totalArea}) - نمبر ${l.lotNumber}</span> <button class="btn-outline btn-sm btn-outline-danger remove-lot" data-lot-guid="${l.guid}">ہٹائیں</button></div>`;
+                });
+                listDiv.innerHTML = html || '<p>کوئی لاٹ منتخب نہیں</p>';
+                document.querySelectorAll('.remove-lot').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const lotGuid = btn.dataset.lotGuid;
+                        selectedLots = selectedLots.filter(g => g !== lotGuid);
+                        displayLotsForMauza(currentMauzaId);
+                        updateSelectedPanel();
+                    });
+                });
+                const submitBtn = document.getElementById('showAgreementBtn');
+                if (submitBtn) submitBtn.disabled = selectedLots.length === 0;
+            }
+
+            function renderMyApplications() {
+                const container = document.getElementById('myApps');
+                if (!container) return;
+
+                const userApps = applications.filter(a => a.userId === currentUser?.id);
+
+                let html = `
+        <div class="card animate__animated animate__fadeIn">
+            <div class="card-header bg-gradient text-white">
+                <h3 class="card-title mb-0"><i class="fas fa-list-alt me-2"></i>میری درخواستیں</h3>
+            </div>
+            <div class="card-body">
+    `;
+
+                if (userApps.length === 0) {
+                    html += `
+            <div class="text-center py-5 text-muted">
+                <i class="fas fa-inbox fa-4x mb-3 d-block"></i>
+                <p class="fs-5">ابھی تک کوئی درخواست درج نہیں کی گئی</p>
+            </div>
+        `;
+                } else {
+                    userApps.forEach(app => {
+                        const lotObjs = lots.filter(l => app.lotGuids.includes(l.guid));
+                        const lotNumbers = lotObjs.map(l => l.lotNumber).join(', ');
+                        const mauzaIds = [...new Set(lotObjs.map(l => l.mauzaId))];
+                        const mauzaNames = mauzaIds.map(id => mauzas.find(m => m.id === id)?.name || 'نامعلوم').join('، ');
+                        const tehsilName = 'سرگودھا سٹی'; // ثابت رکھا گیا ہے
+                        const districtName = 'سرگودھا';
+
+                        html += `
+                <div class="card mb-4 shadow-sm">
+                    <div class="card-header bg-light">
+                        <h5 class="card-title mb-0">درخواست نمبر #${app.id}</h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="mb-2"><i class="fas fa-map-pin me-2 text-primary"></i><strong>ضلع:</strong> ${districtName} | <strong>تحصیل:</strong> ${tehsilName} | <strong>موضع:</strong> ${mauzaNames}</p>
+                        <p class="mb-2"><i class="fas fa-cubes me-2 text-primary"></i><strong>لاٹ نمبر:</strong> ${lotNumbers}</p>
+                        <p class="mb-3">${lotObjs.map(l => `لاٹ ${l.lotNumber} (${l.usage}، ${l.leaseAmount})`).join('، ')}</p>
+                        <p class="mb-2">
+                            <span class="badge ${app.status === 'منتخب' ? 'bg-success' : 'bg-warning'} px-3 py-2">
+                                ${app.status}
+                            </span>
+                        </p>
+                        <p class="mb-1"><strong>نیلامی کی تاریخ:</strong> ${app.auctionDate || 'مقرر نہیں'}</p>
+                        <p class="mb-0"><strong>مراحل:</strong> ${app.steps.join(' → ')}</p>
+                    </div>
+                </div>
+            `;
+                    });
+                }
+
+                html += `
+            </div>
+            <div class="card-footer text-muted text-center">
+                کل درخواستیں: ${userApps.length}
+            </div>
+        </div>`;
+
+                container.innerHTML = html;
+            }
+
+            function renderProfile() {
+                const container = document.getElementById('profile');
+                if (!container) return;
+
+                const hasApps = applications.some(a => a.userId === currentUser?.id);
+
+                container.innerHTML = `
+        <div class="card animate__animated animate__fadeIn">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0"><i class="fas fa-user-edit me-2"></i>پروفائل (اپنا کھیت اپنا روزگار)</h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-4">
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">نام</label>
+                        <input type="text" class="form-control" value="${currentUser.name}" id="profileName">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">شناختی کارڈ نمبر (CNIC)</label>
+                        <input type="text" class="form-control" value="${currentUser.cnic}" disabled>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">موبائل نمبر</label>
+                        <input type="text" class="form-control" value="${currentUser.mobile}" id="profileMobile">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">موضع (رہائش)</label>
+                        <select class="form-select" id="profileMauza" ${hasApps ? 'disabled' : ''}>
+                            ${mauzas.map(m => `<option value="${m.id}" ${m.id === currentUser.residentMauzaId ? 'selected' : ''}>${m.name}</option>`).join('')}
+                        </select>
+                        ${hasApps ? '<small class="text-muted mt-1 d-block">درخواست موجود ہونے کی وجہ سے موضع تبدیل نہیں کیا جا سکتا</small>' : ''}
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer text-end">
+                <button class="btn btn-primary btn-lg px-5" id="updateProfileBtn">
+                    <i class="fas fa-save me-2"></i> محفوظ کریں
+                </button>
+            </div>
+        </div>`;
+
+                document.getElementById('updateProfileBtn')?.addEventListener('click', () => {
+                    const newName = document.getElementById('profileName').value.trim();
+                    const newMobile = document.getElementById('profileMobile').value.trim();
+                    const newMauza = parseInt(document.getElementById('profileMauza').value);
+
+                    if (!newName || !newMobile) {
+                        alert('نام اور موبائل نمبر درج کریں');
+                        return;
+                    }
+
+                    if (!hasApps) currentUser.residentMauzaId = newMauza;
+                    currentUser.name = newName;
+                    currentUser.mobile = newMobile;
+
+                    updateUserMenu();
+                    alert('پروفائل کامیابی سے اپ ڈیٹ ہو گیا');
+                });
+            }
+
+            // lot modal close
+            // closeLot.addEventListener('click', ()=> lotModal.style.display = 'none');
+            // closeAgree.addEventListener('click', ()=> agreementModal.style.display = 'none');
+            // acceptAgree.addEventListener('click', ()=>{
+            //     agreementModal.style.display = 'none';
+            //     if (selectedLots.length === 0) return;
+            //     const newId = applications.length + 1000;
+            //     applications.push({
+            //         id: newId,
+            //         userId: currentUser.id,
+            //         lotGuids: [...selectedLots],
+            //         status: 'زیر التواء',
+            //         auctionDate: 'مقرر نہیں',
+            //         steps: ['درخواست موصول']
+            //     });
+            //     selectedLots = [];
+            //     alert('آپ کی درخواست کامیابی سے جمع ہو گئی۔ درخواست نمبر: ' + newId);
+            //     showDashboard();
+            //     document.querySelector('.tab-btn[data-tab="myApps"]')?.click();
+            // });
+            // window.onclick = function(e) {
+            //     if (e.target === authModal) { authModal.style.display='none'; regStep1.style.display='block'; regStep2.style.display='none'; }
+            //     if(e.target === lotModal) lotModal.style.display='none';
+            //     if(e.target === agreementModal) agreementModal.style.display='none';
+            // };
+            initApp();
+        })();
+    </script>
+    <div class="footer-note">
+        <i class="fas fa-gavel"></i> اپنا کھیت اپنا روزگار اسکیم - سرکاری اراضی پورٹل | تمام حقوق محفوظ ہیں
+    </div>
+</body>
+</html>

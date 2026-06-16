@@ -1,0 +1,1069 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Management - APAG State Land</title>
+    <style>
+        /* (keep all existing styles exactly as they were) */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI',sans-serif;
+            background: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background: linear-gradient(135deg,#1a3a5f 0%,#2c5282 100%);
+            color: white;
+            padding: 20px 0;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+        }
+
+        h1 {
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: #4299e1;
+            color: white;
+        }
+
+            .btn-primary:hover {
+                background: #3182ce;
+            }
+
+        .btn-success {
+            background: #48bb78;
+            color: white;
+        }
+
+            .btn-success:hover {
+                background: #38a169;
+            }
+
+        .btn-danger {
+            background: #f56565;
+            color: white;
+        }
+
+            .btn-danger:hover {
+                background: #e53e3e;
+            }
+
+        .btn-secondary {
+            background: #a0aec0;
+            color: white;
+        }
+
+            .btn-secondary:hover {
+                background: #718096;
+            }
+
+        .btn-warning {
+            background: #ed8936;
+            color: white;
+        }
+
+            .btn-warning:hover {
+                background: #dd6b20;
+            }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 30px;
+        }
+
+        .users-list {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+        }
+
+        .form-container {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            position: sticky;
+            top: 20px;
+            height: fit-content;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #4a5568;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #e2e8f0;
+            border-radius: 5px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+
+            input:focus, select:focus {
+                outline: none;
+                border-color: #4299e1;
+                box-shadow: 0 0 0 3px rgba(66,153,225,0.1);
+            }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 30px;
+        }
+
+            .form-actions .btn {
+                flex: 1;
+            }
+
+        .table-container {
+            overflow-x: auto;
+            overflow-y: auto;
+            max-height: 500px;
+            min-height: 300px;
+        }
+
+        table {
+            min-height: 300px;
+            display: table;
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        thead {
+            background: #f7fafc;
+        }
+
+        th {
+            padding: 12px 15px;
+            text-align: left;
+            font-weight: 600;
+            color: #4a5568;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #edf2f7;
+        }
+
+        tr:hover {
+            background: #f7fafc;
+        }
+
+        .status-active {
+            display: inline-block;
+            padding: 4px 10px;
+            background: #c6f6d5;
+            color: #22543d;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .status-inactive {
+            display: inline-block;
+            padding: 4px 10px;
+            background: #fed7d7;
+            color: #742a2a;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 5px;
+            color: white;
+            font-weight: 500;
+            z-index: 1000;
+            animation: slideIn 0.3s ease;
+            display: none;
+        }
+
+            .notification.success {
+                background: #48bb78;
+            }
+
+            .notification.error {
+                background: #f56565;
+            }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #4299e1;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-left: 10px;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .search-container {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 10px 15px;
+            border: 1px solid #e2e8f0;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1001;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 500px;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #a0aec0;
+        }
+
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px,1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #718096;
+            margin-top: 5px;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 3px 8px;
+            background: #e2e8f0;
+            color: #4a5568;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .role-badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .role-superadmin {
+            background: #805ad5;
+            color: white;
+        }
+
+        .role-dc {
+            background: #3182ce;
+            color: white;
+        }
+        /* changed from role-admin */
+        .role-adcr {
+            background: #38a169;
+            color: white;
+        }
+
+        .role-gis {
+            background: #d69e2e;
+            color: white;
+        }
+
+        .role-patwari {
+            background: #ed8936;
+            color: white;
+        }
+
+        .role-readonly {
+            background: #718096;
+            color: white;
+        }
+        /* new for role 6 */
+        @media (max-width:1024px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+
+            .form-container {
+                position: static;
+            }
+        }
+
+        @media (max-width:768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+
+            .stats-container {
+                grid-template-columns: 1fr;
+            }
+        }
+        /* make disabled tehsil field slightly grey */
+        select:disabled {
+            background: #edf2f7;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="header-content">
+                <h1>User Management System - APAG State Land</h1>
+            </div>
+        </header>
+
+        <div class="stats-container" id="statsContainer"></div>
+
+        <div class="main-content">
+            <div class="users-list">
+                <div class="section-title">Users List</div>
+                <div class="search-container">
+                    <input type="text" id="searchInput" class="search-input" placeholder="Search users by name, CNIC, district, or tehsil...">
+                    <button class="btn btn-secondary" onclick="loadUsers()">Refresh</button>
+                </div>
+                <div class="table-container">
+                    <table id="usersTable">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>CNIC</th>
+                                <th>Role</th>
+                                <th>District</th>
+                                <th>Tehsil</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="usersTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="form-container">
+                <div class="section-title" id="formTitle">Add New User</div>
+                <form id="userForm">
+                    <input type="hidden" id="srNo">
+                    <input type="hidden" id="userId">
+                    <input type="hidden" id="assignmentId">
+
+                    <div class="form-group">
+                        <label for="name">Full Name *</label>
+                        <input type="text" id="name" required placeholder="Enter full name">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="cnic">CNIC *</label>
+                        <input type="text" id="cnic" required placeholder="XXXXX-XXXXXXX-X"
+                               pattern="^\d{5}-\d{7}-\d{1}$" title="Enter CNIC in format: XXXXX-XXXXXXX-X">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="roleId">Role *</label>
+                        <select id="roleId" required onchange="toggleTehsilField()">
+                            <option value="">Select Role</option>
+                            <option value="1">SuperAdmin</option>
+                            <option value="9">Admin</option>
+                            <option value="2">DC</option>               <!-- updated -->
+                            <option value="3">ADCR</option>
+                            <option value="4" selected>GIS Manager</option>
+                            <option value="8">ScrutinyCommittee</option>
+                            <option value="5">Patwari</option>
+                            <option value="6">ReadOnly</option>         <!-- new -->
+                            <option value="10">District Collector</option>         <!-- new -->
+                        </select>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="districtId">District ID</label>
+                            <input type="number" id="districtId" placeholder="Enter district ID">
+                        </div>
+                        <div class="form-group">
+                            <label for="district">District Name *</label>
+                            <select id="district" required onchange="loadTehsils()">
+                                <option value="">Select District</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="tehsilId">Tehsil ID</label>
+                            <input type="number" id="tehsilId" placeholder="Enter tehsil ID">
+                        </div>
+                        <div class="form-group">
+                            <label for="tehsil">Tehsil Name</label>
+                            <select id="tehsil" onchange="onTehsilChange()">
+                                <option value="">Select Tehsil</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary" id="submitBtn">
+                            <span id="submit-text">Add User</span>
+                            <span id="submit-loading" class="loading" style="display: none;"></span>
+                        </button>
+                        <button type="button" class="btn btn-secondary" onclick="resetForm()" id="resetBtn">Reset</button>
+                        <button type="button" class="btn btn-warning" onclick="resetForm()" id="cancelBtn" style="display: none;">Cancel Edit</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirmation Modal -->
+    <div class="modal" id="confirmModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Confirm Action</h3>
+                <button class="close-modal" onclick="closeModal()">×</button>
+            </div>
+            <p id="modalMessage">Are you sure you want to perform this action?</p>
+            <div class="form-actions">
+                <button class="btn btn-danger" onclick="confirmAction()" id="confirmBtn">Confirm</button>
+                <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification -->
+    <div class="notification" id="notification"></div>
+
+    <script>
+        const authToken = localStorage.getItem("pulse_token");
+        let currentAction = '';
+        let currentUserId = null;
+        let currentSrNo = null;
+        let allUsers = [];
+
+        document.addEventListener('DOMContentLoaded', function () {
+            loadUsers();
+            loadDistricts();
+            loadStats();
+            document.getElementById('userForm').addEventListener('submit', handleFormSubmit);
+            document.getElementById('searchInput').addEventListener('input', function (e) {
+                searchUsers(e.target.value);
+            });
+            document.getElementById('cnic').addEventListener('input', function (e) {
+                formatCNIC(e.target);
+            });
+            // initial toggle based on default role (GIS Manager = 4)
+            toggleTehsilField();
+        });
+
+        function formatCNIC(input) {
+            let value = input.value.replace(/\D/g, '');
+            if (value.length > 13) value = value.substring(0, 13);
+            if (value.length > 5) {
+                value = value.substring(0, 5) + '-' + value.substring(5);
+            }
+            if (value.length > 13) {
+                value = value.substring(0, 13) + '-' + value.substring(13);
+            }
+            input.value = value;
+        }
+
+        // ------------------------------------------------------------
+        // NEW: enable/disable tehsil field based on role
+        // ------------------------------------------------------------
+        function toggleTehsilField() {
+            const role = document.getElementById('roleId').value;
+            const tehsilSelect = document.getElementById('tehsil');
+            const tehsilIdInput = document.getElementById('tehsilId');
+            // DC = 2, ADCR = 3 → disable tehsil selection
+            if (role === '2' || role === '3') {
+                tehsilSelect.disabled = true;
+                tehsilIdInput.disabled = true;
+                // clear any previously selected tehsil
+                tehsilSelect.value = '';
+                tehsilIdInput.value = '';
+            } else {
+                tehsilSelect.disabled = false;
+                tehsilIdInput.disabled = false;
+            }
+        }
+
+        async function loadUsers() {
+            try {
+                const res = await fetch("/api/Gis/ExecuteStoredProcedure", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify({
+                        procedureName: "sp_ManageUsers",
+                        parameters: { Action: "GET" }
+                    })
+                });
+
+                if (!res.ok) throw new Error("Failed to load users");
+                const data = await res.json();
+                allUsers = data.response || data;
+                renderUsersTable(allUsers);
+                loadStats();
+            } catch (error) {
+                console.error("Error loading users:", error);
+                showNotification("Error loading users: " + error.message, "error");
+            }
+        }
+
+        function loadStats() {
+            const stats = {
+                total: allUsers.length,
+                active: allUsers.filter(u => u.IsActive).length,
+                inactive: allUsers.filter(u => !u.IsActive).length,
+                gisManagers: allUsers.filter(u => u.RoleId === 4).length,
+                patwaris: allUsers.filter(u => u.RoleId === 5).length
+            };
+            document.getElementById('statsContainer').innerHTML = `
+                    <div class="stat-card"><div class="stat-value">${stats.total}</div><div class="stat-label">Total Users</div></div>
+                    <div class="stat-card"><div class="stat-value">${stats.active}</div><div class="stat-label">Active Users</div></div>
+                    <div class="stat-card"><div class="stat-value">${stats.gisManagers}</div><div class="stat-label">GIS Managers</div></div>
+                    <div class="stat-card"><div class="stat-value">${stats.patwaris}</div><div class="stat-label">Patwaris</div></div>
+                `;
+        }
+
+        async function loadDistricts() {
+            try {
+                const res = await fetch("/api/Gis/ExecuteStoredProcedure", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify({
+                        procedureName: "sp_GetAllDistricts",
+                        parameters: {}
+                    })
+                });
+
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                const data = await res.json();
+                const districts = data.response || data;
+                const districtSelect = document.getElementById('district');
+                districtSelect.innerHTML = '<option value="">Select District</option>';
+
+                if (Array.isArray(districts) && districts.length > 0) {
+                    districts.forEach(district => {
+                        let districtName = district.District || district.districtName || district.Name || district.DistrictName || district.DISTRICT || district.district;
+                        let districtId = district.DistrictId || district.districtId || district.Id || district.DistrictID || district.DISTRICT_ID || district.District_Id;
+                        const option = document.createElement('option');
+                        option.value = districtName;
+                        option.setAttribute('data-id', districtId);
+                        option.textContent = districtName;
+                        option.title = `ID: ${districtId}`;
+                        districtSelect.appendChild(option);
+                    });
+                    showNotification(`Loaded ${districts.length} districts`, "success");
+                } else {
+                    districtSelect.innerHTML = '<option value="">No districts available</option>';
+                }
+            } catch (error) {
+                console.error("Error loading districts:", error);
+                showNotification("Error loading districts: " + error.message, "error");
+            }
+        }
+
+        async function loadTehsils() {
+            const districtSelect = document.getElementById('district');
+            const districtName = districtSelect.value;
+            const districtId = districtSelect.options[districtSelect.selectedIndex]?.getAttribute('data-id');
+            document.getElementById('districtId').value = districtId || '';
+
+            if (!districtName || !districtId) {
+                document.getElementById('tehsil').innerHTML = '<option value="">Select Tehsil</option>';
+                return;
+            }
+
+            try {
+                const tehsils = await fetchTehsils(districtId);
+                const tehsilSelect = document.getElementById('tehsil');
+                tehsilSelect.innerHTML = '<option value="">Select Tehsil</option>';
+
+                if (tehsils && tehsils.length > 0) {
+                    tehsils.forEach(tehsil => {
+                        const option = document.createElement('option');
+                        option.value = tehsil.TehsilId;            // ID as value
+                        option.dataset.id = tehsil.TehsilId;
+                        option.textContent = tehsil.TehsilName;
+                        option.title = `ID: ${tehsil.TehsilId}`;
+                        tehsilSelect.appendChild(option);
+                    });
+                } else {
+                    tehsilSelect.innerHTML = '<option value="">No tehsils found</option>';
+                }
+            } catch (error) {
+                console.error("Error loading tehsils:", error);
+            }
+        }
+
+        async function fetchTehsils(districtId) {
+            try {
+                const res = await fetch("/api/Gis/ExecuteStoredProcedure", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify({
+                        procedureName: "sp_GetTehsilByDId",
+                        parameters: { DistrictId: districtId }
+                    })
+                });
+                if (!res.ok) throw new Error("Failed to fetch tehsils");
+                const data = await res.json();
+                return data.response || data;
+            } catch (error) {
+                console.error("Error fetching tehsils:", error);
+                return [];
+            }
+        }
+
+        function renderUsersTable(users) {
+            const tbody = document.getElementById('usersTableBody');
+            if (!users || users.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; padding:40px;">No users found.</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = users.map(user => {
+                const roleClass = getRoleClass(user.RoleId);
+                const roleName = getRoleName(user.RoleId);
+                // For DC (2) or ADCR (3) with null TehsilId, display "All Tehsils"
+                const tehsilDisplay = (user.RoleId === 2 || user.RoleId === 3) && !user.TehsilId ? 'All Tehsils' : (user.TehsilName || 'N/A');
+
+                return `
+                        <tr>
+                            <td><strong>${user.Name || 'N/A'}</strong></td>
+                            <td>${user.CNIC || 'N/A'}</td>
+                            <td><span class="role-badge ${roleClass}">${roleName}</span></td>
+                            <td>${user.DistrictName || 'N/A'}<br><small style="color:#718096;">ID: ${user.DistrictId || ''}</small></td>
+                            <td>${tehsilDisplay}<br><small style="color:#718096;">ID: ${user.TehsilId || ''}</small></td>
+                            <td><span class="${user.IsActive ? 'status-active' : 'status-inactive'}">${user.IsActive ? 'Active' : 'Inactive'}</span></td>
+                            <td>
+                                <div class="action-buttons">
+                                    <button class="btn btn-primary btn-sm" onclick="editUser(${JSON.stringify(user).replace(/"/g, '&quot;')})">Edit</button>
+                                    <button class="btn btn-danger btn-sm" onclick="deleteUser(${user.UserId}, ${user.srNo || 'null'})">${user.IsActive ? 'Deactivate' : 'Activate'}</button>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+            }).join('');
+        }
+
+        function getRoleClass(roleId) {
+            switch (parseInt(roleId)) {
+                case 1: return 'role-superadmin';
+                case 2: return 'role-dc';
+                case 3: return 'role-adcr';
+                case 4: return 'role-gis';
+                case 5: return 'role-patwari';
+                case 6: return 'role-readonly';
+                default: return '';
+            }
+        }
+
+        function getRoleName(roleId) {
+            switch (parseInt(roleId)) {
+                case 1: return 'SuperAdmin';
+                case 2: return 'DC';
+                case 3: return 'ADCR';
+                case 4: return 'GIS Manager';
+                case 5: return 'Patwari';
+                case 6: return 'ReadOnly';
+                default: return 'Unknown';
+            }
+        }
+
+        async function handleFormSubmit(e) {
+            e.preventDefault();
+
+            const submitBtn = document.getElementById('submitBtn');
+            const submitText = document.getElementById('submit-text');
+            const submitLoading = document.getElementById('submit-loading');
+
+            submitBtn.disabled = true;
+            submitText.style.display = 'none';
+            submitLoading.style.display = 'inline-block';
+
+            try {
+                const roleId = parseInt(document.getElementById('roleId').value);
+                // For DC (2) and ADCR (3), force TehsilId and Tehsil to null/empty
+                let tehsilId = document.getElementById('tehsilId').value ? parseInt(document.getElementById('tehsilId').value) : null;
+                let tehsil = document.getElementById('tehsil').value;
+
+                if (roleId === 2 || roleId === 3) {
+                    tehsilId = null;
+                    tehsil = '';
+                }
+
+                const formData = {
+                    Name: document.getElementById('name').value.trim(),
+                    CNIC: document.getElementById('cnic').value.trim(),
+                    RoleId: roleId,
+                    DistrictId: document.getElementById('districtId').value ? parseInt(document.getElementById('districtId').value) : null,
+                    District: document.getElementById('district').value,
+                    TehsilId: tehsilId,
+                    Tehsil: tehsil,
+                    srNo: document.getElementById('srNo').value ? parseInt(document.getElementById('srNo').value) : null,
+                    UserId: document.getElementById('userId').value ? parseInt(document.getElementById('userId').value) : null,
+                    AssignmentId: document.getElementById('assignmentId').value ? parseInt(document.getElementById('assignmentId').value) : null,
+                    Action: document.getElementById('userId').value ? 'UPDATE' : 'INSERT'
+                };
+
+                if (!formData.Name || !formData.CNIC || !formData.District) {
+                    throw new Error("Please fill all required fields (Name, CNIC, District)");
+                }
+                const cnicRegex = /^\d{5}-\d{7}-\d{1}$/;
+                if (!cnicRegex.test(formData.CNIC)) {
+                    throw new Error("CNIC must be in format: XXXXX-XXXXXXX-X");
+                }
+
+                const res = await fetch("/api/Gis/ExecuteStoredProcedure", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify({
+                        procedureName: "sp_ManageUsers",
+                        parameters: formData
+                    })
+                });
+
+                if (!res.ok) {
+                    const errorText = await res.text();
+                    throw new Error(`HTTP ${res.status}: ${errorText}`);
+                }
+
+                const data = await res.json();
+                let result;
+                if (Array.isArray(data)) result = data[0];
+                else if (data.response && Array.isArray(data.response)) result = data.response[0];
+                else if (data.response) result = data.response;
+                else result = data;
+
+                if (result && result.Status === 'Success') {
+                    showNotification(result.Message, "success");
+                    resetForm();
+                    loadUsers();
+                } else if (result && result.Status === 'Error') {
+                    throw new Error(result.Message);
+                } else {
+                    throw new Error("Unexpected response format from server");
+                }
+            } catch (error) {
+                console.error("Error saving user:", error);
+                showNotification(error.message, "error");
+            } finally {
+                submitBtn.disabled = false;
+                submitText.style.display = 'inline';
+                submitLoading.style.display = 'none';
+            }
+        }
+
+        function editUser(user) {
+            document.getElementById('formTitle').textContent = 'Edit User';
+            document.getElementById('submit-text').textContent = 'Update User';
+            document.getElementById('cancelBtn').style.display = 'block';
+            document.getElementById('resetBtn').style.display = 'none';
+
+            document.getElementById('srNo').value = user.srNo || '';
+            document.getElementById('userId').value = user.UserId;
+            document.getElementById('assignmentId').value = user.AssignmentId || '';
+            document.getElementById('name').value = user.Name || '';
+            document.getElementById('cnic').value = user.CNIC || '';
+            document.getElementById('roleId').value = user.RoleId || 4;
+            document.getElementById('districtId').value = user.DistrictId || '';
+
+            // Set district
+            const districtSelect = document.getElementById('district');
+            if (user.DistrictName) {
+                setTimeout(() => {
+                    for (let i = 0; i < districtSelect.options.length; i++) {
+                        if (districtSelect.options[i].value === user.DistrictName) {
+                            districtSelect.selectedIndex = i;
+                            break;
+                        }
+                    }
+                    // Load tehsils for the district
+                    setTimeout(() => {
+                        loadTehsils();
+                        // After tehsils are loaded, set tehsil field (if not DC/ADCR)
+                        setTimeout(() => {
+                            const role = user.RoleId;
+                            const tehsilSelect = document.getElementById('tehsil');
+                            const tehsilIdInput = document.getElementById('tehsilId');
+
+                            if (role === 2 || role === 3) {
+                                // DC/ADCR: tehsil should be disabled and empty
+                                tehsilSelect.disabled = true;
+                                tehsilIdInput.disabled = true;
+                                tehsilSelect.value = '';
+                                tehsilIdInput.value = '';
+                            } else {
+                                tehsilSelect.disabled = false;
+                                tehsilIdInput.disabled = false;
+                                if (user.TehsilName) {
+                                    for (let i = 0; i < tehsilSelect.options.length; i++) {
+                                        if (tehsilSelect.options[i].textContent === user.TehsilName) {
+                                            tehsilSelect.selectedIndex = i;
+                                            tehsilIdInput.value = user.TehsilId || '';
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                        }, 500);
+                    }, 100);
+                }, 100);
+            }
+
+            document.querySelector('.form-container').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function deleteUser(userId, srNo) {
+            currentUserId = userId;
+            currentSrNo = srNo;
+            currentAction = 'DELETE';
+            const user = allUsers.find(u => u.UserId === userId);
+            const action = user?.IsActive ? 'deactivate' : 'activate';
+            document.getElementById('modalMessage').textContent = `Are you sure you want to ${action} this user?`;
+            document.getElementById('confirmBtn').textContent = `Yes, ${action}`;
+            document.getElementById('confirmModal').style.display = 'flex';
+        }
+
+        async function confirmAction() {
+            if (currentAction === 'DELETE' && currentUserId) {
+                try {
+                    const res = await fetch("/api/Gis/ExecuteStoredProcedure", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "Authorization": `Bearer ${authToken}`
+                        },
+                        body: JSON.stringify({
+                            procedureName: "sp_ManageUsers",
+                            parameters: {
+                                Action: "DELETE",
+                                UserId: currentUserId,
+                                srNo: currentSrNo
+                            }
+                        })
+                    });
+
+                    if (!res.ok) throw new Error("Failed to update user status");
+                    const result = await res.json();
+                    if (result.Status === 'Success') {
+                        showNotification(result.Message, "success");
+                        loadUsers();
+                    } else {
+                        throw new Error(result.Message);
+                    }
+                } catch (error) {
+                    console.error("Error updating user:", error);
+                    showNotification(error.message, "error");
+                }
+            }
+            closeModal();
+        }
+
+        function searchUsers(query) {
+            const rows = document.querySelectorAll('#usersTable tbody tr');
+            const searchTerm = query.toLowerCase();
+            if (!searchTerm) {
+                rows.forEach(row => row.style.display = '');
+                return;
+            }
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(searchTerm) ? '' : 'none';
+            });
+        }
+
+        function resetForm() {
+            document.getElementById('userForm').reset();
+            document.getElementById('formTitle').textContent = 'Add New User';
+            document.getElementById('submit-text').textContent = 'Add User';
+            document.getElementById('srNo').value = '';
+            document.getElementById('userId').value = '';
+            document.getElementById('assignmentId').value = '';
+            document.getElementById('cancelBtn').style.display = 'none';
+            document.getElementById('resetBtn').style.display = 'block';
+            document.getElementById('district').selectedIndex = 0;
+            document.getElementById('tehsil').innerHTML = '<option value="">Select Tehsil</option>';
+            document.getElementById('roleId').value = '4';
+            // Re-apply tehsil toggle based on default role
+            toggleTehsilField();
+        }
+
+        function showNotification(message, type) {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.className = `notification ${type}`;
+            notification.style.display = 'block';
+            setTimeout(() => { notification.style.display = 'none'; }, 3000);
+        }
+
+        function closeModal() {
+            document.getElementById('confirmModal').style.display = 'none';
+            currentAction = '';
+            currentUserId = null;
+            currentSrNo = null;
+        }
+
+        function onTehsilChange() {
+            const tehsilSelect = document.getElementById('tehsil');
+            const tehsilId = tehsilSelect.value;
+            document.getElementById('tehsilId').value = tehsilId || '';
+        }
+    </script>
+</body>
+</html>

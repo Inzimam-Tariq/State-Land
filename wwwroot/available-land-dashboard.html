@@ -1,0 +1,768 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>State Land Management Dashboard</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Select2 + Bootstrap 5 Theme -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- SweetAlert2 -->
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+    <!-- DataTables -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/dataTables.bootstrap5.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.bootstrap5.min.css">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+
+    <!-- Your custom CSS (keep what you need) -->
+    <style>
+        html, body {
+            height: 100%;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+        }
+
+        footer {
+            margin-top: auto;
+        }
+
+        .hierarchy-card {
+            cursor: pointer;
+            transition: all 0.18s;
+        }
+
+            .hierarchy-card:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 8px 20px rgba(0,0,0,0.12) !important;
+            }
+
+            .hierarchy-card.active {
+                border: 2px solid #0d6efd;
+                background-color: #e7f1ff;
+            }
+
+        .kpi-card {
+            background: linear-gradient(135deg, #ffffff, #f8f9fa);
+            border-left: 5px solid #198754;
+        }
+
+        #lotTable thead th {
+            background-color: rgba(25, 135, 84, 0.75);
+            color: white;
+            text-align: center;
+            border-bottom: 2px solid rgba(0, 0, 0, 0.12);
+            font-weight: 600;
+        }
+
+        .compact-search-container, .compact-filter-controls { /* keep your styles */
+        }
+
+        tr.table-total-row {
+            font-weight: bold;
+            background-color: #e9f7ef !important;
+        }
+
+        .dataTables_wrapper .dt-buttons .btn {
+            min-width: 90px;
+            font-size: 0.85rem;
+        }
+
+        /* Remove dropdown arrow from DataTables length select */
+        .dataTables_length select {
+            appearance: none; /* Standard */
+            -webkit-appearance: none; /* Chrome / Safari */
+            -moz-appearance: none; /* Firefox */
+            background-image: none !important;
+            padding-right: 0.75rem; /* Prevent text clipping */
+        }
+            /* Optional: remove focus outline glow */
+            .dataTables_length select:focus {
+                box-shadow: none;
+            }
+    </style>
+</head>
+<body>
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg" style="background: forestgreen;">
+        <div class="container-fluid">
+            <a class="navbar-brand text-white" href="#">
+                <i class="fas fa-map-marked-alt"></i> Land Management System
+            </a>
+            <div class="d-flex align-items-center">
+                <span class="text-white me-3">
+                    <i class="fas fa-user-circle me-1"></i>Welcome: <span id="currentUserName">Guest</span>,
+                    District: <span id="currentDistrictName">—</span>
+                </span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container-fluid mt-3">
+
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-2">
+                <li class="breadcrumb-item">Punjab</li>
+                <li class="breadcrumb-item active" id="breadcrumbTrail"></li>
+            </ol>
+        </nav>
+
+        <!-- Section 1: Hierarchy Dropdowns -->
+        <div class="card shadow-sm mb-3">
+            <div class="card-header bg-light fw-bold">
+                <i class="fas fa-filter me-2"></i> Hierarchy Selection
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-3">
+                        <span class="filter-label">Tehsil</span>
+                        <select id="ddlTehsil" class="form-select select2" data-placeholder="Select Tehsil">
+                            <option></option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <span class="filter-label">Mauza</span>
+                        <select id="ddlMauza" class="form-select select2" data-placeholder="Select Mauza">
+                            <option></option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 4: Lot-wise Tabular Data -->
+        <div class="card shadow-sm">
+            <div class="card-header bg-success text-white fw-bold">
+                <i class="fas fa-table me-2"></i>Available Khasra Details
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table id="lotTable" class="table table-striped table-bordered w-100" style="min-width:1200px;">
+                        <thead>
+                            <tr>
+                                <th>Division</th>
+                                <th>District</th>
+                                <th>Tehsil</th>
+                                <th>Mauza</th>
+                                <!--<th>Lot #</th>
+                                <th>Khewat</th>
+                                <th>Muraba</th>-->
+                                <th>Khasra</th>
+                                <th>Area</th>
+                                <th>Suitability</th>
+                                <!--<th>Lease Amount</th>
+                                <th>Remarks</th>
+                                <th>Approval Status</th>-->
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <footer class="bg-light border-top mt-auto">
+        <div class="container-fluid py-3">
+            <div class="row align-items-center">
+                <div class="col-md-6 text-center text-md-start small text-muted">
+                    <i class="fa-regular fa-copyright me-1"></i>
+                    <span id="footerYear"></span> PULSE. All rights reserved.
+                </div>
+
+                <div class="col-md-6 text-center text-md-end small text-muted">
+                    Powered by PULSE ICT Team
+                </div>
+            </div>
+        </div>
+    </footer>
+
+
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <!-- DataTables + extensions -->
+    <script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.8/js/dataTables.bootstrap5.min.js"></script>
+
+    <!-- Buttons -->
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.bootstrap5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.print.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.colVis.min.js"></script>
+    <!-- Export dependencies -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <!-- User defined scripts-->
+    <script src="/js/base.js"></script>
+
+    <script>
+        // ──────────────────────────────────────────────── Globals
+        document.getElementById('footerYear').textContent = new Date().getFullYear();
+        const authToken = localStorage.getItem("pulse_token") || "";
+        let districtId = localStorage.getItem("districtId") || 1;
+        let currentLevel = "Teshil";
+        let currentId = null;
+        let currentName = "Teshil";
+        let table = null;
+
+        function updateBreadcrumb() {
+            const crumbs = [];
+            if ($('#ddlTehsil').val()) crumbs.push($('#ddlTehsil option:selected').text());
+            if ($('#ddlMauza').val()) crumbs.push($('#ddlMauza option:selected').text());
+
+            $("#breadcrumbTrail").text(crumbs.join(" → ") || "District");
+        }
+
+        // Tehsil
+        $('#ddlTehsil').on('select2:select', async e => {
+            const data = e.params.data;
+            if (!data?.id) return;
+        });
+
+        $('#ddlTehsil').on('select2:unselect', async () => {
+            const distId = $('#ddlDistrict').val();
+            if (distId) {
+                const distName = $('#ddlDistrict').select2('data')[0]?.text;
+            } else {
+                // fallback higher...
+            }
+        });
+
+        // Mauza – no child, so simpler
+        $('#ddlMauza').on('select2:select', async e => {
+            const data = e.params.data;
+            if (!data?.id) return;
+            await loadDashboardData();
+        });
+
+        $('#ddlMauza').on('select2:unselect', async () => {
+            const tehId = $('#ddlTehsil').val();
+            if (tehId) {
+                const tehName = $('#ddlTehsil').select2('data')[0]?.text;
+            }
+        });
+
+        // Function to properly initialize Select2 once
+        function initializeSelect2Dropdowns() {
+            console.log('Initializing Select2 dropdowns...');
+
+            // Tehsil dropdown
+            $('#ddlTehsil').select2({
+                theme: 'bootstrap-5',
+                width: '100%',
+                placeholder: 'Select Tehsil',
+                allowClear: true,
+                minimumResultsForSearch: 10
+            }).on('select2:open', function () {
+                // Fix z-index issues
+                $(this).data('select2').$dropdown.css('z-index', 9999);
+            });
+
+            // Mouza dropdown
+            $('#ddlMauza').select2({
+                theme: 'bootstrap-5',
+                width: '100%',
+                placeholder: 'Select Mouza',
+                allowClear: true,
+                minimumResultsForSearch: 10
+            }).on('select2:open', function () {
+                // Fix z-index issues
+                $(this).data('select2').$dropdown.css('z-index', 9999);
+            });
+
+            console.log('Select2 dropdowns initialized');
+        }
+
+        // ──────────────────────────────────────────────── Init
+        $(document).ready(async function () {
+            initializeSelect2Dropdowns();
+            $("#currentUserName").text(localStorage.getItem("pulse_userName") || "Guest");
+            $("#currentDistrictName").text(localStorage.getItem("districtName") || "—");
+
+            initSelect2();
+            const tehsils = await fetchTehsils(districtId);
+
+            Swal.close();
+
+            if (tehsils && tehsils.length > 0) {
+                populateTehsilDropdown(tehsils);
+
+                // Show brief success message
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Data Loaded',
+                    text: `${tehsils.length} tehsils loaded successfully`,
+                    timer: 1500,
+                    showConfirmButton: false
+                });
+            } else {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'No Data',
+                    text: 'No tehsils found for this district',
+                    timer: 2000,
+                    showConfirmButton: false
+                });
+            }
+        });
+
+        // ──────────────────────────────────────────────── Select2 Setup – keep this version
+        function initSelect2($selects = $('.select2')) {
+            $selects.each(function () {
+                const $this = $(this);
+                // Destroy only if already has Select2 instance
+                if ($this.data('select2')) {
+                    $this.select2('destroy');
+                }
+                $this.select2({
+                    theme: 'bootstrap-5',
+                    width: '100%',
+                    placeholder: $this.data('placeholder') || "Select...",
+                    allowClear: true,
+                    dropdownParent: $('body')
+                });
+            });
+        }
+
+        // ──────────────────────────────────────────────── Core Data Load
+        async function loadDashboardData() {
+            // At the beginning of loadDashboardData
+            const mauzaId = $('#ddlMauza').val();
+
+            if (!mauzaId) {
+                console.warn("No mauza selected");
+                return;
+            }
+            console.log("[loadDashboardData] called with level = mauza ", "id = ", mauzaId);
+
+            const loading = Swal.fire({
+                title: 'Loading dashboard...',
+                allowOutsideClick: true,          // now cancelable
+                allowEscapeKey: true,
+                showConfirmButton: false,
+                didOpen: () => Swal.showLoading()
+            });
+
+            // Auto-close after 10 seconds if stuck
+            setTimeout(() => {
+                if (Swal.isVisible()) {
+                    Swal.close();
+                    console.warn("Loading timed out – check console for errors");
+                }
+            }, 10000);
+
+            const params = {
+                MauzaId: parseInt(mauzaId)
+            };
+
+            const rawSets = await executeSP("i_GetLandAssessmentAvailableOverall_V1", params);
+
+            const lots = rawSets[0]?.rows || [];
+
+            console.log("row count:", lots.length);
+
+            // Section 4 – Lot table
+            renderLotTable(lots);
+
+            Swal.close();
+        }
+
+        // ──────────────────────────────────────────────── Render Lot Table – reordered columns + safer init
+        function renderLotTable(rows) {
+            const $table = $('#lotTable');
+
+            // Safe destroy
+            if ($.fn.DataTable.isDataTable($table)) {
+                $table.DataTable().clear().destroy();
+            }
+            $table.find('tbody').empty();
+
+            const tableData = rows.map(r => ({
+                DivisionName: r.DivisionName ?? '',
+                DistrictName: r.DistrictName ?? '',
+                TehsilName: r.TehsilName ?? '',
+                MauzaName: r.MauzaName ?? '',
+                //KhewatNo: r.KhewatNo ?? '',
+                //MurabaNo: r.MurabaNo ?? '',
+                KhasraNo: r.KhasraNo ?? '',
+                KhasraArea: convertSqFtToAkmV2(r.KhasraArea ?? 0),
+                LandSuitability: r.LandSuitability ?? '',
+            }));
+
+            console.log('[Table] Data sample (first row):', tableData[0] || 'No rows');
+            console.log('[Table] Total rows:', tableData.length);
+
+            table = $table.DataTable({
+                data: tableData,
+                responsive: true,
+                autoWidth: false,
+                pageLength: 10,
+                lengthMenu: [10, 25, 50, 100],
+                dom:
+                    "<'row mb-2'<'col-md-4'l><'col-md-8 text-end'Bf>>" +
+                    "<'row'<'col-12'tr>>" +
+                    "<'row mt-2'<'col-md-5'i><'col-md-7'p>>",
+                ordering: false,
+                buttons: [
+                    {
+                        extend: 'colvis',
+                        text: '<i class="bi bi-layout-three-columns"></i> Columns',
+                        className: 'btn btn-secondary me-2'
+                    },
+                    {
+                        extend: 'copy',
+                        text: '<i class="bi bi-clipboard"></i> Copy',
+                        className: 'btn btn-dark me-2'
+                    },
+                    {
+                        extend: 'csv',
+                        text: '<i class="bi bi-filetype-csv"></i> CSV',
+                        className: 'btn btn-info text-white me-2'
+                    },
+                    {
+                        extend: 'excel',
+                        text: '<i class="bi bi-file-earmark-excel"></i> Excel',
+                        className: 'btn btn-success me-2'
+                    },
+                    {
+                        extend: 'pdf',
+                        text: '<i class="bi bi-file-earmark-pdf"></i> PDF',
+                        className: 'btn btn-danger me-2'
+                    },
+                    {
+                        extend: 'print',
+                        text: '<i class="bi bi-printer"></i> Print',
+                        className: 'btn btn-primary'
+                    }
+                ],
+
+                columns: [
+                    { data: 'DivisionName', defaultContent: '' },
+                    { data: 'DistrictName', defaultContent: '' },
+                    { data: 'TehsilName', defaultContent: '' },
+                    { data: 'MauzaName', defaultContent: '' },
+                    //{ data: 'LotNo', defaultContent: '' },
+                    //{ data: 'KhewatNo', defaultContent: '' },
+                    //{ data: 'MurabaNo', defaultContent: '' },
+                    { data: 'KhasraNo', defaultContent: '' },
+                    { data: 'KhasraArea', defaultContent: '' },
+                    { data: 'LandSuitability', defaultContent: '' },
+                ],
+                rowCallback: function (row, data) {
+                    
+                },
+                language: { emptyTable: "No data in this view" }
+            });
+
+            table.columns.adjust().draw();
+            console.log('[Table] Render complete');
+        }
+
+        // Fetch tehsils
+        async function fetchTehsils(districtId) {
+            try {
+                const params = {};
+                const res = await executeSP("sp_GetTehsilsByDistrict", params);
+                const data = res[0].rows;
+                return data
+            } catch (error) {
+                console.error("Error fetching tehsils:", error);
+                return [];
+            }
+        }
+
+        // Fetch mouzas
+        async function fetchMouzas(tehsilId) {
+            try {
+                const params = { TehsilId: parseInt(tehsilId) };
+                const res = await executeSP("sp_GetMauzasByTehsil_", params);
+                const data = res[0].rows;
+                return data
+            } catch (error) {
+                console.error("Error fetching mouzas:", error);
+                return [];
+            }
+        }
+
+        // Populate tehsil dropdown - COMPLETE FIXED VERSION
+        function populateTehsilDropdown(tehsils) {
+            console.log('Populating tehsils:', tehsils);
+
+            const tehsilSelect = $('#ddlTehsil');
+
+            // Save current value for restoration (if needed)
+            const currentValue = tehsilSelect.val();
+            const currentText = tehsilSelect.find('option:selected').text();
+
+            console.log('Current tehsil value:', currentValue, 'text:', currentText);
+
+            // Store whether Select2 is initialized
+            const isSelect2Initialized = tehsilSelect.hasClass('select2-hidden-accessible');
+
+            // Clear existing options
+            tehsilSelect.empty();
+
+            // Add default option
+            tehsilSelect.append('<option value="">Select Tehsil</option>');
+
+            // Add new options
+            if (tehsils && tehsils.length > 0) {
+                tehsils.forEach(tehsil => {
+                    tehsilSelect.append(new Option(tehsil.TehsilName, tehsil.TehsilId));
+                });
+            }
+
+            // Handle Select2 properly
+            if (isSelect2Initialized) {
+                // Select2 is already initialized, just update it
+                console.log('Select2 already initialized, updating...');
+
+                // Method 1: Direct DOM update (most reliable)
+                tehsilSelect.trigger('change.select2');
+
+                // Method 2: Also update Select2 data structure
+                if (window.Select2 && window.Select2.instances) {
+                    const instance = tehsilSelect.data('select2');
+                    if (instance) {
+                        instance.trigger('change', {});
+                    }
+                }
+            } else {
+                // Initialize Select2 for the first time
+                console.log('Initializing Select2 for tehsil dropdown...');
+                tehsilSelect.select2({
+                    theme: 'bootstrap-5',
+                    width: '100%',
+                    placeholder: 'Select Tehsil',
+                    allowClear: true,
+                    dropdownParent: $('.filter-section')
+                });
+            }
+
+            // Reset to placeholder
+            tehsilSelect.val('').trigger('change');
+
+            // Update the Select2 display to show placeholder
+            if (isSelect2Initialized) {
+                setTimeout(() => {
+                    tehsilSelect.select2('val', '');
+                    tehsilSelect.select2('data', null);
+                }, 100);
+            }
+
+            // Setup change event handler (only once)
+            tehsilSelect.off('change.select-change').on('change.select-change', async function () {
+                const tehsilId = $(this).val();
+                const selectedText = $(this).find('option:selected').text();
+
+                console.log('Tehsil changed:', selectedText, 'ID:', tehsilId);
+
+                // Update display immediately
+                $(this).select2('data', {
+                    id: tehsilId,
+                    text: selectedText,
+                    selected: true
+                });
+
+                currentId = tehsilId;
+
+                if (!tehsilId) {
+                    console.log('Tehsil cleared, resetting mouza...');
+
+                    // Reset mouza dropdown
+                    const mouzaSelect = $('#ddlMauza');
+                    mouzaSelect.empty().append('<option value="">Select Mouza</option>');
+
+                    if (mouzaSelect.hasClass('select2-hidden-accessible')) {
+                        mouzaSelect.select2('destroy');
+                        mouzaSelect.select2({
+                            theme: 'bootstrap-5',
+                            width: '100%',
+                            placeholder: 'Select Mouza',
+                            allowClear: true,
+                            dropdownParent: $('.filter-section')
+                        });
+                    }
+
+                    mouzaSelect.val('').trigger('change');
+
+                    // Clear map and hide khasra list
+                    if (statelandLayer) {
+                        statelandLayer.definitionExpression = "1=0";
+                    }
+                    hideCompactKhasraList();
+
+                    return;
+                }
+
+                try {
+                    // Show loading for mouzas
+                    Swal.fire({
+                        title: 'Loading...',
+                        html: `Loading mouzas for ${selectedText}`,
+                        allowOutsideClick: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
+
+                    const mouzas = await fetchMouzas(tehsilId);
+                    Swal.close();
+
+                    if (mouzas && mouzas.length > 0) {
+                        populateMouzaDropdown(mouzas);
+                    } else {
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'No Mouzas',
+                            text: 'No mouzas found for selected tehsil',
+                            timer: 2000,
+                            showConfirmButton: false
+                        });
+                    }
+                } catch (error) {
+                    console.error("Error loading mouzas:", error);
+                    Swal.close();
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Failed to load mouzas data',
+                        timer: 3000,
+                        showConfirmButton: false
+                    });
+                }
+            });
+
+            console.log('Tehsil dropdown populated with', (tehsils ? tehsils.length : 0), 'items');
+        }
+
+        // Populate mouza dropdown - COMPLETE FIXED VERSION
+        function populateMouzaDropdown(mouzas) {
+            console.log('Populating mouzas:', mouzas);
+
+            const mouzaSelect = $('#ddlMauza');
+
+            // Store whether Select2 is initialized
+            const isSelect2Initialized = mouzaSelect.hasClass('select2-hidden-accessible');
+
+            // Clear existing options
+            mouzaSelect.empty();
+
+            // Add default option
+            mouzaSelect.append('<option value="">Select Mouza</option>');
+
+            // Add new options
+            if (mouzas && mouzas.length > 0) {
+                mouzas.forEach(mouza => {
+                    mouzaSelect.append(new Option(mouza.MauzaName, mouza.MauzaId));
+                });
+            }
+
+            // Handle Select2 properly
+            if (isSelect2Initialized) {
+                // Select2 is already initialized, just update it
+                console.log('Select2 already initialized for mouza, updating...');
+
+                // Update Select2
+                mouzaSelect.trigger('change.select2');
+
+                // Also update Select2 data structure
+                if (window.Select2 && window.Select2.instances) {
+                    const instance = mouzaSelect.data('select2');
+                    if (instance) {
+                        instance.trigger('change', {});
+                    }
+                }
+            } else {
+                // Initialize Select2 for the first time
+                console.log('Initializing Select2 for mouza dropdown...');
+                mouzaSelect.select2({
+                    theme: 'bootstrap-5',
+                    width: '100%',
+                    placeholder: 'Select Mouza',
+                    allowClear: true,
+                    dropdownParent: $('.filter-section')
+                });
+            }
+
+            // Reset to placeholder
+            mouzaSelect.val('').trigger('change');
+
+            // Update the Select2 display to show placeholder
+            if (isSelect2Initialized) {
+                setTimeout(() => {
+                    mouzaSelect.select2('val', '');
+                    mouzaSelect.select2('data', null);
+                }, 100);
+            }
+
+            // Setup change event handler (only once)
+            mouzaSelect.off('change.mouza-change').on('change.mouza-change', async function () {
+                const mouzaId = $(this).val();
+                const selectedText = $(this).find('option:selected').text();
+
+                console.log('Mouza changed:', selectedText, 'ID:', mouzaId);
+
+                // Update display immediately
+                $(this).select2('data', {
+                    id: mouzaId,
+                    text: selectedText,
+                    selected: true
+                });
+
+                currentMouzaId = mouzaId;
+
+                if (!mouzaId) {
+                    
+                    return;
+                }
+
+                try {
+                    // Show loading for khasras
+                    Swal.fire({
+                        title: 'Loading...',
+                        html: `Loading khasras for ${selectedText}`,
+                        allowOutsideClick: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
+
+                    Swal.close();
+
+                } catch (error) {
+                    console.error("Error loading khasras:", error);
+                    Swal.close();
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Failed to load khasra data',
+                        timer: 3000,
+                        showConfirmButton: false
+                    });
+                }
+            });
+
+            console.log('Mouza dropdown populated with', (mouzas ? mouzas.length : 0), 'items');
+        }
+
+
+    </script>
+</body>
+</html>

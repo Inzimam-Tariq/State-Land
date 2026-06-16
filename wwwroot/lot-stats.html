@@ -1,0 +1,1476 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>State Land Management Dashboard</title>
+
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Select2 with Bootstrap 5 Theme -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- SweetAlert2 -->
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+
+    <!-- DataTables Core CSS -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/jquery.dataTables.min.css">
+
+    <!-- DataTables Bootstrap 5 integration CSS -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/dataTables.bootstrap5.min.css">
+
+    <!-- DataTables Buttons CSS -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.bootstrap5.min.css">
+
+    <!-- Your Custom CSS -->
+    <link rel="stylesheet" href="css/main.css">
+
+    <!-- SweetAlert2 Script -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+
+    <!-- Custom Styles -->
+    <style>
+
+        /* Search Bar Styles */
+        .compact-search-container {
+            padding: 0 4px;
+            margin-top: 5px;
+        }
+
+            .compact-search-container .input-group {
+                box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+                border-radius: 6px;
+                overflow: hidden;
+            }
+
+            .compact-search-container .input-group-text {
+                background: #f8f9fa;
+                border-color: #dee2e6;
+                padding: 0.25rem 0.5rem;
+            }
+
+            .compact-search-container .form-control {
+                border-color: #dee2e6;
+                font-size: 0.85rem;
+                padding: 0.25rem 0.5rem;
+                height: 28px;
+            }
+
+                .compact-search-container .form-control:focus {
+                    box-shadow: 0 0 0 2px rgba(13, 110, 253, 0.15);
+                    border-color: #86b7fe;
+                }
+
+            .compact-search-container .btn {
+                padding: 0.25rem 0.5rem;
+                height: 28px;
+            }
+
+        #searchResultsInfo {
+            min-height: 12px;
+            line-height: 1.2;
+        }
+
+        /* Enhanced Filter Controls */
+        .compact-filter-controls {
+            margin: 8px 0;
+            padding: 6px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid #e9ecef;
+        }
+
+        .compact-toggle-switch {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 0.8rem;
+        }
+
+            .compact-toggle-switch input[type="checkbox"] {
+                width: 14px;
+                height: 14px;
+                margin: 0;
+                cursor: pointer;
+            }
+
+            .compact-toggle-switch label {
+                cursor: pointer;
+                user-select: none;
+                color: #495057;
+            }
+
+        #compactToggleFilters {
+            padding: 2px 6px;
+            font-size: 0.75rem;
+            border-radius: 4px;
+        }
+
+        /* Highlight search results */
+        .khasra-search-highlight {
+            background-color: #fff3cd !important;
+            border-color: #ffc107 !important;
+        }
+
+        .khasra-search-match {
+            font-weight: 700;
+            color: #d63384;
+            background-color: rgba(214, 51, 132, 0.1);
+            padding: 0 2px;
+            border-radius: 2px;
+        }
+        /* SweetAlert2 Custom Styling */
+        .swal2-popup {
+            border-radius: 12px !important;
+            padding: 2rem !important;
+        }
+
+        .swal2-title {
+            font-size: 1.5rem !important;
+            font-weight: 600 !important;
+            color: #2c3e50 !important;
+        }
+
+        .swal2-html-container {
+            font-size: 1rem !important;
+            color: #495057 !important;
+            margin-top: 1rem !important;
+        }
+
+        .swal2-progress-steps {
+            margin-bottom: 1.5rem !important;
+        }
+
+        .swal2-progress-step {
+            background: #007bff !important;
+        }
+
+        .swal2-progress-step-active {
+            background: #0056b3 !important;
+        }
+
+        .swal2-progress-step-line {
+            background: #dee2e6 !important;
+        }
+
+        /* Custom loader animation */
+        @keyframes pulse {
+            0% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.5;
+            }
+
+            100% {
+                opacity: 1;
+            }
+        }
+
+        .loading-pulse {
+            animation: pulse 1.5s infinite;
+        }
+
+        .hidden-field {
+            display: none !important;
+        }
+
+        /* FIX FOR SELECT2 DISPLAY */
+        .select2-container--bootstrap-5 .select2-selection--single {
+            padding: 0.375rem 2.25rem 0.375rem 0.75rem !important;
+            height: 38px !important;
+        }
+
+            .select2-container--bootstrap-5 .select2-selection--single .select2-selection__rendered {
+                line-height: 1.5 !important;
+                padding-left: 0 !important;
+            }
+
+        /* Force the selected text to show */
+        .select2-selection__rendered {
+            color: #212529 !important;
+            font-size: 1rem !important;
+        }
+
+        /* When dropdown is focused/active */
+        .select2-container--bootstrap-5.select2-container--focus .select2-selection,
+        .select2-container--bootstrap-5.select2-container--open .select2-selection {
+            border-color: #86b7fe !important;
+            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25) !important;
+        }
+        /* Ensure dropdown shows properly */
+        .select2-container {
+            z-index: 1051 !important;
+        }
+
+        .select2-dropdown {
+            z-index: 1052 !important;
+        }
+        /* Compact Khasra List */
+        .compact-khasra-list {
+            position: absolute;
+            top: 250px;
+            left: 20px;
+            width: 220px;
+            max-height: 450px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 8px;
+            padding: 10px;
+            z-index: 999;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            overflow: hidden;
+            border: 1px solid #ddd;
+        }
+
+        .compact-list-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+            padding-bottom: 5px;
+            border-bottom: 1px solid #ddd;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .compact-list-container {
+            max-height: 250px;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+
+            .compact-list-container::-webkit-scrollbar {
+                width: 6px;
+            }
+
+            .compact-list-container::-webkit-scrollbar-track {
+                background: #f1f1f1;
+                border-radius: 3px;
+            }
+
+            .compact-list-container::-webkit-scrollbar-thumb {
+                background: #888;
+                border-radius: 3px;
+            }
+
+                .compact-list-container::-webkit-scrollbar-thumb:hover {
+                    background: #555;
+                }
+
+        .compact-khasra-item {
+            padding: 6px 8px;
+            margin-bottom: 4px;
+            border-radius: 4px;
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+            .compact-khasra-item:hover {
+                background: #e9ecef;
+                transform: translateX(2px);
+            }
+
+            .compact-khasra-item.active {
+                background: #e3f2fd;
+                border-color: #2196f3;
+                box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.1);
+            }
+
+        .compact-khasra-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .compact-khasra-number {
+            font-weight: 600;
+            color: #2c3e50;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            font-size: 0.9rem;
+        }
+
+        .compact-khasra-icons {
+            display: flex;
+            gap: 3px;
+            margin-top: 2px;
+            font-size: 0.7rem;
+        }
+
+            .compact-khasra-icons i {
+                opacity: 0.8;
+            }
+
+        .compact-verification-badge {
+            font-size: 0.7rem;
+            padding: 1px 6px;
+            border-radius: 10px;
+            font-weight: 600;
+            white-space: nowrap;
+            margin-left: 5px;
+        }
+
+        .compact-badge-verified {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .compact-badge-unverified {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        .compact-badge-bor-available {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .compact-badge-bor-not-available {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        .compact-badge-department {
+            background-color: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .compact-nav-buttons {
+            margin-top: 10px;
+            display: flex;
+            gap: 5px;
+            justify-content: center;
+        }
+
+            .compact-nav-buttons .btn {
+                padding: 3px 8px;
+                font-size: 0.75rem;
+            }
+
+        .compact-filter-controls {
+            margin: 8px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .compact-toggle-switch {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 0.8rem;
+        }
+
+            .compact-toggle-switch input[type="checkbox"] {
+                width: 14px;
+                height: 14px;
+                margin: 0;
+            }
+
+        /* KPI Counts */
+        .kpi-counts {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .count-item {
+            background: white;
+            padding: 6px 10px;
+            border-radius: 6px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-width: 70px;
+        }
+
+        .count-label {
+            font-size: 0.75rem;
+            color: #666;
+            white-space: nowrap;
+        }
+
+        .count-value {
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        .count-bor-available {
+            color: #28a745; /* Green */
+        }
+
+        .count-bor-not-available {
+            color: #dc3545; /* Red */
+        }
+
+        .count-department {
+            color: #17a2b8; /* Teal/Blue */
+        }
+
+        .count-unverified {
+            color: #6c757d; /* Gray */
+        }
+
+        .count-total {
+            color: #007bff; /* Blue */
+        }
+
+        /* Map Container */
+        #viewDiv {
+            height: calc(100vh - 200px);
+            width: 100%;
+            margin-top: 15px;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        /* Owner Details */
+        .owner-details-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .owner-field-compact {
+            font-size: 0.85rem;
+        }
+
+        .owner-label-compact {
+            font-weight: 600;
+            color: #495057;
+            display: block;
+            margin-bottom: 2px;
+            font-size: 0.8rem;
+        }
+
+        .owner-value-compact {
+            color: #212529;
+            display: block;
+            font-size: 0.85rem;
+        }
+
+        /* Form Improvements */
+        .compact-form .form-row {
+            margin-bottom: 12px;
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+            font-size: 0.9rem;
+        }
+
+        .form-label-cell {
+            font-weight: 600;
+            color: #495057;
+            padding-right: 10px;
+            min-width: 100px;
+            font-size: 0.85rem;
+        }
+
+        .form-control-cell {
+            flex: 1;
+        }
+
+        /* Conditional Fields */
+        .conditional-fields {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-radius: 6px;
+            border-left: 3px solid #6c757d;
+        }
+
+        /* Lease Period Input */
+        .lease-period-input {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 5px;
+        }
+
+            .lease-period-input .form-control-sm {
+                width: 80px;
+            }
+
+        /* Toast Container */
+        .toast-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1100;
+        }
+
+        /* Layer Controls */
+        .layer-controls {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            background: white;
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            z-index: 1000;
+            display: none;
+            width: 200px;
+        }
+
+        .layer-toggle-btn {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            background: white;
+            padding: 8px;
+            border-radius: 50%;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            cursor: pointer;
+            z-index: 1000;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Status icon colors */
+        .text-purple {
+            color: #6f42c1 !important;
+        }
+
+        .text-brown {
+            color: #8b4513 !important;
+        }
+
+        .text-warning {
+            color: #ffc107 !important;
+        }
+
+        .text-info {
+            color: #17a2b8 !important;
+        }
+
+        .text-success {
+            color: #28a745 !important;
+        }
+
+        .text-danger {
+            color: #dc3545 !important;
+        }
+
+        .text-primary {
+            color: #007bff !important;
+        }
+
+        /* Table Header Styling */
+        #lotTable thead th {
+            background-color: rgba(25, 135, 84, 0.85); /* Bootstrap success green */
+            color: #ffffff;
+            text-align: center;
+            font-weight: 600;
+            border-bottom: 2px solid rgba(0, 0, 0, 0.15);
+        }
+
+        /* TOTAL rows */
+        .table-total-row {
+            background-color: rgba(0, 123, 255, 0.08) !important;
+            font-weight: 700;
+        }
+
+        /* Export buttons spacing */
+        .dt-buttons {
+            margin-bottom: 10px;
+        }
+
+            .dt-buttons .btn {
+                margin-right: 6px;
+            }
+
+
+        /* Responsive Adjustments */
+        @media (max-width: 768px) {
+            .compact-khasra-list {
+                position: relative;
+                top: auto;
+                right: auto;
+                width: 100%;
+                max-height: 200px;
+                margin-top: 10px;
+            }
+
+            .compact-list-container {
+                max-height: 120px;
+            }
+
+            .owner-details-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .form-label-cell {
+                min-width: 80px;
+            }
+        }
+        /*        for tags*/
+        .selected-khasra-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #e7f1ff;
+            color: #004085;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.9rem;
+            border: 1px solid #9ec5fe;
+            transition: all 0.18s ease;
+        }
+
+            .selected-khasra-tag:hover {
+                background: #d4e7ff;
+                border-color: #6c9ded;
+            }
+
+            .selected-khasra-tag .tag-khasra {
+                font-weight: 500;
+            }
+
+            .selected-khasra-tag .remove-btn {
+                width: 20px;
+                height: 20px;
+                border-radius: 50%;
+                background: #dc3545;
+                color: white;
+                border: none;
+                font-size: 14px;
+                line-height: 1;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                cursor: pointer;
+                transition: background 0.2s;
+            }
+
+                .selected-khasra-tag .remove-btn:hover {
+                    background: #c82333;
+                }
+
+            /* Visual feedback when this tag is the currently viewed/edited one */
+            .selected-khasra-tag.current {
+                background: #d4edda;
+                border-color: #28a745;
+                color: #155724;
+                box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.25);
+            }
+    </style>
+</head>
+
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-custom navbar-expand-lg">
+        <div class="container-fluid" style="background: forestgreen">
+            <a class="navbar-brand text-white" href="#">
+                <i class="fas fa-map-marked-alt"></i> Land Management System
+            </a>
+            <div class="d-flex align-items-center">
+                <span class="text-white me-3" style="font-size: 0.9rem;">
+                    <a class="fas fa-sign-out me-1 text-white" href="login.html"></a> Logout
+                    <i class="fas fa-user-circle me-1"></i>Welcome: <span id="currentUserId"></span>,
+                    Your District is <span id="currentDistrictId"></span>
+                </span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <div class="main-container">
+
+        <!-- Right Panel - Forms -->
+        <div class="right-panel">
+
+            <div class="filter-section">
+                <div class="filter-title">
+                    <i class="fas fa-filter"></i> Hierarchy Selection
+                </div>
+                <div class="row g-2">
+                    <div class="col-md-6">
+                        <select id="ddlTehsil" class="form-select select2">
+                            <option value="">Select Tehsil</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <select id="ddlMouza" class="form-select select2">
+                            <option value="">Select Mouza</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- KPI Counts - UPDATED with clearer labels -->
+                <div class="kpi-counts" id="mauzaKpis" style="display:none;">
+                    <div class="count-item">
+                        <div class="count-label">Total Lots</div>
+                        <div class="count-value text-primary" id="kpiLots">0</div>
+                    </div>
+                    <div class="count-item">
+                        <div class="count-label">Total Khasras</div>
+                        <div class="count-value text-info" id="kpiKhasras">0</div>
+                    </div>
+                    <div class="count-item">
+                        <div class="count-label">Total Area</div>
+                        <div class="count-value text-success" id="kpiArea">0</div>
+                    </div>
+                    <div class="count-item">
+                        <div class="count-label">Land Suitability</div>
+                        <div class="count-value text-warning" id="kpiSuitability">—</div>
+                    </div>
+                </div>
+
+                <div class="card mt-3 shadow-sm">
+                    <div class="card-header bg-light fw-semibold">
+                        <i class="fas fa-layer-group me-1"></i> Lot-wise Khasra Breakdown
+                    </div>
+                    <div class="table-responsive">
+                        <table id="lotTable" class="table table-striped table-bordered w-100">
+                            <thead>
+                                <tr>
+                                    <th>Lot #</th>
+                                    <th>Mauza</th>
+                                    <th>Khewat</th>
+                                    <th>Muraba</th>
+                                    <th>Khasra</th>
+                                    <th>Area</th>
+                                    <th>Suitability</th>
+                                    <th>Lease Amount</th>
+                                    <th>Remarks</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- No Data Message -->
+            <!--<div id="noDataMessage" class="no-data-container">
+                <div class="no-data-icon">
+                    <i class="fas fa-map-marker-alt"></i>
+                </div>
+                <h3 class="no-data-title">No Land Selected</h3>
+                <p class="no-data-text">
+                    Select a land parcel from the map or dropdown
+                </p>
+            </div>-->
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Script Imports -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+
+    <script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
+
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.print.min.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
+
+    <script>
+        const authToken = localStorage.getItem("pulse_token");
+        let districtId = localStorage.getItem("districtId") || 1;
+        let districtName = localStorage.getItem("districtName") || 1;
+
+        let currentUserId = localStorage.getItem("pulse_userId") || 0;
+        let currentUserName = localStorage.getItem("pulse_userName") || "Guest";
+
+        // Function to properly initialize Select2 once
+        function initializeSelect2Dropdowns() {
+            console.log('Initializing Select2 dropdowns...');
+
+            // Tehsil dropdown
+            $('#ddlTehsil').select2({
+                theme: 'bootstrap-5',
+                width: '100%',
+                placeholder: 'Select Tehsil',
+                allowClear: true,
+                dropdownParent: $('.filter-section'),
+                minimumResultsForSearch: 10
+            }).on('select2:open', function () {
+                // Fix z-index issues
+                $(this).data('select2').$dropdown.css('z-index', 9999);
+            });
+
+            // Mouza dropdown
+            $('#ddlMouza').select2({
+                theme: 'bootstrap-5',
+                width: '100%',
+                placeholder: 'Select Mouza',
+                allowClear: true,
+                dropdownParent: $('.filter-section'),
+                minimumResultsForSearch: 10
+            }).on('select2:open', function () {
+                // Fix z-index issues
+                $(this).data('select2').$dropdown.css('z-index', 9999);
+            });
+
+            console.log('Select2 dropdowns initialized');
+        }
+
+        // Update your $(document).ready function to include search setup
+        $(document).ready(function () {
+            // Initialize Select2 ONCE
+            initializeSelect2Dropdowns();
+
+            // Display current user info
+            document.getElementById('currentUserId').textContent = currentUserName;
+            document.getElementById('currentDistrictId').textContent = districtName;
+            showData();
+            loadDistrictData();
+        });
+
+        function getResultSet(resultSets, index) {
+            return resultSets?.find(r => Number(r.resultSetIndex) === index)?.rows ?? [];
+        }
+
+        async function showData() {
+            debugger
+            const resultSets = await fetchData();
+            if (!resultSets || resultSets.length === 0) return;
+
+            const overview = getResultSet(resultSets, 0);
+            const lotData = getResultSet(resultSets, 1);
+
+            if (overview.length > 0) renderMauzaKPIs(overview[0]);
+            if (lotData.length > 0) renderLotTable(lotData);
+        }
+
+        // Fetch and show data
+        async function fetchData() {
+            try {
+                const res = await fetch("/api/Gis/ExecuteStoredProcedure", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify({
+                        procedureName: "i_GetLotBandiStats_V1",
+                        parameters: {
+                            MauzaId: 2386
+                            //TehId: 197
+                        }
+                    })
+                });
+
+                if (!res.ok) throw new Error("Failed to fetch tehsils");
+                const data = await res.json();
+                return data.response || data;
+            } catch (error) {
+                console.error("Error fetching tehsils:", error);
+                return [];
+            }
+        }
+
+        function renderMauzaKPIs(data) {
+            $("#kpiLots").text(data.NumberOfLots ?? 0);
+            $("#kpiKhasras").text(data.NoOfKhasras ?? 0);
+            //$("#kpiArea").text(Number(data.TotalArea ?? 0).toLocaleString());
+            $("#kpiArea").text(convertSqFtToAKM(data.TotalArea ?? 0));
+            $("#kpiSuitability").text(data.LandSuitability || "—");
+
+            $("#mauzaKpis").fadeIn();
+        }
+
+        function renderLotTable(rows) {
+
+            // Defensive guard
+            if (!rows || rows.length === 0) return;
+
+            // Destroy existing DataTable if exists
+            if ($.fn.DataTable.isDataTable('#lotTable')) {
+                $('#lotTable').DataTable().destroy();
+            }
+
+            // Normalize & prepare rows
+            const tableData = rows.map(r => {
+                const isTotalRow = r.KhasraNo === "TOTAL";
+
+                return {
+                    LotNo: isTotalRow ? null : r.LotNo,
+                    MauzaName: r.MauzaName ?? '',
+                    KhewatNo: r.KhewatNo ?? '',
+                    MurabaNo: r.MurabaNo ?? '',
+                    KhasraNo: r.KhasraNo ?? '',
+                    KhasraArea: convertSqFtToAKM(r.KhasraArea ?? r.LotTotalArea ?? 0),
+                    LandSuitability: r.LandSuitability ?? '',
+                    LeasePerAcre: r.LeasePerAcre ?? '',
+                    Remarks: r.Remarks ?? '',
+                    __isTotal: isTotalRow
+                };
+            });
+
+            $('#lotTable').DataTable({
+                data: tableData,
+                responsive: true,
+                autoWidth: false,
+                pageLength: 10,
+                lengthMenu: [10, 25, 50, 100],
+                dom: 'Bfltip',
+
+                ordering: false, // ← disable all sorting
+
+                buttons: [
+                    { extend: 'copy', className: 'btn btn-sm btn-outline-secondary' },
+                    { extend: 'csv', className: 'btn btn-sm btn-outline-primary' },
+                    { extend: 'excel', className: 'btn btn-sm btn-outline-success' },
+                    { extend: 'pdf', className: 'btn btn-sm btn-outline-danger', orientation: 'landscape', pageSize: 'A4' },
+                    { extend: 'print', className: 'btn btn-sm btn-outline-dark' }
+                ],
+
+                columns: [
+                    { data: 'LotNo', defaultContent: '' },
+                    { data: 'MauzaName' },
+                    { data: 'KhewatNo' },
+                    { data: 'MurabaNo' },
+                    { data: 'KhasraNo' },
+                    { data: 'KhasraArea' },
+                    { data: 'LandSuitability' },
+                    { data: 'LeasePerAcre' },
+                    { data: 'Remarks' }
+                ],
+
+                "columnDefs": [
+                    { "orderable": false, "targets": 0 } // disable sorting only on Lot #
+                ],
+
+                rowCallback: function (row, data) {
+                    if (data.__isTotal) {
+                        $(row)
+                            .addClass('table-warning fw-semibold')
+                            .find('td:eq(3)')
+                            .text('TOTAL');
+                    }
+                }
+            });
+        }
+
+        async function loadDistrictData() {
+            try {
+                // Show loading
+                const loadingSwal = Swal.fire({
+                    title: 'Loading District Data',
+                    html: `
+                        <div class="text-center">
+                            <div class="spinner-border text-primary mb-3" style="width: 2rem; height: 2rem;"></div>
+                            <p>Fetching administrative boundaries</p>
+                            <small class="text-muted">Please wait...</small>
+                        </div>
+                    `,
+                    allowOutsideClick: false,
+                    showConfirmButton: false
+                });
+
+                const tehsils = await fetchTehsils();
+
+                // Close loading
+                Swal.close();
+
+                if (tehsils && tehsils.length > 0) {
+                    populateTehsilDropdown(tehsils);
+
+                    // Show brief success message
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Data Loaded',
+                        text: `${tehsils.length} tehsils loaded successfully`,
+                        timer: 1500,
+                        showConfirmButton: false
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'No Data',
+                        text: 'No tehsils found for this district',
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+                }
+            } catch (error) {
+                console.error("Error loading district data:", error);
+                Swal.close();
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Loading Failed',
+                    text: 'Failed to load district data. Please try again.',
+                    timer: 3000,
+                    showConfirmButton: false
+                });
+            }
+        }
+
+        // Fetch tehsils
+        async function fetchTehsils(districtId) {
+            try {
+                const res = await fetch("/api/Gis/ExecuteStoredProcedure", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify({
+                        procedureName: "sp_GetTehsilsByDistrict",
+                        parameters: {}
+                    })
+                });
+
+                if (!res.ok) throw new Error("Failed to fetch tehsils");
+                const data = await res.json();
+                return data.response || data;
+            } catch (error) {
+                console.error("Error fetching tehsils:", error);
+                return [];
+            }
+        }
+
+        // Fetch mouzas
+        async function fetchMouzas(tehsilId) {
+            try {
+                const res = await fetch("/api/Gis/ExecuteStoredProcedure", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify({
+                        procedureName: "sp_GetMauzasByTehsil_",
+                        parameters: { TehsilId: parseInt(tehsilId) }
+                    })
+                });
+
+                if (!res.ok) throw new Error("Failed to fetch mouzas");
+                const data = await res.json();
+                return data.response || data;
+            } catch (error) {
+                console.error("Error fetching mouzas:", error);
+                return [];
+            }
+        }
+
+        // Populate tehsil dropdown - COMPLETE FIXED VERSION
+        function populateTehsilDropdown(tehsils) {
+            console.log('Populating tehsils:', tehsils);
+
+            const tehsilSelect = $('#ddlTehsil');
+
+            // Save current value for restoration (if needed)
+            const currentValue = tehsilSelect.val();
+            const currentText = tehsilSelect.find('option:selected').text();
+
+            console.log('Current tehsil value:', currentValue, 'text:', currentText);
+
+            // Store whether Select2 is initialized
+            const isSelect2Initialized = tehsilSelect.hasClass('select2-hidden-accessible');
+
+            // Clear existing options
+            tehsilSelect.empty();
+
+            // Add default option
+            tehsilSelect.append('<option value="">Select Tehsil</option>');
+
+            // Add new options
+            if (tehsils && tehsils.length > 0) {
+                tehsils.forEach(tehsil => {
+                    tehsilSelect.append(new Option(tehsil.TehsilName, tehsil.TehsilId));
+                });
+            }
+
+            // Handle Select2 properly
+            if (isSelect2Initialized) {
+                // Select2 is already initialized, just update it
+                console.log('Select2 already initialized, updating...');
+
+                // Method 1: Direct DOM update (most reliable)
+                tehsilSelect.trigger('change.select2');
+
+                // Method 2: Also update Select2 data structure
+                if (window.Select2 && window.Select2.instances) {
+                    const instance = tehsilSelect.data('select2');
+                    if (instance) {
+                        instance.trigger('change', {});
+                    }
+                }
+            } else {
+                // Initialize Select2 for the first time
+                console.log('Initializing Select2 for tehsil dropdown...');
+                tehsilSelect.select2({
+                    theme: 'bootstrap-5',
+                    width: '100%',
+                    placeholder: 'Select Tehsil',
+                    allowClear: true,
+                    dropdownParent: $('.filter-section')
+                });
+            }
+
+            // Reset to placeholder
+            tehsilSelect.val('').trigger('change');
+
+            // Update the Select2 display to show placeholder
+            if (isSelect2Initialized) {
+                setTimeout(() => {
+                    tehsilSelect.select2('val', '');
+                    tehsilSelect.select2('data', null);
+                }, 100);
+            }
+
+            // Setup change event handler (only once)
+            tehsilSelect.off('change.select-change').on('change.select-change', async function () {
+                const tehsilId = $(this).val();
+                const selectedText = $(this).find('option:selected').text();
+
+                console.log('Tehsil changed:', selectedText, 'ID:', tehsilId);
+
+                // Update display immediately
+                $(this).select2('data', {
+                    id: tehsilId,
+                    text: selectedText,
+                    selected: true
+                });
+
+                currentTehsilId = tehsilId;
+
+                if (!tehsilId) {
+                    console.log('Tehsil cleared, resetting mouza...');
+
+                    // Reset mouza dropdown
+                    const mouzaSelect = $('#ddlMouza');
+                    mouzaSelect.empty().append('<option value="">Select Mouza</option>');
+
+                    if (mouzaSelect.hasClass('select2-hidden-accessible')) {
+                        mouzaSelect.select2('destroy');
+                        mouzaSelect.select2({
+                            theme: 'bootstrap-5',
+                            width: '100%',
+                            placeholder: 'Select Mouza',
+                            allowClear: true,
+                            dropdownParent: $('.filter-section')
+                        });
+                    }
+
+                    mouzaSelect.val('').trigger('change');
+
+                    return;
+                }
+
+                try {
+                    // Show loading for mouzas
+                    Swal.fire({
+                        title: 'Loading...',
+                        html: `Loading mouzas for ${selectedText}`,
+                        allowOutsideClick: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
+
+                    const mouzas = await fetchMouzas(tehsilId);
+                    Swal.close();
+
+                    if (mouzas && mouzas.length > 0) {
+                        populateMouzaDropdown(mouzas);
+
+                    } else {
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'No Mouzas',
+                            text: 'No mouzas found for selected tehsil',
+                            timer: 2000,
+                            showConfirmButton: false
+                        });
+                    }
+                } catch (error) {
+                    console.error("Error loading mouzas:", error);
+                    Swal.close();
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Failed to load mouzas data',
+                        timer: 3000,
+                        showConfirmButton: false
+                    });
+                }
+            });
+
+            console.log('Tehsil dropdown populated with', (tehsils ? tehsils.length : 0), 'items');
+        }
+
+        // Populate mouza dropdown - COMPLETE FIXED VERSION
+        function populateMouzaDropdown(mouzas) {
+            console.log('Populating mouzas:', mouzas);
+
+            const mouzaSelect = $('#ddlMouza');
+
+            // Save current value
+            const currentValue = mouzaSelect.val();
+            const currentText = mouzaSelect.find('option:selected').text();
+
+            console.log('Current mouza value:', currentValue, 'text:', currentText);
+
+            // Store whether Select2 is initialized
+            const isSelect2Initialized = mouzaSelect.hasClass('select2-hidden-accessible');
+
+            // Clear existing options
+            mouzaSelect.empty();
+
+            // Add default option
+            mouzaSelect.append('<option value="">Select Mouza</option>');
+
+            // Add new options
+            if (mouzas && mouzas.length > 0) {
+                mouzas.forEach(mouza => {
+                    mouzaSelect.append(new Option(mouza.MauzaName, mouza.MauzaId));
+                });
+            }
+
+            // Handle Select2 properly
+            if (isSelect2Initialized) {
+                // Select2 is already initialized, just update it
+                console.log('Select2 already initialized for mouza, updating...');
+
+                // Update Select2
+                mouzaSelect.trigger('change.select2');
+
+                // Also update Select2 data structure
+                if (window.Select2 && window.Select2.instances) {
+                    const instance = mouzaSelect.data('select2');
+                    if (instance) {
+                        instance.trigger('change', {});
+                    }
+                }
+            } else {
+                // Initialize Select2 for the first time
+                console.log('Initializing Select2 for mouza dropdown...');
+                mouzaSelect.select2({
+                    theme: 'bootstrap-5',
+                    width: '100%',
+                    placeholder: 'Select Mouza',
+                    allowClear: true,
+                    dropdownParent: $('.filter-section')
+                });
+            }
+
+            // Reset to placeholder
+            mouzaSelect.val('').trigger('change');
+
+            // Update the Select2 display to show placeholder
+            if (isSelect2Initialized) {
+                setTimeout(() => {
+                    mouzaSelect.select2('val', '');
+                    mouzaSelect.select2('data', null);
+                }, 100);
+            }
+
+            // Setup change event handler (only once)
+            mouzaSelect.off('change.mouza-change').on('change.mouza-change', async function () {
+                const mouzaId = $(this).val();
+                const selectedText = $(this).find('option:selected').text();
+
+                console.log('Mouza changed:', selectedText, 'ID:', mouzaId);
+
+                // Update display immediately
+                $(this).select2('data', {
+                    id: mouzaId,
+                    text: selectedText,
+                    selected: true
+                });
+
+                currentMouzaId = mouzaId;
+
+                if (!mouzaId) {
+                    console.log('Mouza cleared, resetting map...');
+
+                    // Clear map and hide khasra list
+                    if (statelandLayer) {
+                        statelandLayer.definitionExpression = "1=0";
+                    }
+
+                    return;
+                }
+
+                try {
+                    // Show loading for khasras
+                    Swal.fire({
+                        title: 'Loading...',
+                        html: `Loading khasras for ${selectedText}`,
+                        allowOutsideClick: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
+
+                    Swal.close();
+
+                } catch (error) {
+                    console.error("Error loading khasras:", error);
+                    Swal.close();
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Failed to load khasra data',
+                        timer: 3000,
+                        showConfirmButton: false
+                    });
+                }
+            });
+
+            console.log('Mouza dropdown populated with', (mouzas ? mouzas.length : 0), 'items');
+        }
+
+        // Update the updateKPIcounts function to work with the new structure
+        function updateKPIcounts(totalCount, stats = {}) {
+            console.log('Updating KPI counts with stats:', stats);
+
+            // Update the KPI values with proper calculation
+            document.getElementById('kpiBORAvailable').textContent = totalCount || 0;
+        }
+
+        // Convert Sq Ft to A-K-M
+        function convertSqFtToAKM(sqFt) {
+            if (!sqFt || sqFt <= 0) return '0 M';
+
+            const MARLA_PER_ACRE = 160;
+            const MARLA_PER_KANAL = 20;
+            const SQFT_PER_MARLA = 272.25;
+
+            let totalMarla = sqFt / SQFT_PER_MARLA;
+            const acres = Math.floor(totalMarla / MARLA_PER_ACRE);
+            totalMarla = totalMarla - (acres * MARLA_PER_ACRE);
+            const kanal = Math.floor(totalMarla / MARLA_PER_KANAL);
+            totalMarla = totalMarla - (kanal * MARLA_PER_KANAL);
+            const marla = Math.round(totalMarla * 100) / 100;
+
+            let result = '';
+            if (acres > 0) result += acres + ' A';
+            if (kanal > 0) {
+                if (result) result += ' - ';
+                result += kanal + ' K';
+            }
+            if (marla > 0) {
+                if (result) result += ' - ';
+                result += marla + ' M';
+            }
+
+            if (!result) result = '0 M';
+            return result;
+        }
+
+        // Helper function to force trigger events
+        function forceTriggerEvent(element, eventName) {
+            if (element) {
+                // Native event
+                element.dispatchEvent(new Event(eventName));
+
+                // jQuery event if available
+                if (typeof jQuery !== 'undefined' && jQuery.fn.trigger) {
+                    $(element).trigger(eventName);
+                }
+            }
+        }
+
+        // Helper function to ensure dropdown is populated before setting value
+        function setDropdownValue(dropdownId, value) {
+            const dropdown = document.getElementById(dropdownId);
+            if (!dropdown) return false;
+
+            let attempts = 0;
+            const maxAttempts = 10;
+
+            return new Promise((resolve) => {
+                const checkAndSet = () => {
+                    attempts++;
+
+                    // Check if the option exists
+                    const optionExists = Array.from(dropdown.options).some(opt => opt.value === value);
+
+                    if (optionExists) {
+                        dropdown.value = value;
+                        forceTriggerEvent(dropdown, 'change');
+                        resolve(true);
+                    } else if (attempts < maxAttempts) {
+                        // Try again after a short delay
+                        setTimeout(checkAndSet, 100);
+                    } else {
+                        // Option doesn't exist, try to add it
+                        const option = document.createElement('option');
+                        option.value = value;
+                        option.text = value;
+                        dropdown.appendChild(option);
+                        dropdown.value = value;
+                        forceTriggerEvent(dropdown, 'change');
+                        resolve(true);
+                    }
+                };
+
+                checkAndSet();
+            });
+        }
+
+        // Show no data message
+        function showNoData() {
+            document.getElementById('assessmentForm').style.display = 'none';
+            document.getElementById('noDataMessage').style.display = 'block';
+        }
+
+        // Show toast message
+        function showToast(type, title, message) {
+            const toastId = 'toast-' + Date.now();
+            const toastHtml = `
+                                    <div id="${toastId}" class="toast" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="5000">
+                                        <div class="toast-header bg-${type} text-white">
+                                            <strong class="me-auto">${title}</strong>
+                                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
+                                        </div>
+                                        <div class="toast-body">
+                                            ${message}
+                                        </div>
+                                    </div>
+                                `;
+
+            document.getElementById('toastContainer').insertAdjacentHTML('beforeend', toastHtml);
+
+            const toastElement = document.getElementById(toastId);
+            const toast = new bootstrap.Toast(toastElement);
+            toast.show();
+
+            toastElement.addEventListener('hidden.bs.toast', function () {
+                this.remove();
+            });
+        }
+
+    </script>
+</body>
+</html>

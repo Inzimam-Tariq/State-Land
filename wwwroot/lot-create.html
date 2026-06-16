@@ -1,0 +1,3185 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lot Bandi - State Land Management Dashboard</title>
+
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Select2 with Bootstrap 5 Theme -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Esri ArcGIS CSS -->
+    <link rel="stylesheet" href="https://js.arcgis.com/4.29/esri/themes/light/main.css">
+    <link rel="stylesheet" href="css/main.css">
+
+    <!-- Add this in your <head> section -->
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+    <!-- Custom Styles -->
+    <style>
+
+        /* Search Bar Styles */
+        .compact-search-container {
+            padding: 0 4px;
+            margin-top: 5px;
+        }
+
+            .compact-search-container .input-group {
+                box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+                border-radius: 6px;
+                overflow: hidden;
+            }
+
+            .compact-search-container .input-group-text {
+                background: #f8f9fa;
+                border-color: #dee2e6;
+                padding: 0.25rem 0.5rem;
+            }
+
+            .compact-search-container .form-control {
+                border-color: #dee2e6;
+                font-size: 0.85rem;
+                padding: 0.25rem 0.5rem;
+                height: 28px;
+            }
+
+                .compact-search-container .form-control:focus {
+                    box-shadow: 0 0 0 2px rgba(13, 110, 253, 0.15);
+                    border-color: #86b7fe;
+                }
+
+            .compact-search-container .btn {
+                padding: 0.25rem 0.5rem;
+                height: 28px;
+            }
+
+        #searchResultsInfo {
+            min-height: 12px;
+            line-height: 1.2;
+        }
+
+        /* Enhanced Filter Controls */
+        .compact-filter-controls {
+            margin: 8px 0;
+            padding: 6px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid #e9ecef;
+        }
+
+        .compact-toggle-switch {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 0.8rem;
+        }
+
+            .compact-toggle-switch input[type="checkbox"] {
+                width: 14px;
+                height: 14px;
+                margin: 0;
+                cursor: pointer;
+            }
+
+            .compact-toggle-switch label {
+                cursor: pointer;
+                user-select: none;
+                color: #495057;
+            }
+
+        #compactToggleFilters {
+            padding: 2px 6px;
+            font-size: 0.75rem;
+            border-radius: 4px;
+        }
+
+        /* Highlight search results */
+        .khasra-search-highlight {
+            background-color: #fff3cd !important;
+            border-color: #ffc107 !important;
+        }
+
+        .khasra-search-match {
+            font-weight: 700;
+            color: #d63384;
+            background-color: rgba(214, 51, 132, 0.1);
+            padding: 0 2px;
+            border-radius: 2px;
+        }
+        /* SweetAlert2 Custom Styling */
+        .swal2-popup {
+            border-radius: 12px !important;
+            padding: 2rem !important;
+        }
+
+        .swal2-title {
+            font-size: 1.5rem !important;
+            font-weight: 600 !important;
+            color: #2c3e50 !important;
+        }
+
+        .swal2-html-container {
+            font-size: 1rem !important;
+            color: #495057 !important;
+            margin-top: 1rem !important;
+        }
+
+        .swal2-progress-steps {
+            margin-bottom: 1.5rem !important;
+        }
+
+        .swal2-progress-step {
+            background: #007bff !important;
+        }
+
+        .swal2-progress-step-active {
+            background: #0056b3 !important;
+        }
+
+        .swal2-progress-step-line {
+            background: #dee2e6 !important;
+        }
+
+        /* Custom loader animation */
+        @keyframes pulse {
+            0% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.5;
+            }
+
+            100% {
+                opacity: 1;
+            }
+        }
+
+        .loading-pulse {
+            animation: pulse 1.5s infinite;
+        }
+
+        .hidden-field {
+            display: none !important;
+        }
+
+        /* FIX FOR SELECT2 DISPLAY */
+        .select2-container--bootstrap-5 .select2-selection--single {
+            padding: 0.375rem 2.25rem 0.375rem 0.75rem !important;
+            height: 38px !important;
+        }
+
+            .select2-container--bootstrap-5 .select2-selection--single .select2-selection__rendered {
+                line-height: 1.5 !important;
+                padding-left: 0 !important;
+            }
+
+        /* Force the selected text to show */
+        .select2-selection__rendered {
+            color: #212529 !important;
+            font-size: 1rem !important;
+        }
+
+        /* When dropdown is focused/active */
+        .select2-container--bootstrap-5.select2-container--focus .select2-selection,
+        .select2-container--bootstrap-5.select2-container--open .select2-selection {
+            border-color: #86b7fe !important;
+            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25) !important;
+        }
+        /* Ensure dropdown shows properly */
+        .select2-container {
+            z-index: 1051 !important;
+        }
+
+        .select2-dropdown {
+            z-index: 1052 !important;
+        }
+        /* Compact Khasra List */
+        .compact-khasra-list {
+            position: absolute;
+            top: 250px;
+            left: 20px;
+            width: 220px;
+            max-height: 450px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 8px;
+            padding: 10px;
+            z-index: 999;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            overflow: hidden;
+            border: 1px solid #ddd;
+        }
+
+        .compact-list-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+            padding-bottom: 5px;
+            border-bottom: 1px solid #ddd;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .compact-list-container {
+            max-height: 250px;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+
+            .compact-list-container::-webkit-scrollbar {
+                width: 6px;
+            }
+
+            .compact-list-container::-webkit-scrollbar-track {
+                background: #f1f1f1;
+                border-radius: 3px;
+            }
+
+            .compact-list-container::-webkit-scrollbar-thumb {
+                background: #888;
+                border-radius: 3px;
+            }
+
+                .compact-list-container::-webkit-scrollbar-thumb:hover {
+                    background: #555;
+                }
+
+        .compact-khasra-item {
+            padding: 6px 8px;
+            margin-bottom: 4px;
+            border-radius: 4px;
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+            .compact-khasra-item:hover {
+                background: #e9ecef;
+                transform: translateX(2px);
+            }
+
+            .compact-khasra-item.active {
+                background: #e3f2fd;
+                border-color: #2196f3;
+                box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.1);
+            }
+
+        .compact-khasra-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .compact-khasra-number {
+            font-weight: 600;
+            color: #2c3e50;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            font-size: 0.9rem;
+        }
+
+        .compact-khasra-icons {
+            display: flex;
+            gap: 3px;
+            margin-top: 2px;
+            font-size: 0.7rem;
+        }
+
+            .compact-khasra-icons i {
+                opacity: 0.8;
+            }
+
+        .compact-verification-badge {
+            font-size: 0.7rem;
+            padding: 1px 6px;
+            border-radius: 10px;
+            font-weight: 600;
+            white-space: nowrap;
+            margin-left: 5px;
+        }
+
+        .compact-badge-verified {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .compact-badge-unverified {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        .compact-badge-bor-available {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .compact-badge-bor-not-available {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        .compact-badge-department {
+            background-color: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .compact-nav-buttons {
+            margin-top: 10px;
+            display: flex;
+            gap: 5px;
+            justify-content: center;
+        }
+
+            .compact-nav-buttons .btn {
+                padding: 3px 8px;
+                font-size: 0.75rem;
+            }
+
+        .compact-filter-controls {
+            margin: 8px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .compact-toggle-switch {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 0.8rem;
+        }
+
+            .compact-toggle-switch input[type="checkbox"] {
+                width: 14px;
+                height: 14px;
+                margin: 0;
+            }
+
+        /* KPI Counts */
+        .kpi-counts {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .count-item {
+            background: white;
+            padding: 6px 10px;
+            border-radius: 6px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-width: 70px;
+        }
+
+        .count-label {
+            font-size: 0.75rem;
+            color: #666;
+            white-space: nowrap;
+        }
+
+        .count-value {
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        .count-bor-available {
+            color: #28a745; /* Green */
+        }
+
+        .count-bor-not-available {
+            color: #dc3545; /* Red */
+        }
+
+        .count-department {
+            color: #17a2b8; /* Teal/Blue */
+        }
+
+        .count-unverified {
+            color: #6c757d; /* Gray */
+        }
+
+        .count-total {
+            color: #007bff; /* Blue */
+        }
+
+        /* Map Container */
+        #viewDiv {
+            height: calc(100vh - 200px);
+            width: 100%;
+            margin-top: 15px;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        /* Owner Details */
+        .owner-details-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .owner-field-compact {
+            font-size: 0.85rem;
+        }
+
+        .owner-label-compact {
+            font-weight: 600;
+            color: #495057;
+            display: block;
+            margin-bottom: 2px;
+            font-size: 0.8rem;
+        }
+
+        .owner-value-compact {
+            color: #212529;
+            display: block;
+            font-size: 0.85rem;
+        }
+
+        /* Form Improvements */
+        .compact-form .form-row {
+            margin-bottom: 12px;
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+            font-size: 0.9rem;
+        }
+
+        .form-label-cell {
+            font-weight: 600;
+            color: #495057;
+            padding-right: 10px;
+            min-width: 100px;
+            font-size: 0.85rem;
+        }
+
+        .form-control-cell {
+            flex: 1;
+        }
+
+        /* Conditional Fields */
+        .conditional-fields {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-radius: 6px;
+            border-left: 3px solid #6c757d;
+        }
+
+        /* Lease Period Input */
+        .lease-period-input {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 5px;
+        }
+
+            .lease-period-input .form-control-sm {
+                width: 80px;
+            }
+
+        /* Toast Container */
+        .toast-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1100;
+        }
+
+        /* Layer Controls */
+        .layer-controls {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            background: white;
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            z-index: 1000;
+            display: none;
+            width: 200px;
+        }
+
+        .layer-toggle-btn {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            background: white;
+            padding: 8px;
+            border-radius: 50%;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            cursor: pointer;
+            z-index: 1000;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Status icon colors */
+        .text-purple {
+            color: #6f42c1 !important;
+        }
+
+        .text-brown {
+            color: #8b4513 !important;
+        }
+
+        .text-warning {
+            color: #ffc107 !important;
+        }
+
+        .text-info {
+            color: #17a2b8 !important;
+        }
+
+        .text-success {
+            color: #28a745 !important;
+        }
+
+        .text-danger {
+            color: #dc3545 !important;
+        }
+
+        .text-primary {
+            color: #007bff !important;
+        }
+
+        /* Responsive Adjustments */
+        @media (max-width: 768px) {
+            .compact-khasra-list {
+                position: relative;
+                top: auto;
+                right: auto;
+                width: 100%;
+                max-height: 200px;
+                margin-top: 10px;
+            }
+
+            .compact-list-container {
+                max-height: 120px;
+            }
+
+            .owner-details-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .form-label-cell {
+                min-width: 80px;
+            }
+        }
+        /*        for tags*/
+        .selected-khasra-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #e7f1ff;
+            color: #004085;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.9rem;
+            border: 1px solid #9ec5fe;
+            transition: all 0.18s ease;
+        }
+
+            .selected-khasra-tag:hover {
+                background: #d4e7ff;
+                border-color: #6c9ded;
+            }
+
+            .selected-khasra-tag .tag-khasra {
+                font-weight: 500;
+            }
+
+            .selected-khasra-tag .remove-btn {
+                width: 20px;
+                height: 20px;
+                border-radius: 50%;
+                background: #dc3545;
+                color: white;
+                border: none;
+                font-size: 14px;
+                line-height: 1;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                cursor: pointer;
+                transition: background 0.2s;
+            }
+
+                .selected-khasra-tag .remove-btn:hover {
+                    background: #c82333;
+                }
+
+            /* Visual feedback when this tag is the currently viewed/edited one */
+            .selected-khasra-tag.current {
+                background: #d4edda;
+                border-color: #28a745;
+                color: #155724;
+                box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.25);
+            }
+    </style>
+</head>
+
+<body>
+    <div id="sidebarContainer"></div>
+    <div id="sidebarOverlay" class="sidebar-overlay"></div>
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-custom navbar-expand-lg">
+        <div class="container-fluid" style="background: forestgreen">
+            <i class="fas fa-bars menu-toggle" id="btnToggleSidebar"></i>
+            <a class="navbar-brand text-white" href="#">
+                <i class="fas fa-map-marked-alt"></i>  Apna Khait Apna Rozgar (Lot Bandi)
+            </a>
+
+            <div class="profile-view d-flex align-items-center">
+
+                <div class="profile-avatar me-2">
+                    <i class="fas fa-user"></i>
+                </div>
+
+                <div class="profile-info me-3">
+                    <div class="welcome-text">Welcome</div>
+                    <div id="currentUserName" class="profile-name"></div>
+                </div>
+
+                <!-- Help Button -->
+                <button class="help-btn me-2 btn btn-light btn-sm"
+                        id="btnOpenGuide"
+                        title="Show Guide">
+                    <i class="fas fa-question-circle"></i>
+                </button>
+
+                <button class="logout-btn" title="Logout" onclick="clearSession()">
+                    <i class="fas fa-sign-out-alt"></i>
+                </button>
+            </div>
+
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Left Panel - Map & Filters -->
+        <div class="left-panel-lc">
+            <!-- Filter Section -->
+            <div class="filter-section">
+                <div class="filter-title">
+                    <i class="fas fa-filter"></i> Lot Bandi
+                </div>
+                <div class="row g-2">
+                    <div class="col-md-6">
+                        <span class="filter-label">Tehsil</span>
+                        <select id="ddlTehsil" class="form-select select2">
+                            <option value="">Select Tehsil</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <span class="filter-label">Mauza</span>
+                        <select id="ddlMouza" class="form-select select2">
+                            <option value="">Select Mouza</option>
+                        </select>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Map Container -->
+            <div id="viewDiv"></div>
+
+            <!-- Compact Khasra List -->
+            <div class="compact-khasra-list" id="compactKhasraList" style="display: none;">
+                <div class="compact-list-title">
+                    <span><i class="fas fa-list"></i>Available for Lot Bandi</span>
+                    <span class="badge bg-primary" id="compactListCount">0</span>
+                </div>
+
+                <!-- Search Bar -->
+                <div class="compact-search-container mb-2">
+                    <div class="input-group input-group-sm">
+                        <span class="input-group-text bg-light border-end-0">
+                            <i class="fas fa-search text-muted"></i>
+                        </span>
+                        <input type="text"
+                               class="form-control form-control-sm border-start-0"
+                               id="compactKhasraSearch"
+                               placeholder="Search Khasra Number..."
+                               style="border-radius: 0 0.25rem 0.25rem 0;">
+                        <button class="btn btn-outline-secondary btn-sm" type="button" id="compactClearSearch" title="Clear search">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <small class="text-muted mt-1 d-block" id="searchResultsInfo" style="font-size: 0.7rem;"></small>
+                </div>
+
+                <!-- Filter Controls -->
+                <div class="compact-filter-controls hidden-field">
+                    <div class="compact-toggle-switch">
+                        <input type="checkbox" id="compactToggleVerified" class="form-check-input" checked>
+                        <label for="compactToggleVerified" class="form-check-label">Verified</label>
+                    </div>
+                    <div class="compact-toggle-switch">
+                        <input type="checkbox" id="compactToggleUnverified" class="form-check-input" checked>
+                        <label for="compactToggleUnverified" class="form-check-label">Unverified</label>
+                    </div>
+                    <button class="btn btn-sm btn-outline-secondary" id="compactToggleFilters" title="Toggle filters">
+                        <i class="fas fa-filter"></i>
+                    </button>
+                </div>
+
+                <!-- Khasra List Container -->
+                <div class="compact-list-container" id="compactListContainer">
+                    <!-- Khasra items will be populated here -->
+                </div>
+
+                <!-- Navigation Buttons -->
+                <div class="compact-nav-buttons">
+                    <button type="button" class="btn btn-sm btn-outline-primary" id="compactBtnPrev" title="Previous">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline-primary" id="compactBtnNext" title="Next">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline-success" id="compactBtnFirstUnverified" title="First Unverified">
+                        <i class="fas fa-forward"></i>
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline-info" id="compactBtnScrollToCurrent" title="Scroll to Current">
+                        <i class="fas fa-crosshairs"></i>
+                    </button>
+                </div>
+                <a class="btn btn-sm btn-primary ms-2 mt-2"
+                   title="Add Missing Khasras"
+                   href="gis-manager.html" target="_blank">
+                    <i class="fas fa-add"></i> Add Missing Khasras
+                </a>
+            </div>
+            <!-- Layer Toggle Button -->
+            <div class="layer-toggle-btn" id="layerToggleBtn">
+                <i class="fas fa-layer-group"></i>
+            </div>
+
+            <!-- Layer Controls -->
+            <div class="layer-controls" id="layerControls">
+                <div class="layer-title">
+                    <i class="fas fa-layer-group"></i> Map Layers
+                </div>
+                <div class="layer-item">
+                    <label>
+                        <i class="fas fa-landmark" style="color: #3498db; font-size: 0.9rem;"></i>
+                        <span>Admin Boundaries</span>
+                    </label>
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="toggleAdminLayer" checked>
+                    </div>
+                </div>
+                <div class="layer-item">
+                    <label>
+                        <i class="fas fa-tractor" style="color: #2ecc71; font-size: 0.9rem;"></i>
+                        <span>State Land</span>
+                    </label>
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="toggleStatelandLayer" checked>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Panel - Forms -->
+        <div class="right-panel">
+
+            <!-- Selected Khasras Tags Panel -->
+            <div class="card border-primary shadow-sm mb-3" id="selectedKhasrasPanel" style="display: none;">
+                <div class="card-header bg-primary text-white py-2">
+                    <!-- Line 1 -->
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-layer-group me-2"></i>
+
+                        <strong>Lot #</strong>
+                        <strong class="ms-2" id="lotNoBadge">0</strong>
+
+                        <button class="btn btn-sm btn-light ms-auto"
+                                id="btnClearAllSelected"
+                                title="Remove all selections">
+                            <i class="fas fa-times-circle"></i> Clear
+                        </button>
+
+                    </div>
+
+                    <!-- Line 2 -->
+                    <div class="mt-1 d-flex align-items-center">
+                        <strong>Selected Khasras</strong>
+                        <small class="ms-2" id="selectedCountBadge">(0)</small>
+                    </div>
+                    <div class="mt-1 d-flex align-items-center">
+                        <strong>Lot Area</strong>
+                        <small class="ms-2" id="selectedAreaBadge">(0)</small>
+                    </div>
+                </div>
+
+                <div class="card-body py-2" style="min-height: 60px; max-height: 500px; overflow-y: auto;">
+                    <div class="d-flex flex-wrap gap-2" id="selectedTagsContainer"></div>
+                </div>
+            </div>
+
+            <!-- Land Assessment Form -->
+            <div class="form-section" id="assessmentForm" style="display: none;">
+                <h4 class="section-title">
+                    <i class="fas fa-clipboard-check"></i> Land Assessment
+                </h4>
+                <form id="landForm" class="compact-form">
+                    <!-- Land Suitability -->
+                    <div class="form-row">
+                        <div class="form-label-cell">
+                            <label class="form-label">Zone Info</label>
+                        </div>
+                        <div class="form-control-cell">
+                            <div class="option-group horizontal">
+                                <div class="option-item">
+                                    <input type="radio" id="fitAgriculture" name="suitability" value="Inside Prohibited Zone">
+                                    <label for="fitAgriculture">Inside Prohibited Zone</label>
+                                </div>
+                                <div class="option-item">
+                                    <input type="radio" id="fitLivestock" name="suitability" value="Outside Prohibited Zone">
+                                    <label for="fitLivestock">Outside Prohibited Zone</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-row button-row">
+                        <div class="form-label-cell"></div>
+                        <div class="form-control-cell">
+                            <div class="button-group">
+                                <button type="button" class="btn-custom btn-submit" id="btnSubmit" disabled>
+                                    <i class="fas fa-save"></i> Save
+                                </button>
+                                <button type="button" class="btn-custom btn-clear" id="btnClear">
+                                    <i class="fas fa-eraser"></i> Clear
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- No Data Message -->
+            <div id="noDataMessage" class="no-data-container">
+                <div class="no-data-icon">
+                    <i class="fas fa-map-marker-alt"></i>
+                </div>
+                <h3 class="no-data-title">No Land Selected</h3>
+                <p class="no-data-text">
+                    Select a land parcel from the map or dropdown
+                </p>
+            </div>
+            <div id="viewLotsCon" class="no-data-container hidden-field">
+                <p class="view-lots-data-text">
+                    <a href="/lot-dashboard.html" target="_blank" class="text-decoration-none fw-semibold btn btn-primary">
+                        <i class="fas fa-eye"></i> View Existing Lots
+                    </a>
+                </p>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Guide Modal -->
+    <div class="modal fade" id="guideModal" tabindex="-1">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content shadow-lg">
+
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title">
+                        <i class="fas fa-map-marked-alt me-2"></i>
+                        Lot Bandi System Guide
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white"
+                            data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body">
+
+                    <div class="mb-3">
+                        <h6><i class="fas fa-filter text-primary"></i> 1. Select Location</h6>
+                        <p>Choose <strong>Tehsil</strong> and <strong>Mauza</strong> from the top filters to load land parcels.</p>
+                    </div>
+
+                    <div class="mb-3">
+                        <h6><i class="fas fa-map text-success"></i> 2. Select Parcels</h6>
+                        <p>Click parcels directly on the map or from the compact list to add them into a Lot.</p>
+                    </div>
+
+                    <div class="mb-3">
+                        <h6><i class="fas fa-layer-group text-warning"></i> 3. Review Selection</h6>
+                        <p>Selected khasras will appear in the right panel along with total Lot Area.</p>
+                    </div>
+
+                    <div class="mb-3">
+                        <h6><i class="fas fa-clipboard-check text-info"></i> 4. Assess & Save</h6>
+                        <p>Select zone information and click <strong>Save</strong> to finalize the Lot Bandi assessment.</p>
+                    </div>
+
+                    <hr>
+
+                    <div class="form-check">
+                        <input class="form-check-input"
+                               type="checkbox"
+                               id="dontShowGuide">
+                        <label class="form-check-label" for="dontShowGuide">
+                            Do not show this guide again
+                        </label>
+                    </div>
+
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button"
+                            class="btn btn-secondary"
+                            data-bs-dismiss="modal">
+                        Close
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Script Imports -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://js.arcgis.com/4.29/"></script>
+    <!-- User defined scripts-->
+    <script src="/js/base.js"></script>
+
+    <script>
+        // Global variables
+        let map, view, statelandLayer, adminBoundariesLayer, verificationGraphicsLayer, khasraLabelsGraphicsLayer;
+        let districtId = localStorage.getItem("districtId") || 1;
+        let districtName = localStorage.getItem("districtName") || 1;
+
+        let currentUserId = localStorage.getItem("pulse_userId") || 0;
+        let currentUserName = localStorage.getItem("pulse_userName") || "Guest";
+        let selectedFeature = null;
+        let currentMouzaId = null;
+        let currentTehsilId = null;
+        let currentKhasraId = null;
+        let allKhasras = []; // All khasras from GIS layer
+        let verifiedKhasrasData = []; // Verified khasras from database
+        let verifiedKhasraIds = []; // Array of verified khasra IDs
+        let currentKhasraIndex = 0;
+        let filteredKhasras = [];
+        let ownerFilterKeywords = [];
+        let kashtkarIncludeKeywords = [];
+        let ownerExcludeFirstNames = [];
+        let allKhasraWithAttributes = [];
+        let currentKhasraData = null;
+        let verificationStats = {};
+        let selectedKhasraIds = new Set();
+
+        // Function to properly initialize Select2 once
+        function initializeSelect2Dropdowns() {
+            console.log('Initializing Select2 dropdowns...');
+
+            // Tehsil dropdown
+            $('#ddlTehsil').select2({
+                theme: 'bootstrap-5',
+                width: '100%',
+                placeholder: 'Select Tehsil',
+                allowClear: true,
+                dropdownParent: $('.filter-section'),
+                minimumResultsForSearch: 10
+            }).on('select2:open', function () {
+                // Fix z-index issues
+                $(this).data('select2').$dropdown.css('z-index', 9999);
+            });
+
+            // Mouza dropdown
+            $('#ddlMouza').select2({
+                theme: 'bootstrap-5',
+                width: '100%',
+                placeholder: 'Select Mouza',
+                allowClear: true,
+                dropdownParent: $('.filter-section'),
+                minimumResultsForSearch: 10
+            }).on('select2:open', function () {
+                // Fix z-index issues
+                $(this).data('select2').$dropdown.css('z-index', 9999);
+            });
+
+            console.log('Select2 dropdowns initialized');
+        }
+
+        // Update your $(document).ready function to include search setup
+        $(document).ready(function () {
+            // Initialize Select2 ONCE
+            initializeSelect2Dropdowns();
+
+            // Display current user info
+            document.getElementById('currentUserName').textContent = currentUserName;
+
+            // Setup compact khasra list filter toggles
+            $('#compactToggleVerified').change(updateCompactKhasraListDisplay);
+            $('#compactToggleUnverified').change(updateCompactKhasraListDisplay);
+
+            // Setup compact navigation buttons
+            $('#compactBtnPrev').click(navigateToPreviousKhasra);
+            $('#compactBtnNext').click(navigateToNextKhasra);
+            $('#compactBtnFirstUnverified').click(navigateToFirstUnverified);
+
+            // Setup khasra search functionality
+            setupKhasraSearch();
+
+            // Setup form buttons
+            document.getElementById('btnSubmit').addEventListener('click', submitForm);
+            document.getElementById('btnClear').addEventListener('click', clearForm);
+
+            //for tags
+            // Remove single tag
+            document.addEventListener('click', e => {
+                if (e.target.classList.contains('remove-btn')) {
+                    const id = parseInt(e.target.dataset.khasraId);
+                    if (!isNaN(id)) {
+                        selectedKhasraIds.delete(id);
+                        updateSelectedTagsDisplay();
+                        updateCompactKhasraListDisplay(); // optional - refresh active style
+                    }
+                }
+            });
+
+            // Clear all
+            document.getElementById('btnClearAllSelected')?.addEventListener('click', () => {
+                if (selectedKhasraIds.size === 0) return;
+                if (!confirm('Remove all selected parcels?')) return;
+
+                selectedKhasraIds.clear();
+                updateSelectedTagsDisplay();
+                updateCompactKhasraListDisplay();
+                showToast('info', 'Selection cleared', 'All parcels have been deselected.');
+                toggleNoDataVisibility();
+            });
+
+            // Initialize map
+            initMap();
+        });
+
+        // Initialize Select2 properly
+        function initSelect2() {
+            $('.select2').select2({
+                theme: 'bootstrap-5',
+                width: '100%',
+                //  allowClear: true,
+                dropdownParent: $('.filter-section'), // Important fix
+                minimumResultsForSearch: 10,
+                placeholder: function () {
+                    return $(this).data('placeholder') || 'Select an option';
+                }
+            }).on('select2:open', function () {
+                // Fix z-index issue
+                $('.select2-container').css('z-index', '9999');
+            });
+        }
+
+        // Initialize map
+        function initMap() {
+            require([
+                "esri/identity/IdentityManager",
+                "esri/Map",
+                "esri/views/MapView",
+                "esri/layers/MapImageLayer",
+                "esri/layers/FeatureLayer",
+                "esri/geometry/Extent",
+                "esri/symbols/SimpleFillSymbol",
+                "esri/symbols/SimpleLineSymbol",
+                "esri/Graphic",
+                "esri/Color",
+                "esri/layers/GraphicsLayer",
+                "esri/symbols/TextSymbol",
+                "esri/geometry/Point"
+            ], function (
+                esriId, Map, MapView, MapImageLayer, FeatureLayer,
+                Extent, SimpleFillSymbol, SimpleLineSymbol,
+                Graphic, Color, GraphicsLayer, TextSymbol, Point
+            ) {
+                // Store references
+                window.esriModules = {
+                    SimpleFillSymbol, SimpleLineSymbol, Graphic, Color,
+                    GraphicsLayer, TextSymbol, Point
+                };
+
+                // Main initialization with SweetAlert2 loaders
+                async function initialize() {
+
+                    try {
+                        // Show initial loading
+                        const loadingSwal = Swal.fire({
+                            title: 'Initializing Map...',
+                            html: `
+                                    <div class="text-center">
+                                        <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;"></div>
+                                        <p class="mt-3">Connecting to GIS Resources</p>
+                                        <small class="text-muted">Please wait while we initialize the mapping system</small>
+                                    </div>
+                                `,
+                            allowOutsideClick: false,
+                            allowEscapeKey: false,
+                            showConfirmButton: false,
+                            backdrop: 'rgba(0, 0, 0, 0.7)'
+                        });
+
+                        // Step 1: Get authentication token
+                        Swal.update({
+                            html: `
+                                    <div class="text-center">
+                                        <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;"></div>
+                                        <p class="mt-3">Authenticating with GIS Server</p>
+                                        <small class="text-muted">Establishing secure connection...</small>
+                                    </div>
+                                `
+                        });
+
+                        const response = await fetch("/api/gis/token");
+                        if (!response.ok) throw new Error("Failed to get token");
+
+                        const data = await response.json();
+                        const token = data.token;
+
+                        // Step 2: Register token and initialize GIS components
+                        Swal.update({
+                            html: `
+                                    <div class="text-center">
+                                        <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;"></div>
+                                        <p class="mt-3">Loading Map Components</p>
+                                        <small class="text-muted">Setting up base maps and layers...</small>
+                                    </div>
+                                `
+                        });
+
+                        // Register token
+                        esriId.registerToken({
+                            server: "https://gismaps.pulse.gop.pk/arcgis/rest/services",
+                            token: token
+                        });
+
+                        // Create Map
+                        map = new Map({
+                            basemap: "hybrid"
+                        });
+
+                        // Create MapView
+                        view = new MapView({
+                            container: "viewDiv",
+                            map: map,
+                            center: [72.8, 31.5],
+                            zoom: 7,
+                            padding: {
+                                top: 50,
+                                bottom: 0
+                            },
+                            popup: {
+                                dockEnabled: true,
+                                dockOptions: {
+                                    position: "top-right",
+                                    breakpoint: false
+                                }
+                            },
+                            constraints: {
+                                minZoom: 5,
+                                maxZoom: 20
+                            }
+                        });
+
+                        // Step 3: Initialize layers
+                        Swal.update({
+                            html: `
+                                    <div class="text-center">
+                                        <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;"></div>
+                                        <p class="mt-3">Loading GIS Layers</p>
+                                        <small class="text-muted">Connecting to State Land and Admin Boundaries...</small>
+                                        <div class="progress mt-3" style="height: 6px;">
+                                            <div class="progress-bar progress-bar-striped progress-bar-animated" style="width: 50%"></div>
+                                        </div>
+                                    </div>
+                                `
+                        });
+
+                        await initLayers();
+
+                        // Step 4: Setup components
+                        Swal.update({
+                            html: `
+                                    <div class="text-center">
+                                        <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;"></div>
+                                        <p class="mt-3">Setting Up Interface Components</p>
+                                        <small class="text-muted">Preparing map controls and verification layers...</small>
+                                        <div class="progress mt-3" style="height: 6px;">
+                                            <div class="progress-bar progress-bar-striped progress-bar-animated" style="width: 75%"></div>
+                                        </div>
+                                    </div>
+                                `
+                        });
+
+                        // Create verification graphics layer
+                        verificationGraphicsLayer = new GraphicsLayer({
+                            title: "Verification Status",
+                            listMode: "hide"
+                        });
+                        map.add(verificationGraphicsLayer);
+
+                        // Create khasra labels graphics layer
+                        khasraLabelsGraphicsLayer = new GraphicsLayer({
+                            title: "Khasra Labels",
+                            listMode: "hide"
+                        });
+                        map.add(khasraLabelsGraphicsLayer);
+
+                        // Setup event listeners
+                        setupMapEventListeners();
+
+                        // Setup layer toggle button
+                        document.getElementById('layerToggleBtn').addEventListener('click', function () {
+                            const controls = document.getElementById('layerControls');
+                            controls.style.display = controls.style.display === 'block' ? 'none' : 'block';
+                        });
+
+                        // Close layer controls when clicking outside
+                        document.addEventListener('click', function (event) {
+                            const controls = document.getElementById('layerControls');
+                            const toggleBtn = document.getElementById('layerToggleBtn');
+                            if (controls && !controls.contains(event.target) &&
+                                toggleBtn && !toggleBtn.contains(event.target)) {
+                                controls.style.display = 'none';
+                            }
+                        });
+
+                        // Step 5: Load district data
+                        Swal.update({
+                            html: `
+                                    <div class="text-center">
+                                        <div class="spinner-border text-success" style="width: 3rem; height: 3rem;"></div>
+                                        <p class="mt-3">Loading District Data</p>
+                                        <small class="text-muted">Fetching tehsils and administrative boundaries...</small>
+                                        <div class="progress mt-3" style="height: 6px;">
+                                            <div class="progress-bar progress-bar-striped progress-bar-animated" style="width: 90%"></div>
+                                        </div>
+                                    </div>
+                                `
+                        });
+
+                        await loadDistrictData();
+
+                        // Success - close loading and show success message
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'System Ready!',
+                            html: `
+                                    <div class="text-center">
+                                        <i class="fas fa-check-circle fa-3x text-success mb-3"></i>
+                                        <p>Land Management System Initialized Successfully</p>
+                                        <small class="text-muted">Select a tehsil and mouza to begin verification</small>
+                                    </div>
+                                `,
+                            showConfirmButton: true,
+                            confirmButtonText: 'Start Verification',
+                            timer: 3000,
+                            timerProgressBar: true
+                        }).then(() => {
+                            // Auto-close after showing success
+                            Swal.close();
+
+                            // Show a small welcome toast
+                            showToast('success', 'Ready', 'Land Management System is ready for use.');
+                        });
+
+                    } catch (error) {
+                        console.error("Error initializing map:", error);
+
+                        // Show error alert
+                        Swal.fire({
+                            icon: 'Error',
+                            title: 'Continue On Map',
+                            html: `
+                                    <div class="text-center">
+                                        </div>
+                                `,
+                            allowOutsideClick: true,
+                            allowEscapeKey: false
+                        });
+
+                        // Also show toast for immediate feedback
+                        showToast('error', 'Error', 'Failed to initialize map. Please refresh the page.');
+                    }
+                }
+                // Load district data
+                // Load district data with SweetAlert2 loading
+                // Load district data with SweetAlert2 loading - UPDATED VERSION
+                // Example: Update the loadDistrictData function
+                async function loadDistrictData() {
+                    try {
+                        // Show loading
+                        const loadingSwal = Swal.fire({
+                            title: 'Loading District Data',
+                            html: `
+                                    <div class="text-center">
+                                        <div class="spinner-border text-primary mb-3" style="width: 2rem; height: 2rem;"></div>
+                                        <p>Fetching administrative boundaries</p>
+                                        <small class="text-muted">Please wait...</small>
+                                    </div>
+                                `,
+                            allowOutsideClick: false,
+                            showConfirmButton: false
+                        });
+
+                        const tehsils = await fetchTehsils(districtId);
+
+                        // Close loading
+                        Swal.close();
+
+                        if (tehsils && tehsils.length > 0) {
+                            populateTehsilDropdown(tehsils);
+
+                            // Show brief success message
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Data Loaded',
+                                text: `${tehsils.length} tehsils loaded successfully`,
+                                timer: 1500,
+                                showConfirmButton: false
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: 'warning',
+                                title: 'No Data',
+                                text: 'No tehsils found for this district',
+                                timer: 2000,
+                                showConfirmButton: false
+                            });
+                        }
+                    } catch (error) {
+                        console.error("Error loading district data:", error);
+                        Swal.close();
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Loading Failed',
+                            text: 'Failed to load district data. Please try again.',
+                            timer: 3000,
+                            showConfirmButton: false
+                        });
+                    }
+                }
+                // Initialize layers
+                // Initialize layers with progress
+                async function initLayers() {
+                    try {
+                        // Stateland Layer
+                        statelandLayer = new FeatureLayer({
+                            url: "https://gismaps.pulse.gop.pk/arcgis/rest/services/Stateland/Stateland_Project_ICT/MapServer/1",
+                            title: "State Land",
+                            definitionExpression: "1=0",
+                            outFields: ["*"],
+                            popupTemplate: {
+                                title: "State Land - {Mouza}",
+                                content: `
+                                            <div style="font-size: 0.85rem; line-height: 1.4;">
+                                                <div><strong>District:</strong> {District}</div>
+                                                <div><strong>Tehsil:</strong> {Tehsil}</div>
+                                                <div><strong>Mouza:</strong> {Mouza}</div>
+                                                <div><strong>Khasra No:</strong> {K}</div>
+                                                <div><strong>Khasra ID:</strong> {Khasra_ID}</div>
+                                                <div><strong>Area (Sq Ft):</strong> {Shape_Area} sq units</div>
+                                                <div><strong>Type:</strong> {Type}</div>
+                                            </div>
+                                        `
+                            },
+                            renderer: {
+                                type: "simple",
+                                symbol: {
+                                    type: "simple-fill",
+                                    color: [46, 204, 113, 0.1],
+                                    outline: {
+                                        color: [39, 174, 96, 0.5],
+                                        width: 1
+                                    }
+                                }
+                            },
+                            opacity: 0.3,
+                            visible: true
+                        });
+
+                        // Admin Boundaries Layer
+                        adminBoundariesLayer = new MapImageLayer({
+                            url: "https://gismaps.pulse.gop.pk/arcgis/rest/services/Punjab/Admin__Boundaries/MapServer",
+                            title: "Admin Boundaries",
+                            opacity: 0.2,
+                            visible: true,
+                            sublayers: [
+                                { id: 0, visible: true },
+                                { id: 1, visible: true },
+                                { id: 2, visible: true }
+                            ]
+                        });
+
+                        // Add layers to map
+                        map.add(adminBoundariesLayer);
+                        map.add(statelandLayer);
+
+                        // Wait for layers to load
+                        await Promise.all([
+                            statelandLayer.load(),
+                            adminBoundariesLayer.load()
+                        ]);
+
+                        console.log('GIS Layers loaded successfully');
+
+                        // Setup layer toggle events
+                        document.getElementById('toggleAdminLayer').addEventListener('change', function () {
+                            adminBoundariesLayer.visible = this.checked;
+                            showToast('info', 'Layer Toggled',
+                                this.checked ? 'Admin Boundaries layer shown' : 'Admin Boundaries layer hidden');
+                        });
+
+                        document.getElementById('toggleStatelandLayer').addEventListener('change', function () {
+                            statelandLayer.visible = this.checked;
+                            showToast('info', 'Layer Toggled',
+                                this.checked ? 'State Land layer shown' : 'State Land layer hidden');
+                        });
+
+                    } catch (error) {
+                        console.error("Error initializing layers:", error);
+                        throw new Error(`Failed to load GIS layers: ${error.message}`);
+                    }
+                }
+
+                // Function to show progressive loading
+                function showProgressSwal(title, message, progress = 0) {
+                    return Swal.fire({
+                        title: title,
+                        html: `
+                                <div class="text-center">
+                                    <div class="spinner-border text-primary mb-3" style="width: 3rem; height: 3rem;"></div>
+                                    <p class="mb-1">${message}</p>
+                                    <small class="text-muted d-block mb-2">Communicating with GIS Resources...</small>
+                                    <div class="progress" style="height: 8px;">
+                                        <div class="progress-bar progress-bar-striped progress-bar-animated"
+                                                style="width: ${progress}%"></div>
+                                    </div>
+                                    <small class="text-muted mt-2">${progress}% complete</small>
+                                </div>
+                            `,
+                        allowOutsideClick: false,
+                        showConfirmButton: false,
+                        backdrop: 'rgba(0, 0, 0, 0.5)'
+                    });
+                }
+                // Setup map event listeners
+                // Update the map click event listener in setupMapEventListeners
+                function setupMapEventListeners() {
+                    // Map click event
+                    view.on("click", async function (event) {
+                        try {
+                            const response = await view.hitTest(event);
+                            const results = response.results;
+
+                            for (const result of results) {
+                                if (result.graphic && result.graphic.layer === statelandLayer) {
+                                    const feature = result.graphic;
+                                    const khasraId = feature.attributes.Khasra_ID;
+                                    selectKhasraFromMap(khasraId);
+                                    break;
+                                }
+                                if (result.graphic && result.graphic.layer === verificationGraphicsLayer) {
+                                    const khasraId = result.graphic.attributes.Khasra_ID;
+                                    selectKhasraFromMap(khasraId);
+                                    break;
+                                }
+                            }
+                        } catch (error) {
+                            console.error("Error in map click:", error);
+                        }
+                    });
+                }
+                // Initialize the application
+                initialize();
+            });
+        }
+
+        // Fetch tehsils
+        async function fetchTehsils(districtId) {
+            try {
+                const params = {};
+                const res = await executeSP("sp_GetTehsilsByDistrict", params);
+                const data = res[0].rows;
+                return data
+            } catch (error) {
+                console.error("Error fetching tehsils:", error);
+                return [];
+            }
+        }
+
+        // Fetch mouzas
+        async function fetchMouzas(tehsilId) {
+
+            try {
+                const params = {
+                    TehsilId: parseInt(tehsilId),
+                    IsLandAvailable: 1
+                };
+                const res = await executeSP("sp_GetMauzasByTehsil_", params);
+                const data = res[0].rows;
+                return data
+            } catch (error) {
+                console.error("Error fetching mouzas:", error);
+                return [];
+            }
+        }
+
+        // Setup search functionality for compact khasra list
+        function setupKhasraSearch() {
+            const searchInput = document.getElementById('compactKhasraSearch');
+            const clearSearchBtn = document.getElementById('compactClearSearch');
+            const toggleFiltersBtn = document.getElementById('compactToggleFilters');
+            const scrollToCurrentBtn = document.getElementById('compactBtnScrollToCurrent');
+
+            let searchTimeout = null;
+            let currentSearchTerm = '';
+
+            // Search input handler with debounce
+            searchInput.addEventListener('input', function () {
+                const searchTerm = this.value.trim();
+                currentSearchTerm = searchTerm;
+
+                // Clear previous timeout
+                if (searchTimeout) {
+                    clearTimeout(searchTimeout);
+                }
+
+                // Show clear button if there's text
+                clearSearchBtn.style.display = searchTerm ? 'block' : 'none';
+
+                // Debounce search to avoid too many updates
+                searchTimeout = setTimeout(() => {
+                    filterKhasraListBySearch(searchTerm);
+                }, 300);
+            });
+
+            // Enter key for immediate search
+            searchInput.addEventListener('keypress', function (e) {
+                if (e.key === 'Enter') {
+                    filterKhasraListBySearch(this.value.trim());
+                }
+            });
+
+            // Clear search button
+            clearSearchBtn.addEventListener('click', function () {
+                searchInput.value = '';
+                currentSearchTerm = '';
+                filterKhasraListBySearch('');
+                searchInput.focus();
+                clearSearchBtn.style.display = 'none';
+            });
+
+            // Toggle filters visibility
+            //toggleFiltersBtn.addEventListener('click', function () {
+            //    const filterControls = document.querySelector('.compact-filter-controls');
+            //    const isHidden = filterControls.style.display === 'none';
+            //    filterControls.style.display = isHidden ? 'flex' : 'none';
+            //    this.innerHTML = isHidden ? '<i class="fas fa-filter"></i>' : '<i class="fas fa-eye-slash"></i>';
+            //    this.title = isHidden ? 'Hide filters' : 'Show filters';
+            //});
+
+            // Scroll to current khasra button
+            scrollToCurrentBtn.addEventListener('click', function () {
+                scrollToCurrentKhasra();
+            });
+
+            // Initially hide clear button
+            clearSearchBtn.style.display = 'none';
+        }
+
+        // Filter khasra list by search term
+        function filterKhasraListBySearch(searchTerm) {
+            const container = document.getElementById('compactListContainer');
+            const items = container.querySelectorAll('.compact-khasra-item');
+            const resultsInfo = document.getElementById('searchResultsInfo');
+
+            let visibleCount = 0;
+            let matchCount = 0;
+
+            items.forEach(item => {
+                const khasraNumberElement = item.querySelector('.compact-khasra-number');
+                const originalKhasraNumber = khasraNumberElement.getAttribute('data-original-text') ||
+                    khasraNumberElement.textContent;
+
+                // Store original text if not already stored
+                if (!khasraNumberElement.getAttribute('data-original-text')) {
+                    khasraNumberElement.setAttribute('data-original-text', originalKhasraNumber);
+                }
+
+                if (!searchTerm) {
+                    // Show all items when no search term
+                    item.style.display = 'flex';
+                    khasraNumberElement.textContent = originalKhasraNumber;
+                    khasraNumberElement.innerHTML = originalKhasraNumber; // Remove highlighting
+                    visibleCount++;
+                    return;
+                }
+
+                const searchLower = searchTerm.toLowerCase();
+                const khasraLower = originalKhasraNumber.toLowerCase();
+
+                // Check if khasra number contains search term
+                if (khasraLower.includes(searchLower)) {
+                    item.style.display = 'flex';
+
+                    // Highlight matching text
+                    const regex = new RegExp(`(${searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+                    const highlightedText = originalKhasraNumber.replace(regex,
+                        '<span class="khasra-search-match">$1</span>'
+                    );
+
+                    khasraNumberElement.innerHTML = highlightedText;
+
+                    // Highlight the whole item
+                    item.classList.add('khasra-search-highlight');
+
+                    visibleCount++;
+                    matchCount++;
+                } else {
+                    item.style.display = 'none';
+                    item.classList.remove('khasra-search-highlight');
+                }
+            });
+
+            // Update search results info
+            if (searchTerm) {
+                if (matchCount > 0) {
+                    resultsInfo.textContent = `${matchCount} of ${items.length} khasras match "${searchTerm}"`;
+                    resultsInfo.style.color = '#198754';
+                } else {
+                    resultsInfo.textContent = `No khasras found matching "${searchTerm}"`;
+                    resultsInfo.style.color = '#dc3545';
+                }
+            } else {
+                resultsInfo.textContent = `${items.length} total khasras`;
+                resultsInfo.style.color = '#6c757d';
+            }
+
+            // Update total count display
+            document.getElementById('compactListCount').textContent = visibleCount;
+
+            // Scroll to first visible item if searching
+            if (searchTerm && matchCount > 0) {
+                const firstVisible = container.querySelector('.compact-khasra-item[style*="display: flex"]');
+                if (firstVisible) {
+                    firstVisible.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                }
+            }
+        }
+
+        // Scroll to current khasra in the list
+        function scrollToCurrentKhasra() {
+            const container = document.getElementById('compactListContainer');
+            const currentKhasraItem = container.querySelector('.compact-khasra-item.active');
+
+            if (currentKhasraItem) {
+                currentKhasraItem.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'center',
+                    inline: 'nearest'
+                });
+
+                // Add a temporary highlight effect
+                currentKhasraItem.style.boxShadow = '0 0 0 3px rgba(13, 110, 253, 0.3)';
+                setTimeout(() => {
+                    currentKhasraItem.style.boxShadow = '';
+                }, 1000);
+
+                showToast('info', 'Current Khasra', 'Scrolled to current khasra in list');
+            } else {
+                showToast('warning', 'Not Found', 'Current khasra not found in filtered list');
+            }
+        }
+
+        // Call this function when mouza is cleared
+        function clearMouzaData() {
+            currentMouzaId = null;
+            allKhasras = [];
+            verifiedKhasrasData = [];
+            verifiedKhasraIds = [];
+            filteredKhasras = [];
+
+            hideCompactKhasraList();
+            showNoData();
+        }
+
+        // Populate tehsil dropdown - COMPLETE FIXED VERSION
+        function populateTehsilDropdown(tehsils) {
+            console.log('Populating tehsils:', tehsils);
+
+            const tehsilSelect = $('#ddlTehsil');
+
+            // Save current value for restoration (if needed)
+            const currentValue = tehsilSelect.val();
+            const currentText = tehsilSelect.find('option:selected').text();
+
+            console.log('Current tehsil value:', currentValue, 'text:', currentText);
+
+            // Store whether Select2 is initialized
+            const isSelect2Initialized = tehsilSelect.hasClass('select2-hidden-accessible');
+
+            // Clear existing options
+            tehsilSelect.empty();
+
+            // Add default option
+            tehsilSelect.append('<option value="">Select Tehsil</option>');
+
+            // Add new options
+            if (tehsils && tehsils.length > 0) {
+                tehsils.forEach(tehsil => {
+                    tehsilSelect.append(new Option(tehsil.TehsilName, tehsil.TehsilId));
+                });
+            }
+
+            // Handle Select2 properly
+            if (isSelect2Initialized) {
+                // Select2 is already initialized, just update it
+                console.log('Select2 already initialized, updating...');
+
+                // Method 1: Direct DOM update (most reliable)
+                tehsilSelect.trigger('change.select2');
+
+                // Method 2: Also update Select2 data structure
+                if (window.Select2 && window.Select2.instances) {
+                    const instance = tehsilSelect.data('select2');
+                    if (instance) {
+                        instance.trigger('change', {});
+                    }
+                }
+            } else {
+                // Initialize Select2 for the first time
+                console.log('Initializing Select2 for tehsil dropdown...');
+                tehsilSelect.select2({
+                    theme: 'bootstrap-5',
+                    width: '100%',
+                    placeholder: 'Select Tehsil',
+                    allowClear: true,
+                    dropdownParent: $('.filter-section')
+                });
+            }
+
+            // Reset to placeholder
+            tehsilSelect.val('').trigger('change');
+
+            // Update the Select2 display to show placeholder
+            if (isSelect2Initialized) {
+                setTimeout(() => {
+                    tehsilSelect.select2('val', '');
+                    tehsilSelect.select2('data', null);
+                }, 100);
+            }
+
+            // Setup change event handler (only once)
+            tehsilSelect.off('change.select-change').on('change.select-change', async function () {
+                const tehsilId = $(this).val();
+                const selectedText = $(this).find('option:selected').text();
+
+                console.log('Tehsil changed:', selectedText, 'ID:', tehsilId);
+
+                // Update display immediately
+                $(this).select2('data', {
+                    id: tehsilId,
+                    text: selectedText,
+                    selected: true
+                });
+
+                currentTehsilId = tehsilId;
+
+                if (!tehsilId) {
+                    console.log('Tehsil cleared, resetting mouza...');
+
+                    // Reset mouza dropdown
+                    const mouzaSelect = $('#ddlMouza');
+                    mouzaSelect.empty().append('<option value="">Select Mouza</option>');
+
+                    if (mouzaSelect.hasClass('select2-hidden-accessible')) {
+                        mouzaSelect.select2('destroy');
+                        mouzaSelect.select2({
+                            theme: 'bootstrap-5',
+                            width: '100%',
+                            placeholder: 'Select Mouza',
+                            allowClear: true,
+                            dropdownParent: $('.filter-section')
+                        });
+                    }
+
+                    mouzaSelect.val('').trigger('change');
+
+                    // Clear map and hide khasra list
+                    if (statelandLayer) {
+                        statelandLayer.definitionExpression = "1=0";
+                    }
+                    hideCompactKhasraList();
+
+                    return;
+                }
+
+                try {
+                    // Show loading for mouzas
+                    Swal.fire({
+                        title: 'Loading...',
+                        html: `Loading mouzas for ${selectedText}`,
+                        allowOutsideClick: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
+
+                    const mouzas = await fetchMouzas(tehsilId);
+                    Swal.close();
+
+                    if (mouzas && mouzas.length > 0) {
+                        populateMouzaDropdown(mouzas);
+
+                        if (mouzas[0].GeoExtent) {
+                            const extent = parseExtent(mouzas[0].GeoExtent);
+                            if (extent) {
+                                view.goTo(extent);
+                            }
+                        }
+                    } else {
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'No Mouzas',
+                            text: 'No mouzas found for selected tehsil for Lot Bandi, You need to make Land Assessment first',
+                            timer: 5000,
+                            showConfirmButton: false
+                        });
+                    }
+                } catch (error) {
+                    console.error("Error loading mouzas:", error);
+                    Swal.close();
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Failed to load mouzas data',
+                        timer: 3000,
+                        showConfirmButton: false
+                    });
+                }
+            });
+
+            console.log('Tehsil dropdown populated with', (tehsils ? tehsils.length : 0), 'items');
+        }
+
+        // Populate mouza dropdown - COMPLETE FIXED VERSION
+        function populateMouzaDropdown(mouzas) {
+            console.log('Populating mouzas:', mouzas);
+
+            const mouzaSelect = $('#ddlMouza');
+
+            // Save current value
+            const currentValue = mouzaSelect.val();
+            const currentText = mouzaSelect.find('option:selected').text();
+
+            console.log('Current mouza value:', currentValue, 'text:', currentText);
+
+            // Store whether Select2 is initialized
+            const isSelect2Initialized = mouzaSelect.hasClass('select2-hidden-accessible');
+
+            // Clear existing options
+            mouzaSelect.empty();
+
+            // Add default option
+            mouzaSelect.append('<option value="">Select Mouza</option>');
+
+            // Add new options
+            if (mouzas && mouzas.length > 0) {
+                mouzas.forEach(mouza => {
+                    mouzaSelect.append(new Option(mouza.MauzaName, mouza.MauzaId));
+                });
+            }
+
+            // Handle Select2 properly
+            if (isSelect2Initialized) {
+                // Select2 is already initialized, just update it
+                console.log('Select2 already initialized for mouza, updating...');
+
+                // Update Select2
+                mouzaSelect.trigger('change.select2');
+
+                // Also update Select2 data structure
+                if (window.Select2 && window.Select2.instances) {
+                    const instance = mouzaSelect.data('select2');
+                    if (instance) {
+                        instance.trigger('change', {});
+                    }
+                }
+            } else {
+                // Initialize Select2 for the first time
+                console.log('Initializing Select2 for mouza dropdown...');
+                mouzaSelect.select2({
+                    theme: 'bootstrap-5',
+                    width: '100%',
+                    placeholder: 'Select Mouza',
+                    allowClear: true,
+                    dropdownParent: $('.filter-section')
+                });
+            }
+
+            // Reset to placeholder
+            mouzaSelect.val('').trigger('change');
+
+            // Update the Select2 display to show placeholder
+            if (isSelect2Initialized) {
+                setTimeout(() => {
+                    mouzaSelect.select2('val', '');
+                    mouzaSelect.select2('data', null);
+                }, 100);
+            }
+
+            // Setup change event handler (only once)
+            mouzaSelect.off('change.mouza-change').on('change.mouza-change', async function () {
+                const mouzaId = $(this).val();
+                const selectedText = $(this).find('option:selected').text();
+
+                console.log('Mouza changed:', selectedText, 'ID:', mouzaId);
+
+                // Update display immediately
+                $(this).select2('data', {
+                    id: mouzaId,
+                    text: selectedText,
+                    selected: true
+                });
+
+                currentMouzaId = mouzaId;
+
+                if (!mouzaId) {
+                    console.log('Mouza cleared, resetting map...');
+
+                    // Clear map and hide khasra list
+                    if (statelandLayer) {
+                        statelandLayer.definitionExpression = "1=0";
+                    }
+                    hideCompactKhasraList();
+                    clearForm();
+                    showNoData();
+
+                    return;
+                }
+
+                try {
+                    // Show loading for khasras
+                    Swal.fire({
+                        title: 'Loading...',
+                        html: `Loading khasras for ${selectedText}`,
+                        allowOutsideClick: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
+
+                    await loadKhasrasForMouza(mouzaId);
+                    await fetchLatestLotData();
+                    Swal.close();
+
+                } catch (error) {
+                    console.error("Error loading khasras:", error);
+                    Swal.close();
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Failed to load khasra data',
+                        timer: 3000,
+                        showConfirmButton: false
+                    });
+                }
+            });
+
+            console.log('Mouza dropdown populated with', (mouzas ? mouzas.length : 0), 'items');
+        }
+
+        // Helper function to ensure proper Select2 display
+        function updateSelect2Display(selectElement, value, text) {
+            const $select = $(selectElement);
+
+            if (!$select.length) return;
+
+            // Method 1: Direct value setting
+            $select.val(value).trigger('change');
+
+            // Method 2: Update Select2 data
+            if ($select.hasClass('select2-hidden-accessible')) {
+                // Force update the display
+                $select.select2('data', {
+                    id: value,
+                    text: text || $select.find('option:selected').text()
+                });
+
+                // Force refresh
+                setTimeout(() => {
+                    $select.trigger('change.select2');
+                }, 50);
+            }
+        }
+        // Parse extent from string
+        function parseExtent(geoExtentStr) {
+            if (!geoExtentStr) return null;
+            const coords = geoExtentStr.split(",").map(Number);
+            if (coords.length !== 4) return null;
+            return {
+                xmin: coords[0],
+                ymin: coords[1],
+                xmax: coords[2],
+                ymax: coords[3],
+                spatialReference: { wkid: 4326 }
+            };
+        }
+
+        // Load all khasras for a mouza from GIS layer
+        // Load all khasras for a mouza from GIS layer - UPDATED
+        // Replace the loadKhasrasForMouza function
+        async function loadKhasrasForMouza(mouzaId) {
+            try {
+                console.log('Loading khasras for mouza:', mouzaId);
+
+                // Show loading
+                Swal.fire({
+                    title: 'Loading...',
+                    html: `Loading khasra data for selected mouza`,
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+
+                // Fetch khasra data from your API instead of GIS layer
+                allKhasras = await fetchKhasraListFromDB(mouzaId);
+                console.log('Khasras loaded from DB:', allKhasras.length);
+
+                if (allKhasras.length > 0) {
+                    // Still need to load GIS features for map visualization
+                    Swal.update({
+                        html: `
+                                <div class="text-center">
+                                    <small class="text-muted">Loading GIS Features...</small>
+                                </div>
+                            `
+                    });
+                    await loadGISFeaturesForMouza(mouzaId);
+
+                    // Update layer definition expression to show all khasras
+                    if (statelandLayer) {
+                        statelandLayer.definitionExpression = `Mouza_ID = ${mouzaId}`;
+                    }
+
+                    // Update verification graphics and labels
+                    updateVerificationGraphics();
+                    addKhasraLabels();
+
+                    // Show compact khasra list
+                    Swal.update({
+                        html: `
+                                <div class="text-center">
+                                    <small class="text-muted">Preparing Khasra Listing...</small>
+                                </div>
+                            `
+                    });
+                    showCompactKhasraList();
+
+                    // Zoom to the first khasra
+                    if (allKhasras.length > 0 && allKhasras[0].geometry) {
+                        await view.goTo(allKhasras[0].geometry, {
+                            duration: 1000,
+                            padding: { top: 300, bottom: 300, left: 300, right: 300 }
+                        });
+                    }
+
+                    // Select first khasra (preferably unverified)
+                    //await selectFirstKhasra();
+                    Swal.close();
+                    showToast('success', 'Loaded', `Loaded ${allKhasras.length} khasras`);
+                } else {
+                    showToast('info', 'No Data', 'No state land parcels found for selected mouza.');
+                    hideCompactKhasraList();
+
+                    // Reset KPI counts when no data
+                    //updateKPIcounts(0, {});
+                }
+            } catch (error) {
+                console.error("Error loading khasras:", error);
+                showToast('error', 'Error', 'Failed to load khasra data.');
+
+                // Still show the khasras even if verification fails
+                if (allKhasras.length > 0) {
+                    showCompactKhasraList();
+                    //await selectFirstKhasra();
+                }
+            }
+        }
+
+        // New function to fetch khasra list from your API
+        // Replace the fetchKhasraListFromDB function
+        async function fetchKhasraListFromDB(mouzaId) {
+            try {
+                console.log('Fetching khasra list from API for MouzaId:', mouzaId);
+                const params = {
+                    MauzaId: parseInt(mouzaId)
+                }
+                const response = await executeSP("i_GetLandAssessmentAvailable", params);
+                const khasras = response[0].rows;
+
+                console.log('Khasra list API response:', response);
+
+                // Transform the data to match the GIS layer format EXACTLY
+                const transformedKhasras = response[0].rows.map(khasra => {
+                    // Debug the incoming data
+                    console.log('Processing khasra:', khasra);
+
+                    // Extract the necessary fields - adjust field names based on your actual API response
+                    const khasraId = khasra.KhasraId || khasra.Khasra_ID || khasra.id || 0;
+                    const khasraNo = khasra.KhasraNo || khasra.K || khasra.khasra_no || 'N/A';
+                    const murabaNo = khasra.MurabaNo || khasra.M || khasra.muraba_no || '';
+                    const khasraArea = khasra.KhasraArea || khasra.khasra_area || khasra.Shape_Area || 0;
+                    const mouzaName = khasra.MauzaName || khasra.Mouza || '';
+                    const tehsilName = khasra.TehsilName || khasra.Tehsil || '';
+                    const districtName = khasra.DistrictName || khasra.District || '';
+
+                    // Create a mock feature with EXACT structure as GIS layer
+                    return {
+                        attributes: {
+                            Khasra_ID: parseInt(khasraId),
+                            K: khasraNo.toString(),
+                            M: murabaNo.toString(),
+                            Khasra_No: khasraNo.toString(),
+                            Muraba_No: murabaNo.toString(),
+                            Mouza_ID: parseInt(mouzaId),
+                            District: districtName,
+                            Tehsil: tehsilName,
+                            Mouza: mouzaName,
+                            Shape_Area: parseFloat(khasraArea) || 0,
+                            Type: 'State Land',
+                            OBJECTID: khasraId, // Important for GIS layer compatibility
+                            GlobalID: khasraId, // Important for GIS layer compatibility
+                            // Include other expected fields
+                            Khasra: khasraNo,
+                            Muraba: murabaNo,
+                            Area: khasraArea
+                        },
+                        geometry: null // Will be populated by loadGISFeaturesForMouza
+                    };
+                });
+
+                allKhasraWithAttributes = khasras.map(khasra => {
+
+                    // Defensive normalization (future-proofing)
+                    const cleanNumber = v => isNaN(v) || v === null ? 0 : Number(v);
+                    const cleanString = v => v ?? '';
+
+                    return {
+                        // Division
+                        DivId: cleanNumber(khasra.DivId || khasra.division_id),
+                        DivName: cleanString(khasra.DivName || khasra.division_name),
+
+                        // District
+                        DistId: cleanNumber(khasra.DistId || khasra.district_id),
+                        DistrictName: cleanString(khasra.DistrictName || khasra.district_name),
+
+                        // Tehsil
+                        TehId: cleanNumber(khasra.TehId || khasra.tehsil_id),
+                        TehsilName: cleanString(khasra.TehsilName || khasra.tehsil_name),
+
+                        // Mauza
+                        MauzaId: cleanNumber(khasra.MauzaId || khasra.mauza_id),
+                        MauzaName: cleanString(khasra.MauzaName || khasra.mauza_name),
+
+                        // Muraba
+                        MurabaNo: cleanString(khasra.MurabaNo || khasra.muraba_no),
+
+                        // Khewat
+                        KhewatId: cleanNumber(khasra.KhewatId || khasra.khewat_id),
+                        KhewatNo: cleanString(khasra.KhewatNo || khasra.khewat_no),
+                        KhewatArea: cleanNumber(khasra.KhewatArea),
+
+                        KhatuniId: cleanNumber(khasra.KhatuniId),
+                        KhatuniNo: cleanString(khasra.KhatuniNo),
+                        KhatuniTypeName: cleanString(khasra.KhatuniTypeName),
+
+                        // Khasra
+                        KhasraId: cleanNumber(khasra.KhasraId || khasra.khasra_id),
+                        KhasraNo: cleanString(khasra.KhasraNo || khasra.khasra_no),
+                        KhasraArea: cleanNumber(
+                            khasra.KhasraArea || khasra.khasra_area || khasra.Shape_Area
+                        ),
+
+                        // Land info
+                        LandUnder: cleanString(khasra.LandUnder),
+
+                        DepartmentName: cleanString(khasra.DepartmentName),
+                        OtherDepartmentName: cleanString(khasra.OtherDepartmentName),
+
+                        // Optional: derived / UI helpers
+                        DisplayLabel: `${cleanString(khasra.MurabaNo || khasra.muraba_no)}/${cleanString(khasra.KhasraNo || khasra.khasra_no)}`,
+
+                        // Optional: audit / debugging
+                        _raw: khasra
+                    };
+                });
+
+
+                console.log('Transformed khasras:', transformedKhasras.length);
+                console.log('Sample transformed khasra:', transformedKhasras[0]);
+                return transformedKhasras;
+
+            } catch (error) {
+                console.error("Error fetching khasra list from API:", error);
+                throw error;
+            }
+        }
+        // New function to load GIS features for visualization only
+        // Update the loadGISFeaturesForMouza function
+        async function loadGISFeaturesForMouza(mouzaId) {
+            try {
+                console.log('Loading GIS features for visualization, MouzaId:', mouzaId);
+
+                // Query stateland layer only for visualization
+                const query = statelandLayer.createQuery();
+                query.where = `Mouza_ID = ${mouzaId}`;
+                query.returnGeometry = true;
+                query.outFields = ["*"]; // Get all fields
+
+                const results = await statelandLayer.queryFeatures(query);
+                console.log('GIS features loaded for visualization:', results.features.length);
+                console.log('Sample GIS feature:', results.features[0]?.attributes);
+
+                // Create a map of GIS features by Khasra_ID for quick lookup
+                const gisFeaturesByKhasraId = {};
+                results.features.forEach(feature => {
+                    const khasraId = feature.attributes.Khasra_ID;
+                    if (khasraId) {
+                        gisFeaturesByKhasraId[khasraId] = feature;
+                    }
+                });
+
+                // Update allKhasras with GIS geometry where available
+                allKhasras.forEach((khasra, index) => {
+                    const khasraId = khasra.attributes.Khasra_ID;
+                    if (gisFeaturesByKhasraId[khasraId]) {
+                        // Update with real GIS geometry
+                        khasra.geometry = gisFeaturesByKhasraId[khasraId].geometry;
+
+                        // Also update ALL attributes from GIS to ensure consistency
+                        Object.keys(gisFeaturesByKhasraId[khasraId].attributes).forEach(key => {
+                            khasra.attributes[key] = gisFeaturesByKhasraId[khasraId].attributes[key];
+                        });
+
+                        console.log(`Updated khasra ${khasraId} with GIS data`);
+                    } else {
+                        console.warn(`No GIS geometry found for khasra ID: ${khasraId}`);
+                    }
+                });
+
+                console.log('Updated khasras with GIS geometry and attributes');
+
+            } catch (error) {
+                console.warn('Could not load GIS features for visualization:', error);
+                // Continue without GIS geometry - the list will still work
+            }
+        }
+
+        // Update verification graphics on map with new categories
+        // Update the updateVerificationGraphics function to handle missing geometry
+        function updateVerificationGraphics() {
+            const { Graphic, SimpleFillSymbol, SimpleLineSymbol, Color } = window.esriModules;
+
+            // Clear existing graphics
+            verificationGraphicsLayer.removeAll();
+
+            // Track counts for statistics
+            let verifiedCount = 0;
+            let unverifiedCount = 0;
+            let borAvailableCount = 0;
+            let borNotAvailableCount = 0;
+            let departmentCount = 0;
+
+            // Add graphics for each khasra with appropriate colors
+            allKhasras.forEach(feature => {
+                const khasraId = feature.attributes.Khasra_ID;
+                const verifiedData = verifiedKhasrasData.find(v => v.KhasraId === khasraId);
+                const isVerified = verifiedKhasraIds.includes(khasraId);
+
+                // Skip if no geometry
+                if (!feature.geometry) {
+                    console.warn(`Skipping verification graphic for khasra ${khasraId} - no geometry`);
+                    return;
+                }
+
+                // Choose color based on verification status and category
+                let fillColor, outlineColor, status;
+
+                if (isVerified && verifiedData) {
+                    verifiedCount++;
+
+                    // Determine category
+                    if (verifiedData.LandUnder === 'Department') {
+                        departmentCount++;
+                        // Under Department - Blue
+                        fillColor = [52, 152, 219, 0.4];
+                        outlineColor = [41, 128, 185, 1];
+                        status = 'department';
+
+                        // Check for department-specific conditions
+                        if (verifiedData.DeptLitigation) {
+                            // Under litigation in department - Orange
+                            fillColor = [255, 165, 0, 0.4];
+                            outlineColor = [255, 140, 0, 1];
+                        }
+                    } else if (verifiedData.LandUnder === 'BOR') {
+                        if (verifiedData.LandAvailable) {
+                            borAvailableCount++;
+                            // BOR Available - Green
+                            fillColor = [46, 204, 113, 0.4];
+                            outlineColor = [39, 174, 96, 1];
+                            status = 'bor-available';
+
+                            // Check for specific conditions
+                            if (verifiedData.IsCultivated) {
+                                // Cultivated - Dark green
+                                fillColor = [34, 139, 34, 0.4];
+                                outlineColor = [0, 100, 0, 1];
+                            }
+                            if (verifiedData.WaterAvailable) {
+                                // Water available - Light blue tint
+                                fillColor = [52, 152, 219, 0.3];
+                                outlineColor = [41, 128, 185, 0.8];
+                            }
+                        } else {
+                            borNotAvailableCount++;
+                            // BOR Not Available - Red
+                            fillColor = [231, 76, 60, 0.4];
+                            outlineColor = [192, 57, 43, 1];
+                            status = 'bor-not-available';
+
+                            // Check for specific conditions
+                            if (verifiedData.Litigation) {
+                                // Under litigation - Orange
+                                fillColor = [255, 165, 0, 0.4];
+                                outlineColor = [255, 140, 0, 1];
+                            }
+                            if (verifiedData.UnderScheme) {
+                                // Under scheme - Purple
+                                fillColor = [155, 89, 182, 0.4];
+                                outlineColor = [142, 68, 173, 1];
+                            }
+                            if (verifiedData.GhairMumkin || verifiedData.UnderDepartmentUse) {
+                                // Ghair mumkin or Department use - Brown
+                                fillColor = [160, 82, 45, 0.4];
+                                outlineColor = [139, 69, 19, 1];
+                            }
+                        }
+
+                        // Common BOR conditions
+                        if (verifiedData.IsAreaCorrect === 0) {
+                            // Area incorrect - Yellow (overrides other colors)
+                            fillColor = [255, 255, 0, 0.4];
+                            outlineColor = [255, 215, 0, 1];
+                        }
+                    }
+                } else {
+                    unverifiedCount++;
+                    // Unverified - Gray
+                    fillColor = [128, 128, 128, 0.4];
+                    outlineColor = [96, 96, 96, 1];
+                    status = 'unverified';
+                }
+
+                const symbol = new SimpleFillSymbol({
+                    color: fillColor,
+                    outline: new SimpleLineSymbol({
+                        color: outlineColor,
+                        width: 2
+                    })
+                });
+
+                const graphic = new Graphic({
+                    geometry: feature.geometry,
+                    symbol: symbol,
+                    attributes: {
+                        Khasra_ID: khasraId,
+                        isVerified: isVerified,
+                        Khasra_No: feature.attributes.K || feature.attributes.Khasra_No,
+                        Area: feature.attributes.Shape_Area,
+                        verifiedData: verifiedData || null,
+                        status: status
+                    }
+                });
+
+                verificationGraphicsLayer.add(graphic);
+            });
+
+            // Update stats for KPI counts
+            verificationStats = {
+                VerifiedCount: verifiedCount,
+                BOR_Available: borAvailableCount,
+                BOR_NotAvailable: borNotAvailableCount,
+                DepartmentCount: departmentCount
+            };
+
+            // Update KPI counts with the new stats
+            //updateKPIcounts(allKhasras.length, verificationStats);
+
+            console.log('Verification graphics updated with', allKhasras.length, 'khasras');
+            console.log('Verification stats:', verificationStats);
+        }
+
+        // Update the addKhasraLabels function
+        function addKhasraLabels() {
+            const { Graphic, TextSymbol, Point } = window.esriModules;
+
+            // Clear existing labels
+            khasraLabelsGraphicsLayer.removeAll();
+
+            // Add labels for each khasra
+            allKhasras.forEach(feature => {
+                const khasraNo = feature.attributes.K || feature.attributes.Khasra_No || '';
+                const khasraId = feature.attributes.Khasra_ID;
+                const isVerified = verifiedKhasraIds.includes(khasraId);
+
+                // Skip if no geometry
+                if (!feature.geometry) {
+                    console.warn(`Skipping label for khasra ${khasraId} - no geometry`);
+                    return;
+                }
+
+                // Get centroid for label placement
+                let centerPoint;
+                if (feature.geometry.centroid) {
+                    centerPoint = feature.geometry.centroid;
+                } else {
+                    const extent = feature.geometry.extent;
+                    centerPoint = new Point({
+                        x: (extent.xmin + extent.xmax) / 2,
+                        y: (extent.ymin + extent.ymax) / 2,
+                        spatialReference: feature.geometry.spatialReference
+                    });
+                }
+
+                // Create text symbol for label
+                const textSymbol = new TextSymbol({
+                    text: khasraNo,
+                    color: isVerified ? "white" : "black",
+                    haloColor: isVerified ? "green" : "white",
+                    haloSize: 1,
+                    font: {
+                        size: isVerified ? "12px" : "10px",
+                        weight: isVerified ? "bold" : "normal",
+                        family: "Arial"
+                    }
+                });
+
+                const labelGraphic = new Graphic({
+                    geometry: centerPoint,
+                    symbol: textSymbol,
+                    attributes: {
+                        Khasra_ID: khasraId,
+                        Khasra_No: khasraNo
+                    }
+                });
+
+                khasraLabelsGraphicsLayer.add(labelGraphic);
+            });
+        }
+        // Show compact khasra list
+        function showCompactKhasraList() {
+            document.getElementById('compactKhasraList').style.display = 'block';
+            updateCompactKhasraListDisplay();
+        }
+
+        // Hide compact khasra list
+        function hideCompactKhasraList() {
+            document.getElementById('compactKhasraList').style.display = 'none';
+            allKhasras = [];
+            verifiedKhasrasData = [];
+            verifiedKhasraIds = [];
+            filteredKhasras = [];
+            document.getElementById('compactListCount').textContent = '0';
+            document.getElementById('compactListContainer').innerHTML = '';
+        }
+
+        // Update compact khasra list display with new categories
+        // Update the updateCompactKhasraListDisplay function to include search
+        // Update the updateCompactKhasraListDisplay function to format khasra number correctly
+        function updateCompactKhasraListDisplay() {
+            const container = document.getElementById('compactListContainer');
+            const showVerified = $('#compactToggleVerified').is(':checked');
+            const showUnverified = $('#compactToggleUnverified').is(':checked');
+            const searchInput = document.getElementById('compactKhasraSearch');
+            const searchTerm = searchInput ? searchInput.value.trim() : '';
+
+            filteredKhasras = allKhasras.filter(feature => {
+                const khasraId = feature.attributes.Khasra_ID;
+                const isVerified = verifiedKhasraIds.includes(khasraId);
+
+                if (isVerified && showVerified) return true;
+                if (!isVerified && showUnverified) return true;
+                return false;
+            });
+
+            container.innerHTML = '';
+            filteredKhasras.forEach((feature, index) => {
+
+                const khasraId = feature.attributes.Khasra_ID;
+                // Format khasra number: Muraba/Khasra or just Khasra if Muraba is not available
+                const murabaNo = feature.attributes.M || '';
+                const khasraNo = feature.attributes.K || feature.attributes.Khasra_No || 'N/A';
+                const displayKhasraNo = murabaNo ? `${murabaNo}/${khasraNo}` : khasraNo;
+
+                const isVerified = verifiedKhasraIds.includes(khasraId);
+                const verifiedData = verifiedKhasrasData.find(v => v.KhasraId === khasraId);
+                const isActive = khasraId === currentKhasraId;
+
+                const item = document.createElement('div');
+                item.className = `compact-khasra-item ${isActive ? 'active' : ''}`;
+
+                // Determine category and badge
+                let statusIcons = '';
+                let badgeClass = 'compact-badge-unverified';
+                let badgeText = '✗';
+                let statusTitle = 'Unverified';
+
+                if (isVerified && verifiedData) {
+                    if (verifiedData.LandUnder === 'Department') {
+                        badgeClass = 'compact-badge-department';
+                        badgeText = 'D';
+                        statusTitle = 'Under Department';
+
+                        if (verifiedData.DeptLitigation) statusIcons += '<i class="fas fa-gavel text-warning ms-1" title="Under Litigation"></i>';
+                        if (verifiedData.UnderDepartmentUse) statusIcons += '<i class="fas fa-building text-info ms-1" title="Department Use"></i>';
+                    } else if (verifiedData.LandUnder === 'BOR') {
+                        if (verifiedData.LandAvailable) {
+                            badgeClass = 'compact-badge-bor-available';
+                            badgeText = '✓';
+                            statusTitle = 'BOR Available';
+
+                            if (verifiedData.IsCultivated) statusIcons += '<i class="fas fa-seedling text-success" title="Cultivated"></i>';
+                            if (verifiedData.WaterAvailable) statusIcons += '<i class="fas fa-tint text-primary ms-1" title="Water Available"></i>';
+                        } else {
+                            badgeClass = 'compact-badge-bor-not-available';
+                            badgeText = '✗';
+                            statusTitle = 'BOR Not Available';
+
+                            if (verifiedData.Litigation) statusIcons += '<i class="fas fa-gavel text-danger ms-1" title="Under Litigation"></i>';
+                            if (verifiedData.UnderScheme) statusIcons += '<i class="fas fa-project-diagram text-purple ms-1" title="Under Scheme"></i>';
+                            if (verifiedData.GhairMumkin) statusIcons += '<i class="fas fa-ban text-brown ms-1" title="Ghair Mumkin"></i>';
+                        }
+
+                        if (verifiedData.IsAreaCorrect === 0) {
+                            statusIcons += '<i class="fas fa-ruler-combined text-warning ms-1" title="Area Incorrect"></i>';
+                        }
+                    }
+                }
+
+                item.innerHTML = `
+                                    <div class="compact-khasra-info">
+                                        <div class="d-flex align-items-center justify-content-between">
+                                            <span class="compact-khasra-number" title="${statusTitle}" data-original-text="${displayKhasraNo}">${displayKhasraNo}</span>
+                                            <div class="compact-khasra-icons">${statusIcons}</div>
+                                        </div>
+                                        <small class="text-muted" style="font-size: 0.7rem;">
+                                            Area: ${feature.attributes.Shape_Area ? convertSqFtToAkmV2(feature.attributes.Shape_Area) : 'N/A'}
+                                        </small>
+                                    </div>
+                                    <span class="compact-verification-badge ${badgeClass}" title="${statusTitle}">
+                                        ${badgeText}
+                                    </span>
+                                `;
+
+                item.addEventListener('click', () => {
+                    selectKhasraFromList(khasraId);
+                });
+
+                container.appendChild(item);
+            });
+
+            document.getElementById('compactListCount').textContent = filteredKhasras.length;
+
+            // Apply search filter after populating
+            if (searchTerm) {
+                setTimeout(() => filterKhasraListBySearch(searchTerm), 50);
+            } else {
+                const resultsInfo = document.getElementById('searchResultsInfo');
+                if (resultsInfo) {
+                    resultsInfo.textContent = `${filteredKhasras.length} total khasras`;
+                    resultsInfo.style.color = '#6c757d';
+                }
+            }
+        }
+        // Select khasra from list
+        async function selectKhasraFromList(khasraId) {
+            try {
+                const feature = allKhasras.find(f => f.attributes.Khasra_ID === khasraId);
+                if (!feature) {
+                    showToast('error', 'Not found', 'Parcel not found in current view');
+                    return;
+                }
+
+                // Toggle selection
+                toggleParcelSelection(khasraId);
+
+                currentKhasraId = khasraId;
+                currentKhasraIndex = filteredKhasras.findIndex(f => f.attributes.Khasra_ID === khasraId);
+
+                // Map navigation & highlight (your existing logic)
+                if (feature.geometry) {
+                    highlightFeature(feature);
+                    await view.goTo(feature.geometry, {
+                        duration: 500,
+                        padding: { top: 280, bottom: 280, left: 280, right: 280 }
+                    });
+                } else {
+                    // fallback GIS query (keep your existing code here if any)
+                }
+
+                // Refresh UI
+                updateCompactKhasraListDisplay();
+                updateSelectedTagsDisplay();           // ← important
+            } catch (err) {
+                console.error("selectKhasraFromList failed", err);
+                showToast('error', 'Error', 'Could not select this parcel');
+            }
+        }
+
+        // Helper function to find GIS feature by Khasra_ID
+        async function findGISFeatureByKhasraId(khasraId) {
+            try {
+                const query = statelandLayer.createQuery();
+                query.where = `Khasra_ID = ${khasraId}`;
+                query.returnGeometry = true;
+                query.outFields = ["*"];
+
+                const results = await statelandLayer.queryFeatures(query);
+                return results.features.length > 0 ? results.features[0] : null;
+            } catch (error) {
+                console.error("Error finding GIS feature:", error);
+                return null;
+            }
+        }
+
+        // Highlight feature on map
+        function highlightFeature(feature) {
+            const { Graphic, SimpleFillSymbol, SimpleLineSymbol, GraphicsLayer } = window.esriModules;
+
+            // Clear previous highlights
+            const highlightLayer = map.layers.find(l => l.title === "Highlight");
+            if (highlightLayer) {
+                map.remove(highlightLayer);
+            }
+
+            // Create highlight graphics layer
+            const highlightGraphicsLayer = new GraphicsLayer({
+                title: "Highlight",
+                listMode: "hide"
+            });
+
+            const highlightSymbol = new SimpleFillSymbol({
+                color: [52, 152, 219, 0.2],
+                outline: {
+                    color: [41, 128, 185, 1],
+                    width: 3
+                }
+            });
+
+            const graphic = new Graphic({
+                geometry: feature.geometry,
+                symbol: highlightSymbol
+            });
+
+            highlightGraphicsLayer.add(graphic);
+            map.add(highlightGraphicsLayer);
+
+            // Bring to front
+            map.reorder(highlightGraphicsLayer, map.layers.length - 1);
+        }
+
+        // Select first khasra (preferably unverified)
+        async function selectFirstKhasra() {
+            if (filteredKhasras.length > 0) {
+                // Try to find first unverified
+                let firstKhasra = filteredKhasras.find(f => !verifiedKhasraIds.includes(f.attributes.Khasra_ID));
+                if (!firstKhasra) {
+                    firstKhasra = filteredKhasras[0];
+                }
+                await selectKhasraFromList(firstKhasra.attributes.Khasra_ID);
+            }
+        }
+
+        // Navigation functions
+        function navigateToPreviousKhasra() {
+            if (filteredKhasras.length > 1) {
+                let newIndex = currentKhasraIndex - 1;
+                if (newIndex < 0) newIndex = filteredKhasras.length - 1;
+                selectKhasraFromList(filteredKhasras[newIndex].attributes.Khasra_ID);
+            }
+        }
+
+        function navigateToNextKhasra() {
+            if (filteredKhasras.length > 1) {
+                let newIndex = currentKhasraIndex + 1;
+                if (newIndex >= filteredKhasras.length) newIndex = 0;
+                selectKhasraFromList(filteredKhasras[newIndex].attributes.Khasra_ID);
+            }
+        }
+
+        function navigateToFirstUnverified() {
+            const firstUnverified = filteredKhasras.find(f => !verifiedKhasraIds.includes(f.attributes.Khasra_ID));
+            if (firstUnverified) {
+                selectKhasraFromList(firstUnverified.attributes.Khasra_ID);
+            } else {
+                showToast('info', 'No Unverified', 'All khasras are verified for this mouza.');
+            }
+        }
+
+        // Add this function to handle khasra selection from map
+        function selectKhasraFromMap(khasraId) {
+            // Find the feature in allKhasras
+            const feature = allKhasras.find(f => f.attributes.Khasra_ID === khasraId);
+            if (feature) {
+                selectKhasraFromList(khasraId);
+            } else {
+                console.warn(`Khasra ${khasraId} not found in allKhasras array`);
+            }
+        }
+
+        // Helper function to force trigger events
+        function forceTriggerEvent(element, eventName) {
+            if (element) {
+                // Native event
+                element.dispatchEvent(new Event(eventName));
+
+                // jQuery event if available
+                if (typeof jQuery !== 'undefined' && jQuery.fn.trigger) {
+                    $(element).trigger(eventName);
+                }
+            }
+        }
+
+        // Helper function to ensure dropdown is populated before setting value
+        function setDropdownValue(dropdownId, value) {
+            const dropdown = document.getElementById(dropdownId);
+            if (!dropdown) return false;
+
+            let attempts = 0;
+            const maxAttempts = 10;
+
+            return new Promise((resolve) => {
+                const checkAndSet = () => {
+                    attempts++;
+
+                    // Check if the option exists
+                    const optionExists = Array.from(dropdown.options).some(opt => opt.value === value);
+
+                    if (optionExists) {
+                        dropdown.value = value;
+                        forceTriggerEvent(dropdown, 'change');
+                        resolve(true);
+                    } else if (attempts < maxAttempts) {
+                        // Try again after a short delay
+                        setTimeout(checkAndSet, 100);
+                    } else {
+                        // Option doesn't exist, try to add it
+                        const option = document.createElement('option');
+                        option.value = value;
+                        option.text = value;
+                        dropdown.appendChild(option);
+                        dropdown.value = value;
+                        forceTriggerEvent(dropdown, 'change');
+                        resolve(true);
+                    }
+                };
+
+                checkAndSet();
+            });
+        }
+
+        // Show no data message
+        function showNoData() {
+            document.getElementById('assessmentForm').style.display = 'none';
+            document.getElementById('noDataMessage').style.display = 'block';
+        }
+
+        // Submit form
+        async function submitForm() {
+            debugger
+            showToast('warning', 'Creation Time Passed', 'Lot creation time has passed, no more lots creation allowed.');
+            //showToast('warning', 'Lot Creation Resumed Tempurarily', 'Lots Updation has been temporarily opened to adjust lots and Khasras as per the shared schedule.');
+            return;
+            const submitBtn = document.getElementById('btnSubmit');
+            const originalText = submitBtn.innerHTML;
+
+            let isSuccess = false;
+
+            try {
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+                submitBtn.disabled = true;
+
+                const selectedPayload = [...document.querySelectorAll('.khasra-json-holder')]
+                    .map(d => JSON.parse(d.textContent));
+
+                if (selectedPayload.length === 0) {
+                    showToast('warning', 'No Parcels', 'No land parcels are selected.');
+                    return;
+                }
+
+                const totalSqFt = selectedPayload.reduce((sum, item) => {
+                    var area = item.khasraArea;
+                    return sum + item.KhasraArea; // assuming property name is Area
+                }, 0);
+
+                if (totalSqFt > 217800) {
+                    showToast('danger', 'Area Limit Reached', 'Total selected area exceeds 5 Acres.');
+                    return;
+                }
+
+                // ────────────────────────────────────────────────
+                // Common inputs
+                // ────────────────────────────────────────────────
+                const suitability = [];
+                if (document.getElementById('fitAgriculture')?.checked) suitability.push('Inside Prohibited Zone');
+                if (document.getElementById('fitLivestock')?.checked) suitability.push('Outside Prohibited Zone');
+                if (document.getElementById('fitForest')?.checked) suitability.push('Forest');
+                if (document.getElementById('fitFisheries')?.checked) suitability.push('Fisheries');
+
+                const suitabilityCsv = suitability.join(',');
+                const remarks = document.getElementById('remarks')?.value?.trim() || '';
+                const leasePerAcre = parseFloat(document.getElementById('leasePerAcre')?.value) || null;
+
+                if (!suitabilityCsv && !remarks) {
+                    showToast('warning', 'Incomplete', 'Select suitability or enter remarks.');
+                    return;
+                }
+
+                // One GUID for all rows
+                const uniqueId = crypto.randomUUID();
+
+                // ────────────────────────────────────────────────
+                // Prepare SP Parameters
+                // ────────────────────────────────────────────────
+                const params = {
+                    JsonPayload: JSON.stringify(selectedPayload),
+                    Suitability: suitabilityCsv,
+                    LeasePerAcre: 0,
+                    Remarks: '',
+                    UniqueId: uniqueId
+                };
+                const response = await executeSP("i_SaveLotBandi_V1", params);
+
+                showToast(
+                    'success',
+                    'Saved',
+                    `Lot saved for ${selectedPayload.length} parcel(s)`
+                );
+
+                isSuccess = true;
+
+            } catch (err) {
+                console.error(err);
+                //showToast('error', 'Error', 'Failed to save lot, Lot creation time has passed, no more lots creation allowed.');
+            } finally {
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+                if (isSuccess) {   // 🔥 only execute when actually saved
+                    clearForm();
+                    loadKhasrasForMouza($("#ddlMouza").val());
+                    fetchLatestLotData();
+                    //showToast('warning', 'Creation Time Passed', 'Lot creation time has passed, no more lots creation allowed.');
+                }
+            }
+        }
+
+        // Validate form
+        function validateForm() {
+            // Show success and submit
+            showToast('success', 'Validation', 'All fields validated successfully.');
+            submitForm();
+            return true;
+        }
+
+        // Clear form
+        function clearForm() {
+            //if (confirm('Are you sure you want to clear all form data?')) {
+            if (selectedKhasraIds.size === 0) return;
+
+            selectedKhasraIds.clear();
+
+            $('input[type="radio"]').prop('checked', false);
+
+            updateSelectedTagsDisplay();
+            updateCompactKhasraListDisplay();
+            showToast('info', 'Cleared', 'Form has been cleared.');
+            //}
+        }
+
+        // Show toast message
+        function showToast(type, title, message) {
+            const toastId = 'toast-' + Date.now();
+            const toastHtml = `
+                                            <div id="${toastId}" class="toast" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="5000">
+                                                <div class="toast-header bg-${type} text-white">
+                                                    <strong class="me-auto">${title}</strong>
+                                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
+                                                </div>
+                                                <div class="toast-body">
+                                                    ${message}
+                                                </div>
+                                            </div>
+                                        `;
+
+            document.getElementById('toastContainer').insertAdjacentHTML('beforeend', toastHtml);
+
+            const toastElement = document.getElementById(toastId);
+            const toast = new bootstrap.Toast(toastElement);
+            toast.show();
+
+            toastElement.addEventListener('hidden.bs.toast', function () {
+                this.remove();
+            });
+        }
+
+        //for tags
+        function updateSelectedTagsDisplay() {
+
+            const container = document.getElementById('selectedTagsContainer');
+            const panel = document.getElementById('selectedKhasrasPanel');
+            const countBadge = document.getElementById('selectedCountBadge');
+            const assessmentOptions = document.getElementById('assessmentForm');
+            const selectedAreaBadge = document.getElementById('selectedAreaBadge');
+
+            if (!container || !panel) return;
+
+            container.innerHTML = '';
+
+            if (selectedKhasraIds.size === 0) {
+                panel.style.display = 'none';
+                assessmentOptions.style.display = 'none';
+                return;
+            }
+
+            panel.style.display = 'block';
+            assessmentOptions.style.display = 'block';
+            countBadge.textContent = `(${selectedKhasraIds.size})`;
+            let totalAreaSqFt = 0;
+
+            selectedKhasraIds.forEach(id => {
+
+                const khasraObj = allKhasraWithAttributes.find(x => x.KhasraId === id);
+                if (!khasraObj) return;
+
+                const lu = khasraObj.LandUnder || '';
+                const muraba = khasraObj.MurabaNo || '';
+                const khasra = khasraObj.KhasraNo || '—';
+                const area = convertSqFtToAkmV2(khasraObj.KhasraArea);
+
+                const areaSqFt = Number(khasraObj.KhasraArea) || 0;
+                totalAreaSqFt += areaSqFt;
+
+                const label = muraba
+                    ? `${muraba}/${khasra} (${area})`
+                    : `${khasra} (${area})`;
+
+                const labelLandUnder = lu == "BOR"
+                    ? `${'-'}`
+                    : `${khasraObj.DepartmentName} (${khasraObj.OtherDepartmentName})`;
+
+                const tag = document.createElement('div');
+                tag.className = 'selected-khasra-tag';
+
+                if (currentKhasraId === id) {
+                    tag.classList.add('current');
+                }
+
+                tag.innerHTML = `
+                                <div class="tag-main">
+                                    <div class="tag-meta">
+                                        <span><strong>Khewat No.: </strong> ${khasraObj.KhewatNo || '—'}</span>
+                                        <span><strong>Muraba No.: </strong> ${muraba || '—'}</span>
+                                        <span><strong>Khasra No.: </strong> ${khasra || '—'}</span><br/>
+                                        <span><strong>Khasra Area: </strong> ${area || '—'}</span><br/>
+                                    </div>
+                                </div>
+
+                                <button class="remove-btn"
+                                        data-khasra-id="${id}"
+                                        title="Remove parcel">×</button>
+
+                                <!-- Hidden JSON payload -->
+                                <div class="khasra-json-holder"
+                                        data-khasra-id="${id}"
+                                        style="display:none;">
+                                    ${JSON.stringify(khasraObj)}
+                                </div>
+                            `;
+
+                // Click on tag (excluding remove button) → focus parcel
+                tag.addEventListener('click', e => {
+
+                    if (e.target.tagName !== 'BUTTON') {
+                        selectKhasraFromList(id);
+                    }
+                });
+
+                container.appendChild(tag);
+            });
+            if (selectedAreaBadge) {
+                selectedAreaBadge.textContent = convertSqFtToAkmV2(totalAreaSqFt) || '—';
+            }
+            toggleNoDataVisibility();
+        }
+
+        async function fetchLatestLotData() {
+
+            const loading = Swal.fire({
+                title: 'Fetching existing lot data...',
+                allowOutsideClick: true,          // now cancelable
+                allowEscapeKey: true,
+                showConfirmButton: false,
+                didOpen: () => Swal.showLoading()
+            });
+
+            // Auto-close after 10 seconds if stuck
+            setTimeout(() => {
+                if (Swal.isVisible()) {
+                    Swal.close();
+                    console.warn("Loading timed out – check console for errors");
+                }
+            }, 10000);
+
+
+            const params = {
+                MauzaId: $("#ddlMouza").val()
+            };
+
+            const rawSets = await executeSP("i_GetLotBandiHierarchyDashboard_V1", params);
+
+            if (rawSets.length < 3) {
+                console.warn("Expected 3 result sets, got", rawSets.length);
+                Swal.close();
+                return;
+            }
+
+            const overview = rawSets[0]?.rows?.[0] || {};
+            const children = rawSets[1]?.rows || [];
+            const lots = rawSets[2]?.rows || [];
+
+            console.log("Overview:", overview);
+            console.log("Children:", children);
+            console.log("Lots:", lots);
+            console.log("Lots count:", lots.length);
+
+            if (lots.length > 0) {
+                const firstRecord = lots[0];
+                const hierarchyIds = {
+                    DivisionId: firstRecord.DivisionId,
+                    DistrictId: firstRecord.DistrictId,
+                    TehsilId: firstRecord.TehsilId,
+                    MauzaId: firstRecord.MauzaId
+                }
+
+                // Persist to local storage
+                localStorage.setItem(
+                    "hierarchyIds",
+                    JSON.stringify(hierarchyIds)
+                );
+            }
+
+
+            var lotNum = (parseInt(overview.TotalLots, 10) || 0) + 1;
+
+            const lotNoBadge = document.getElementById('lotNoBadge');
+            lotNoBadge.textContent = `(${lotNum})`;
+
+            if (lots.length > 0) {
+                $('#viewLotsCon').removeClass('hidden-field');
+            } else {
+                $('#viewLotsCon').addClass('hidden-field');
+            }
+
+            Swal.close();
+        }
+
+        function toggleParcelSelection(khasraId) {
+            if (selectedKhasraIds.has(khasraId)) {
+                selectedKhasraIds.delete(khasraId);
+            } else {
+                selectedKhasraIds.add(khasraId);
+            }
+            updateSelectedTagsDisplay();
+            toggleNoDataVisibility();
+        }
+        function toggleNoDataVisibility() {
+
+            var display = 'none';
+            if (selectedKhasraIds.size == 0)
+                display = 'block';
+            document.getElementById('noDataMessage').style.display = display;
+        }
+
+    </script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+
+            const GUIDE_KEY = "lotbandi_guide_hidden";
+
+            const guideModal = new bootstrap.Modal(document.getElementById('guideModal'));
+
+            // Open on page load if not hidden
+            if (!localStorage.getItem(GUIDE_KEY)) {
+                guideModal.show();
+            }
+
+            // Manual open button
+            document.getElementById("btnOpenGuide")
+                .addEventListener("click", function () {
+                    guideModal.show();
+                });
+
+            // Save preference on close
+            document.getElementById('guideModal')
+                .addEventListener('hidden.bs.modal', function () {
+
+                    if (document.getElementById("dontShowGuide").checked) {
+                        localStorage.setItem(GUIDE_KEY, "true");
+                    }
+                });
+
+        });
+    </script>
+</body>
+</html>

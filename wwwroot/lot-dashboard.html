@@ -1,0 +1,1089 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>State Land Management Dashboard</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Select2 + Bootstrap 5 Theme -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- SweetAlert2 -->
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+    <!-- DataTables -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/dataTables.bootstrap5.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.bootstrap5.min.css">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+
+
+    <link rel="stylesheet" href="css/main.css">
+
+    <!-- Your custom CSS (keep what you need) -->
+    <style>
+        html, body {
+            height: 100% !important;
+            margin: 0;
+            overflow: hidden; /* ← Important: no body scroll by default */
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+        }
+
+        footer {
+            margin-top: auto;
+            flex-shrink: 0;
+        }
+
+        /* ==================== THIS IS THE ONLY CHANGE YOU NEED ==================== */
+        #mainContentContainer {
+            flex: 1 1 auto;
+            overflow-y: auto; /* ← Makes this container scrollable */
+            padding-bottom: 20px;
+            min-height: 0;
+        }
+        /* ======================================================================== */
+
+        /* Make the table area take all remaining height and scroll */
+        #lotTable_wrapper {
+            flex: 1 1 auto;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+            overflow: hidden;
+        }
+
+        .dataTables_scrollBody {
+            flex: 1 1 auto;
+            overflow-y: auto !important;
+            max-height: none !important;
+        }
+
+        /* Keep header fixed while scrolling */
+        .dataTables_scrollHead {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        /* Your existing styles */
+        .hierarchy-card {
+            cursor: pointer;
+            transition: all 0.18s;
+        }
+
+            .hierarchy-card:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 8px 20px rgba(0,0,0,0.12) !important;
+            }
+
+            .hierarchy-card.active {
+                border: 2px solid #0d6efd;
+                background-color: #e7f1ff;
+            }
+
+        .kpi-card {
+            background: linear-gradient(135deg, #ffffff, #f8f9fa);
+            border-left: 5px solid #198754;
+        }
+
+        #lotTable thead th {
+            background-color: rgba(25, 135, 84, 0.75);
+            color: white;
+            text-align: center;
+            border-bottom: 2px solid rgba(0, 0, 0, 0.12);
+            font-weight: 600;
+        }
+
+        tr.table-total-row {
+            font-weight: bold;
+            background-color: #e9f7ef !important;
+        }
+
+        .dataTables_wrapper .dt-buttons .btn {
+            min-width: 90px;
+            font-size: 0.85rem;
+        }
+    </style>
+</head>
+<body>
+    <div id="sidebarContainer"></div>
+    <div id="sidebarOverlay" class="sidebar-overlay"></div>
+    <!-- Navbar -->
+    <nav class="navbar navbar-custom navbar-expand-lg">
+        <div class="container-fluid" style="background: forestgreen">
+            <i class="fas fa-bars menu-toggle" id="btnToggleSidebar"></i>
+            <a class="navbar-brand text-white" href="#">
+                <i class="fas fa-map-marked-alt"></i>  Apna Khait Apna Rozgar
+            </a>
+
+            <div class="profile-view d-flex align-items-center">
+
+                <div class="profile-avatar me-2">
+                    <i class="fas fa-user"></i>
+                </div>
+                <div class="profile-info me-3">
+                    <div class="welcome-text">Welcome</div>
+                    <div id="currentUserName" class="profile-name"></div>
+                </div>
+                <button class="logout-btn" title="Logout" onclick="clearSession()">
+                    <i class="fas fa-sign-out-alt"></i>
+                </button>
+            </div>
+
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container-fluid mt-3" id="mainContentContainer">
+
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-2">
+                <li class="breadcrumb-item">Punjab</li>
+                <li class="breadcrumb-item active" id="breadcrumbTrail"></li>
+            </ol>
+        </nav>
+
+        <!-- Section 1: Hierarchy Dropdowns -->
+        <div class="card shadow-sm mb-3">
+            <div class="card-header bg-light fw-bold">
+                <i class="fas fa-filter me-2"></i> Hierarchy Selection
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-3">
+                        <span class="filter-label">Division</span>
+                        <select id="ddlDivision" class="form-select select2" data-placeholder="Select Division">
+                            <option></option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <span class="filter-label">District</span>
+                        <select id="ddlDistrict" class="form-select select2" data-placeholder="Select District">
+                            <option></option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <span class="filter-label">Tehsil</span>
+                        <select id="ddlTehsil" class="form-select select2" data-placeholder="Select Tehsil">
+                            <option></option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <span class="filter-label">Mauza</span>
+                        <select id="ddlMauza" class="form-select select2" data-placeholder="Select Mauza">
+                            <option></option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 2: Current Hierarchy Overview -->
+        <div class="card shadow-sm mb-3" id="currentOverviewCard">
+            <div class="card-header bg-success text-white fw-bold">
+                <i class="fas fa-chart-bar me-2"></i> Current Level Overview — <span id="currentLevelName">Punjab</span>
+            </div>
+            <div class="card-body">
+                <div class="row g-3 text-center">
+                    <div class="col-md-3">
+                        <div class="kpi-card p-3 rounded shadow-sm">
+                            <h6>Total Lots</h6>
+                            <h4 id="kpiTotalLots">0</h4>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="kpi-card p-3 rounded shadow-sm">
+                            <h6>Total Khasras</h6>
+                            <h4 id="kpiTotalKhasras">0</h4>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="kpi-card p-3 rounded shadow-sm">
+                            <h6>Total Area</h6>
+                            <h4 id="kpiTotalArea">0</h4>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="kpi-card p-3 rounded shadow-sm">
+                            <h6>Zone</h6>
+                            <h5 id="kpiLandSuitability">—</h5>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 3: Child Hierarchy Cards -->
+        <div class="mb-4" id="childCardsContainer">
+            <h5 class="mb-3"><i class="fas fa-sitemap me-2"></i>Sub Levels</h5>
+            <div class="row g-3" id="childCardsRow"></div>
+        </div>
+
+        <!-- Section 4: Lot-wise Tabular Data -->
+        <div class="card shadow-sm">
+            <div class="card-header bg-success text-white fw-bold">
+                <i class="fas fa-table me-2 p-3"></i> Lot-wise Khasra Details
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table id="lotTable" class="table table-striped table-bordered w-100" style="min-width:1200px;">
+                        <thead>
+                            <tr>
+                                <th>Division</th>
+                                <th>District</th>
+                                <th>Tehsil</th>
+                                <th>Mauza</th>
+                                <!--<th>Unique Id</th>-->
+                                <th>Lot #</th>
+                                <th>Khewat</th>
+                                <th>Muraba</th>
+                                <th>Khasra</th>
+                                <th>Area</th>
+                                <th>Zone</th>
+                                <th>Lease Amount</th>
+                                <th>Remarks</th>
+                                <th>Approval Status</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="leaseModal" tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header" style="background-color:seagreen; color:white">
+                        <h5 class="modal-title">Update Lease</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+
+                    <div class="modal-body">
+                        <input type="hidden" id="lmUniqueId">
+
+                        <div class="mb-3">
+                            <label class="form-label">Lease Amount Per Acre</label>
+                            <input type="number" class="form-control" id="lmLeasePerAcre" min="0">
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Remarks</label>
+                            <textarea class="form-control" id="lmRemarks" rows="3"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button class="btn btn-primary" id="btnSaveLease">
+                            <i class="bi bi-check-circle"></i> Submit
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="deleteModal" tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header" style="background-color:seagreen; color:white">
+                        <h5 class="modal-title">Delete Lot</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+
+                    <div class="modal-body">
+                        <input type="hidden" id="lmdUniqueId">
+                        <!--<p>Lots Updation has been temporarily opened to adjust lots and Khasras as per the shared schedule.</p>-->
+                        <p>This functionality is not available anymore.</p>
+                        <!--<p>Are you sure you want to delete this lot. The action is irreversable so verify before you click Delete.</p>-->
+                    </div>
+
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button class="btn btn-danger" id="btnDeleteLot" disabled>
+                            <i class="bi bi-check-circle"></i> Delete
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="approvalModal" tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+
+                    <div class="modal-header bg-success text-white">
+                        <h5 class="modal-title">Lot Bandi Approval</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+
+                    <div class="modal-body">
+                        <input type="hidden" id="amUniqueId">
+
+                        <div class="mb-3">
+                            <label class="form-label">Approval Remarks</label>
+                            <textarea class="form-control" id="amApprovalRemarks" rows="3"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary" data-bs-dismiss="modal">
+                            Cancel
+                        </button>
+
+                        <button class="btn btn-danger btn-save-approval" data-status="2">
+                            <i class="bi bi-x-circle"></i> Reject
+                        </button>
+
+                        <button class="btn btn-success btn-save-approval" data-status="1">
+                            <i class="bi bi-check-circle"></i> Approve
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+
+
+    </div>
+    <footer class="bg-light border-top mt-auto">
+        <div class="container-fluid py-3">
+            <div class="row align-items-center">
+                <div class="col-md-6 text-center text-md-start small text-muted">
+                    <i class="fa-regular fa-copyright me-1"></i>
+                    <span id="footerYear"></span> PULSE. All rights reserved.
+                </div>
+
+                <div class="col-md-6 text-center text-md-end small text-muted">
+                    Powered by PULSE ICT Team
+                </div>
+            </div>
+        </div>
+    </footer>
+
+
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <!-- DataTables + extensions -->
+    <script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.8/js/dataTables.bootstrap5.min.js"></script>
+
+    <!-- Buttons -->
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.bootstrap5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.print.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.colVis.min.js"></script>
+    <!-- Export dependencies -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+
+    <!-- User defined scripts-->
+    <script src="/js/base.js"></script>
+
+    <script>
+        // ──────────────────────────────────────────────── Globals
+        document.getElementById('footerYear').textContent = new Date().getFullYear();
+        const authToken = localStorage.getItem("pulse_token") || "";
+        let currentLevel = "Province";
+        let currentId = null;
+        let currentName = "Punjab (Province)";
+        let table = null;
+        let lastLotRowByOrder = {};
+
+        // Hierarchy levels in order (used for clearing lower levels)
+        const hierarchyOrder = ["Province", "Division", "District", "Tehsil", "Mauza"];
+        const dropdownIds = ["Division", "District", "Tehsil", "Mauza"];
+        const levelParamMap = {
+            Division: 'DivId',
+            District: 'DistId',
+            Tehsil: 'TehId',
+            Mauza: 'MauzaId'
+        };
+
+        function updateBreadcrumb() {
+            const crumbs = [];
+            if ($('#ddlDivision').val()) crumbs.push($('#ddlDivision option:selected').text());
+            if ($('#ddlDistrict').val()) crumbs.push($('#ddlDistrict option:selected').text());
+            if ($('#ddlTehsil').val()) crumbs.push($('#ddlTehsil option:selected').text());
+            if ($('#ddlMauza').val()) crumbs.push($('#ddlMauza option:selected').text());
+
+            $("#breadcrumbTrail").text(crumbs.join(" → ") || "Province");
+        }
+
+        async function changeHierarchy(newLevel, newId = null, newName = null, triggerDropdown = null) {
+            currentLevel = newLevel;
+            currentId = newId;
+            currentName = newName || `${newLevel} ${newId || ''}`.trim();
+
+            // Clear all lower dropdowns
+            const currentIdx = hierarchyOrder.indexOf(newLevel);
+            for (let i = currentIdx + 1; i < hierarchyOrder.length; i++) {
+                const lvl = hierarchyOrder[i];
+                $(`#ddl${lvl}`).val(null).trigger('change');
+            }
+
+            // Load child dropdown if needed
+            if (triggerDropdown && newId) {
+                const nextLevel = hierarchyOrder[hierarchyOrder.indexOf(newLevel) + 1];
+                if (nextLevel) await loadHierarchy(newId, nextLevel);
+            }
+
+            await loadDashboardData();
+            updateBreadcrumb();
+
+            prependNoDataAlert();
+            // At the end of changeHierarchy
+            console.log("[changeHierarchy] finished →", currentLevel, currentId, currentName);
+        }
+
+        // Division
+        $('#ddlDivision').on('select2:select', async e => {
+            const data = e.params.data;
+            if (!data?.id) return;
+            await changeHierarchy("Division", parseInt(data.id), data.text, "District");
+        });
+
+        $('#ddlDivision').on('select2:unselect', async () => {
+            await changeHierarchy("Province", null, "Punjab (Province)");
+        });
+
+        // District
+        $('#ddlDistrict').on('select2:select', async e => {
+            const data = e.params.data;
+            if (!data?.id) return;
+            await changeHierarchy("District", parseInt(data.id), data.text, "Tehsil");
+        });
+
+        $('#ddlDistrict').on('select2:unselect', async () => {
+            // Go back to whatever Division is selected (or Province)
+            const divId = $('#ddlDivision').val();
+            if (divId) {
+                const divName = $('#ddlDivision').select2('data')[0]?.text;
+                await changeHierarchy("Division", parseInt(divId), divName);
+            } else {
+                await changeHierarchy("Province", null, "Punjab (Province)");
+            }
+        });
+
+        // Tehsil
+        $('#ddlTehsil').on('select2:select', async e => {
+            const data = e.params.data;
+            if (!data?.id) return;
+            await changeHierarchy("Tehsil", parseInt(data.id), data.text, "Mauza");
+        });
+
+        $('#ddlTehsil').on('select2:unselect', async () => {
+            const distId = $('#ddlDistrict').val();
+            if (distId) {
+                const distName = $('#ddlDistrict').select2('data')[0]?.text;
+                await changeHierarchy("District", parseInt(distId), distName);
+            } else {
+                // fallback higher...
+            }
+        });
+
+        // Mauza – no child, so simpler
+        $('#ddlMauza').on('select2:select', async e => {
+            const data = e.params.data;
+            if (!data?.id) return;
+            await changeHierarchy("Mauza", parseInt(data.id), data.text);
+        });
+
+        $('#ddlMauza').on('select2:unselect', async () => {
+            const tehId = $('#ddlTehsil').val();
+            if (tehId) {
+                const tehName = $('#ddlTehsil').select2('data')[0]?.text;
+                await changeHierarchy("Tehsil", parseInt(tehId), tehName);
+            }
+        });
+
+        $(document).on('click', '.btn-edit-lease', function () {
+            $('#lmUniqueId').val($(this).data('uniqueid'));
+            $('#lmLeasePerAcre').val($(this).data('lease'));
+            $('#lmRemarks').val($(this).data('remarks'));
+
+            new bootstrap.Modal(document.getElementById('leaseModal')).show();
+        });
+        $(document).on('click', '.btn-delete-lot', function () {
+            $('#lmdUniqueId').val($(this).data('uniqueid'));
+
+            new bootstrap.Modal(document.getElementById('deleteModal')).show();
+        });
+        $(document).on('click', '.btn-approval', function () {
+            $('#amUniqueId').val($(this).data('uniqueid'));
+            $('#amApprovalRemarks').val($(this).data('approvalremarks') || '');
+            new bootstrap.Modal(document.getElementById('approvalModal')).show();;
+        });
+
+        $(document).on('click', '.btn-save-approval', function () {
+            debugger
+            const approvalStatus = $(this).data('status'); // 1 = Approve, 2 = Reject
+            const uniqueId = $('#amUniqueId').val();
+            const approvalRemarks = $('#amApprovalRemarks').val();
+
+            if (!approvalRemarks) {
+                alert('Approval remarks are required.');
+                return;
+            }
+
+            const params = {
+                UniqueId: uniqueId,
+                UpdationType: 'Approval',
+                ApprovalStatus: approvalStatus,
+                ApprovalRemarks: approvalRemarks
+            };
+
+            executeSP('i_UpdateLotBandi_V1', params)
+                .then(res => {
+                    const result = res?.[0]?.rows?.[0];
+
+                    if (!result || result.Success !== 1) {
+                        alert(result?.Message || 'Approval failed');
+                        return;
+                    }
+
+                    table.rows().every(function () {
+                        const row = this.data();
+                        if (row.UniqueId === uniqueId) {
+                            row.ApprovalStatus = approvalStatus;
+                            //row.ApprovalRemarks = approvalRemarks;
+                            this.data(row);
+                        }
+                    });
+
+                    table.draw(false);
+                    bootstrap.Modal.getInstance(document.getElementById('approvalModal')).hide();
+                });
+        });
+
+
+        $('#btnSaveLease').on('click', async function () {
+            const uniqueId = $('#lmUniqueId').val();
+            const lease = $('#lmLeasePerAcre').val();
+            const remarks = $('#lmRemarks').val();
+
+            const params = {
+                UniqueId: uniqueId,
+                LeasePerAcre: lease,
+                Remarks: remarks,
+                UpdationType: 'Lease'
+            };
+
+            const res = await executeSP(
+                'i_UpdateLotBandi_V1',
+                params
+            );
+
+            console.log('SP response:', res);
+
+            // ───────────── Result contract validation
+            const resultRow = res?.[0]?.rows?.[0];
+
+            if (resultRow || resultRow.Success == 1) {
+
+                // ───────────── Optimistic UI update
+                table.rows().every(function () {
+                    const row = this.data();
+                    if (row.UniqueId === uniqueId) {
+                        row.LeasePerAcre = lease;
+                        row.Remarks = remarks;
+                        this.data(row);
+                    }
+                });
+
+                table.draw(false);
+            }
+
+            bootstrap.Modal.getInstance(document.getElementById('leaseModal')).hide();
+
+            Swal.fire({
+                icon: 'success',
+                title: 'Update successful',
+                text: resultRow.Message,
+                timer: 1500,
+                showConfirmButton: false
+            });
+        });
+
+        $('#btnDeleteLot').on('click', async function () {
+            debugger
+            const uniqueId = $('#lmdUniqueId').val();
+
+            const params = {
+                UniqueId: uniqueId,
+            };
+
+            const res = await executeSP(
+                'DeleteLotBandi',
+                params
+            );
+
+            console.log('SP response:', res);
+
+            // ───────────── Result contract validation
+            const resultRow = res?.[0]?.rows?.[0];
+
+            if (resultRow && resultRow.Success == 1) {
+
+                // ───────────── Optimistic UI update
+                const row = table.rows().indexes().filter(function (value) {
+                    return table.row(value).data().UniqueId === uniqueId;
+                });
+
+                table.rows(row).remove().draw(false);
+            }
+
+            bootstrap.Modal.getInstance(document.getElementById('deleteModal')).hide();
+
+            Swal.fire({
+                icon: 'success',
+                title: 'Deletion successful',
+                text: resultRow.Message,
+                timer: 1500,
+                showConfirmButton: false
+            });
+        });
+
+
+        async function selectDropdowns() {
+            const hierarchyIds = getHierarchyIds();
+            if (!hierarchyIds) return;
+
+            console.log("[selectDropdowns] Restoring hierarchy", hierarchyIds);
+
+            const { DivisionId, DistrictId, TehsilId, MauzaId } = hierarchyIds;
+
+            if (DivisionId) {
+                await changeHierarchy("Division", parseInt(DivisionId), null, "District");
+                $('#ddlDivision').val(DivisionId).trigger('change');
+            }
+
+            if (DistrictId) {
+                await changeHierarchy("District", parseInt(DistrictId), null, "Tehsil");
+                $('#ddlDistrict').val(DistrictId).trigger('change');
+            }
+
+            if (TehsilId) {
+                await changeHierarchy("Tehsil", parseInt(TehsilId), null, "Mauza");
+                $('#ddlTehsil').val(TehsilId).trigger('change');
+            }
+
+            if (MauzaId) {
+                await changeHierarchy("Mauza", parseInt(MauzaId), null);
+                $('#ddlMauza').val(MauzaId).trigger('change');
+            }
+            updateBreadcrumb();
+        }
+
+        // ──────────────────────────────────────────────── Init
+        $(document).ready(async function () {
+            $("#currentUserName").text(localStorage.getItem("pulse_userName") || "Guest");
+            $("#currentDistrictName").text(localStorage.getItem("districtName") || "—");
+
+            initSelect2();
+            await loadHierarchy("", "Division");
+
+            const hierarchyIds = getHierarchyIds();
+            if (hierarchyIds && hierarchyIds.MauzaId) {
+                // Restore full chain and let it trigger the final dashboard load
+                await selectDropdowns();                   // ← this will chain all the way to Mauza
+                // No extra loadDashboardData() here
+            } else {
+                // No saved hierarchy → default province view
+                //await loadDashboardData();
+            }
+
+            prependNoDataAlert();
+        });
+
+        function prependNoDataAlert() {
+            const totalLots = parseInt($("#kpiTotalLots").text(), 10);
+
+            $("#currentOverviewCard .card-body .alert").remove(); // avoid duplicates
+
+            if (totalLots === 0) {
+                $("#currentOverviewCard .card-body").prepend(
+                    `<div class="alert alert-info small mt-2">
+                                            ${currentLevel} level: No lots found
+                                        </div>`
+                );
+            }
+
+        }
+
+        function getHierarchyIds() {
+            try {
+                const data = localStorage.getItem("hierarchyIds");
+                return data ? JSON.parse(data) : null;
+            } catch (e) {
+                console.warn("Invalid hierarchyIds in localStorage", e);
+                localStorage.removeItem("hierarchyIds");
+                return null;
+            }
+        }
+
+
+        // ──────────────────────────────────────────────── Select2 Setup – keep this version
+        function initSelect2($selects = $('.select2')) {
+            $selects.each(function () {
+                const $this = $(this);
+                // Destroy only if already has Select2 instance
+                if ($this.data('select2')) {
+                    $this.select2('destroy');
+                }
+                $this.select2({
+                    theme: 'bootstrap-5',
+                    width: '100%',
+                    placeholder: $this.data('placeholder') || "Select...",
+                    allowClear: true,
+                    dropdownParent: $('body')
+                });
+            });
+        }
+
+        // ──────────────────────────────────────────────── Load Hierarchy – strongest fix version
+        async function loadHierarchy(parentId = "", level = "Division") {
+            let procParams = {};
+            if (level === "District") procParams = { DivisionId: parentId ? parseInt(parentId) : null };
+            if (level === "Tehsil") procParams = { DistrictId: parentId ? parseInt(parentId) : null };
+            if (level === "Mauza") procParams = { TehsilId: parentId ? parseInt(parentId) : null };
+
+            const rawSets = await executeSP("i_GetHierarchyData", procParams);
+            const rows = rawSets[0]?.rows || [];
+
+            const $select = $(`#ddl${level}`);
+
+            console.log(`[Dropdown ${level}] Received ${rows.length} items`);
+
+            // Prepare data array in Select2 format
+            const newOptions = rows.map(item => {
+                const id = item.Id ?? item.id ?? null;
+                const name = item.Name ?? item.name ?? "Unnamed";
+                return { id: id, text: name };
+            }).filter(opt => opt.id !== null);
+
+            // If Select2 is already initialized → use internal method to update
+            if ($select.data('select2')) {
+                // Clear existing options (except placeholder)
+                $select.empty().append('<option value=""></option>');
+
+                // Append new ones via Select2 API
+                newOptions.forEach(opt => {
+                    const option = new Option(opt.text, opt.id, false, false);
+                    $select.append(option);
+                });
+
+                // Refresh Select2
+                $select.trigger('change');
+                console.log(`[Dropdown ${level}] Updated via existing Select2 instance (${newOptions.length} options)`);
+            } else {
+                // First time → normal population + init
+                $select.empty().append('<option value=""></option>');
+
+                newOptions.forEach(opt => {
+                    const option = new Option(opt.text, opt.id, false, false);
+                    $select.append(option);
+                });
+
+                initSelect2($select);
+                $select.val(null).trigger('change');
+                console.log(`[Dropdown ${level}] First-time init with ${newOptions.length} options`);
+            }
+
+            // Final safety refresh
+            setTimeout(() => {
+                $select.trigger('change.select2');
+            }, 50);
+        }
+
+        // ──────────────────────────────────────────────── Core Data Load
+        async function loadDashboardData() {
+            // At the beginning of loadDashboardData
+            console.log("[loadDashboardData] called with level =", currentLevel, "id =", currentId);
+
+            const loading = Swal.fire({
+                title: 'Loading dashboard...',
+                allowOutsideClick: true,          // now cancelable
+                allowEscapeKey: true,
+                showConfirmButton: false,
+                didOpen: () => Swal.showLoading()
+            });
+
+            // Auto-close after 10 seconds if stuck
+            setTimeout(() => {
+                if (Swal.isVisible()) {
+                    Swal.close();
+                    console.warn("Loading timed out – check console for errors");
+                }
+            }, 10000);
+
+            const params = {};
+            debugger
+            if (currentLevel !== "Province") {
+                const paramName = levelParamMap[currentLevel];
+                if (paramName) params[paramName] = currentId;
+            }
+
+            const rawSets = await executeSP("i_GetLotBandiHierarchyDashboard_V1", params);
+
+            if (rawSets.length < 3) {
+                console.warn("Expected 3 result sets, got", rawSets.length);
+                Swal.close();
+                return;
+            }
+
+            const overview = rawSets[0]?.rows?.[0] || {};
+            const children = rawSets[1]?.rows || [];
+            const lots = rawSets[2]?.rows || [];
+
+            console.log("Overview:", overview);
+            console.log("Children:", children);
+            console.log("Lots count:", lots.length);
+
+            // Section 2
+            $("#currentLevelName").text(`${overview.HierarchyLevel || currentLevel} — ${currentName}`);
+            $("#kpiTotalLots").text(formatVal(overview.TotalLots ?? 0));
+            $("#kpiTotalKhasras").text(formatVal(overview.TotalKhasras ?? 0));
+            $("#kpiTotalArea").text(convertSqFtToAkmV2(overview.TotalArea ?? 0));
+            $("#kpiLandSuitability").text(overview.LandSuitability || "—");
+
+            // Section 3
+            $("#childCardsRow").empty();
+            if (currentLevel !== "Mauza" && children.length > 0) {
+                $("#childCardsContainer").show();
+                children.forEach(child => {
+                    const card = $(`
+                                    <div class="col-md-3">
+                                        <div class="card hierarchy-card shadow-sm ${child.ChildId == currentId ? 'active' : ''}">
+                                            <div class="card-body text-center">
+                                                <h5>${child.ChildName || 'Unnamed'}</h5>
+                                                <div class="small text-muted">${child.ChildLevel || ''}</div>
+                                                <hr class="my-2">
+                                                <div><strong>Lots:</strong> ${formatVal(child.TotalLots ?? 0)}</div>
+                                                <div><strong>Khasras:</strong> ${formatVal(child.TotalKhasras ?? 0)}</div>
+                                                <div><strong>Area:</strong> ${convertSqFtToAkmV2(child.TotalArea ?? 0)}</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                `);
+                    card.on('click', async function () {
+                        $('.hierarchy-card').removeClass('active');
+                        $(this).addClass('active');
+
+                        await changeHierarchy(
+                            child.ChildLevel,
+                            child.ChildId,
+                            child.ChildName
+                            // no triggerDropdown needed here – we don't auto-open next dropdown on card click
+                        );
+                    });
+                    $("#childCardsRow").append(card);
+                });
+            } else {
+                $("#childCardsContainer").hide();
+            }
+
+            // Section 4 – Lot table
+            renderLotTable(lots);
+
+            Swal.close();
+        }
+
+        // ──────────────────────────────────────────────── Render Lot Table – reordered columns + safer init
+        function renderLotTable(rows) {
+            const $table = $('#lotTable');
+
+            // Safe destroy
+            if ($.fn.DataTable.isDataTable($table)) {
+                $table.DataTable().clear().destroy();
+            }
+            $table.find('tbody').empty();
+
+            const tableData = rows.map(r => ({
+                UniqueId: r.UniqueId ?? '',
+                DivisionName: r.DivisionName ?? '',
+                DistrictName: r.DistrictName ?? '',
+                TehsilName: r.TehsilName ?? '',
+                MauzaName: r.MauzaName ?? '',
+                LotNo: r.LotNo ?? '',
+                KhewatNo: r.KhewatNo ?? '',
+                MurabaNo: r.MurabaNo ?? '',
+                KhasraNo: r.KhasraNo ?? '',
+                KhasraArea: convertSqFtToAkmV2(r.KhasraArea ?? 0),
+                LandSuitability: r.LandSuitability ?? '',
+                LeasePerAcre: r.LeasePerAcre == 0 ? '' : r.LeasePerAcre,
+
+                // User A
+                Remarks: r.Remarks ?? '',
+
+                // User B (Approval)
+                ApprovalStatus: r.ApprovalStatus ?? 0,
+                ApprovalRemarks: r.ApprovalRemarks ?? '',
+                ApprovalBy: r.ApprovalBy ?? null,
+                ApprovalAt: r.ApprovalAt ?? null,
+
+                __isTotal: r.KhasraNo === "TOTAL"
+            }));
+
+            console.log('[Table] Data sample (first row):', tableData[0] || 'No rows');
+            console.log('[Table] Total rows:', tableData.length);
+
+            table = $table.DataTable({
+                data: tableData,
+                responsive: true,
+                autoWidth: false,
+                pageLength: 10,
+                lengthMenu: [10, 25, 50, 100],
+                dom:
+                    "<'row mb-2'<'col-md-4'l><'col-md-8 text-end'Bf>>" +
+                    "<'row'<'col-12'tr>>" +
+                    "<'row mt-2'<'col-md-5'i><'col-md-7'p>>",
+                ordering: false,
+                buttons: [
+                    {
+                        extend: 'colvis',
+                        text: '<i class="bi bi-layout-three-columns"></i> Columns',
+                        className: 'btn btn-secondary me-2'
+                    },
+                    {
+                        extend: 'copy',
+                        text: '<i class="bi bi-clipboard"></i> Copy',
+                        className: 'btn btn-dark me-2'
+                    },
+                    {
+                        extend: 'csv',
+                        text: '<i class="bi bi-filetype-csv"></i> CSV',
+                        className: 'btn btn-info text-white me-2'
+                    },
+                    {
+                        extend: 'excel',
+                        text: '<i class="bi bi-file-earmark-excel"></i> Excel',
+                        className: 'btn btn-success me-2'
+                    },
+                    {
+                        extend: 'pdf',
+                        text: '<i class="bi bi-file-earmark-pdf"></i> PDF',
+                        className: 'btn btn-danger me-2'
+                    },
+                    {
+                        extend: 'print',
+                        text: '<i class="bi bi-printer"></i> Print',
+                        className: 'btn btn-primary'
+                    }
+                ],
+
+                columns: [
+                    { data: 'DivisionName', defaultContent: '' },
+                    { data: 'DistrictName', defaultContent: '' },
+                    { data: 'TehsilName', defaultContent: '' },
+                    { data: 'MauzaName', defaultContent: '' },
+                    { data: 'LotNo', defaultContent: '' },
+                    { data: 'KhewatNo', defaultContent: '' },
+                    { data: 'MurabaNo', defaultContent: '' },
+                    { data: 'KhasraNo', defaultContent: '' },
+                    { data: 'KhasraArea', defaultContent: '' },
+                    { data: 'LandSuitability', defaultContent: '' },
+                    { data: 'LeasePerAcre', defaultContent: '' },
+                    { data: 'Remarks', defaultContent: '' },
+
+                    // Approval (User B)
+                    { data: 'ApprovalStatus', visible: false }
+                ],
+                rowCallback: function (row, data) {
+                    // Cache last DETAIL row for each LotOrder
+                    if (!data.__isTotal) {
+                        lastLotRowByOrder[data.LotOrder] = data;
+                        return;
+                    }
+                    $(row).addClass('table-total-row');
+                    // Clear the first 4 columns
+                    $(row).find('td').slice(0, 4).html('');
+                    // Put TOTAL in the Khasra column (column index 7)
+                    $(row).find('td').eq(7).html('<strong>TOTAL</strong>');
+
+                    // Get last detail row of this lot
+                    const lotRow = lastLotRowByOrder[data.LotOrder];
+                    const leaseValue = lotRow?.LeasePerAcre;
+
+                    const $deleteCell = $(row).find('td').eq(9);
+
+                    $deleteCell.html(`
+                                    <button
+                                        class="btn btn-sm btn-outline-danger btn-delete-lot"
+                                        data-uniqueid="${lotRow.UniqueId}">
+                                        <i class="bi bi-pencil-square"></i> Delete Lot
+                                    </button>
+                                `);
+
+                    const $leaseCell = $(row).find('td').eq(10);
+
+                    if (!leaseValue || leaseValue === 0 || leaseValue === '') {
+                        // Show button
+                        $leaseCell.html(`
+                                        <button
+                                            class="btn btn-sm btn-outline-primary btn-edit-lease"
+                                            data-uniqueid="${lotRow.UniqueId}"
+                                            data-lease=""
+                                            data-remarks="${lotRow.Remarks || ''}">
+                                            <i class="bi bi-pencil-square"></i> Add Lease
+                                        </button>
+                                    `);
+                    } else {
+                        // Show value only
+                        $leaseCell.html(`<strong>${leaseValue}</strong>`);
+                    }
+
+                    // Approval cell
+                    const $approvalCell = $(row).find('td').eq(12);
+
+                    if (lotRow.ApprovalStatus === 1) {
+                        $approvalCell.html(`
+                                            <span class="badge bg-success"
+                                                    title="Approved on ${lotRow.ApprovalAt || ''}">
+                                                Approved
+                                            </span>
+                                        `);
+                    }
+                    else if (lotRow.ApprovalStatus === 2) {
+                        $approvalCell.html(`
+                                            <span class="badge bg-danger"
+                                                    title="${lotRow.ApprovalRemarks || ''}">
+                                                Rejected
+                                            </span>
+                                        `);
+                    }
+                    else {
+                        $approvalCell.html(`
+                                            <button class="btn btn-sm btn-outline-warning btn-approval"
+                                                data-uniqueid="${lotRow.UniqueId}"
+                                                data-approvalremarks="${lotRow.ApprovalRemarks || ''}">
+                                                <i class="bi bi-shield-check"></i> Review
+                                            </button>
+                                        `);
+                    }
+                },
+                language: { emptyTable: "No lots in this view" }
+            });
+
+            table.columns.adjust().draw();
+            console.log('[Table] Render complete');
+        }
+
+    </script>
+</body>
+</html>

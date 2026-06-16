@@ -1,0 +1,50 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>Applicant Dashboard - Apna Khait Apna Rozgar</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://js.arcgis.com/4.29/esri/themes/light/main.css">
+
+    <script src="https://js.arcgis.com/4.29/"></script>
+</head>
+
+<body>
+
+    <!-- NAVBAR -->
+    <nav class="navbar navbar-dark bg-dark">
+        <div class="container-fluid">
+            <span class="navbar-brand">Applicant Dashboard - Apna Khait Apna Rozgar</span>
+        </div>
+    </nav>
+
+    <!-- DROPDOWNS -->
+    <div class="container-fluid mt-2">
+        <div class="row mb-2">
+            <div class="col-md-3">
+                <select id="ddlDistrict" class="form-select">
+                    <option>Select District</option>
+                </select>
+            </div>
+
+            <div class="col-md-3">
+                <select id="ddlTehsil" class="form-select">
+                    <option>Select Tehsil</option>
+                </select>
+            </div>
+
+            <div class="col-md-3">
+                <select id="ddlMouza" class="form-select">
+                    <option>Select Mouza</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAP -->
+    <div id="viewDiv" style="height: calc(100vh - 120px);">
+        <h1>Applicant Dashboard</h1>
+    </div>
+
+</body>
+</html>

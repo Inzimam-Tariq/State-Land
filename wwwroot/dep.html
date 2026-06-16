@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Departmental User Management - APAG State Land</title>
+    <style>
+        /* ========== RESET & GLOBAL ========== */
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        header {
+            background: linear-gradient(135deg, #1a3a5f 0%, #2c5282 100%);
+            color: white;
+            padding: 20px 0;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+        }
+        h1 { font-size: 24px; font-weight: 600; }
+
+        /* ========== BUTTONS ========== */
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        .btn-primary { background: #4299e1; color: white; }
+        .btn-primary:hover { background: #3182ce; }
+        .btn-success { background: #48bb78; color: white; }
+        .btn-success:hover { background: #38a169; }
+        .btn-danger { background: #f56565; color: white; }
+        .btn-danger:hover { background: #e53e3e; }
+        .btn-secondary { background: #a0aec0; color: white; }
+        .btn-secondary:hover { background: #718096; }
+        .btn-sm { padding: 5px 10px; font-size: 12px; }
+        .add-btn { margin: 10px 0; }
+
+        /* ========== USER LIST TABLE ========== */
+        .users-list {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+        }
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+        .table-container {
+            overflow-x: auto;
+            max-height: 400px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+        th {
+            background: #f7fafc;
+            padding: 12px 15px;
+            text-align: left;
+            font-weight: 600;
+            color: #4a5568;
+            border-bottom: 2px solid #e2e8f0;
+        }
+        td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #edf2f7;
+        }
+        tr:hover { background: #f7fafc; }
+
+        /* ========== FORM ========== */
+        .form-container {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+        }
+        .form-group { margin-bottom: 20px; }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #4a5568;
+        }
+        input, select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #e2e8f0;
+            border-radius: 5px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+        input:focus, select:focus {
+            outline: none;
+            border-color: #4299e1;
+            box-shadow: 0 0 0 3px rgba(66,153,225,0.1);
+        }
+        select:disabled { background: #edf2f7; cursor: not-allowed; }
+
+        /* ========== ASSIGNMENTS TABLE ========== */
+        .assignments-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+        .assignments-table th {
+            background: #f7fafc;
+            padding: 10px;
+            text-align: left;
+            font-weight: 600;
+            color: #4a5568;
+            border-bottom: 2px solid #e2e8f0;
+        }
+        .assignments-table td {
+            padding: 10px;
+            border-bottom: 1px solid #edf2f7;
+        }
+        .assignments-table .form-group { margin-bottom: 0; }
+
+        /* ========== ACTION BUTTONS & NOTIFICATION ========== */
+        .form-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 30px;
+        }
+        .form-actions .btn { flex: 1; }
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 5px;
+            color: white;
+            font-weight: 500;
+            z-index: 1000;
+            display: none;
+        }
+        .notification.success { background: #48bb78; }
+        .notification.error { background: #f56565; }
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #4299e1;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-left: 10px;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="header-content">
+                <h1>Departmental User Management</h1>
+                <button class="btn btn-secondary" onclick="window.location.href='admin.html'">Back to Main User Management</button>
+            </div>
+        </header>
+
+        <!-- ========== LIST OF DEPARTMENTAL USERS ========== -->
+        <div class="users-list">
+            <div class="section-title">Existing Departmental Users</div>
+            <div class="table-container">
+                <table id="usersTable">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>CNIC</th>
+                            <th>Districts Assigned</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="usersTableBody">
+                        <tr><td colspan="5" style="text-align:center; padding:20px;">Loading users...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <button class="btn btn-success btn-sm" onclick="resetForm()" style="margin-top:15px;">+ New Departmental User</button>
+        </div>
+
+        <!-- ========== ADD/EDIT FORM ========== -->
+        <div class="form-container">
+            <div class="section-title" id="formTitle">Add New Departmental User</div>
+            <form id="userForm">
+                <input type="hidden" id="userId">
+                
+                <div class="form-group">
+                    <label for="name">Full Name *</label>
+                    <input type="text" id="name" required placeholder="Enter full name">
+                </div>
+
+                <div class="form-group">
+                    <label for="cnic">CNIC *</label>
+                    <input type="text" id="cnic" required placeholder="XXXXX-XXXXXXX-X" 
+                           pattern="^\d{5}-\d{7}-\d{1}$" title="Enter CNIC in format: XXXXX-XXXXXXX-X">
+                </div>
+
+                <!-- Role is fixed to Departmental User (7) -->
+                <input type="hidden" id="roleId" value="7">
+
+                <div class="section-title">Assignments (Districts & Tehsils)</div>
+                <table class="assignments-table" id="assignmentsTable">
+                    <thead>
+                        <tr>
+                            <th>District *</th>
+                            <th>Tehsil</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="assignmentsBody">
+                        <!-- Rows will be added dynamically -->
+                    </tbody>
+                </table>
+                <button type="button" class="btn btn-success btn-sm add-btn" onclick="addAssignmentRow()">+ Add Assignment</button>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary" id="submitBtn">
+                        <span id="submit-text">Save User</span>
+                        <span id="submit-loading" class="loading" style="display: none;"></span>
+                    </button>
+                    <button type="button" class="btn btn-secondary" onclick="resetForm()">Reset</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Notification -->
+    <div class="notification" id="notification"></div>
+
+    <script>
+        const authToken = localStorage.getItem("pulse_token");
+        let districts = [];               // cached district list
+        const tehsilsCache = {};           // cache tehsils per districtId
+        let allDepartmentalUsers = [];     // store for list display
+
+        // ---------- INIT ----------
+        document.addEventListener('DOMContentLoaded', async function() {
+            await loadDistricts();          // wait for districts to load first
+            await loadDepartmentalUsers();   // load the list of users
+            addAssignmentRow();              // add one empty row in the form
+
+            document.getElementById('userForm').addEventListener('submit', handleFormSubmit);
+            document.getElementById('cnic').addEventListener('input', function(e) {
+                formatCNIC(e.target);
+            });
+        });
+
+        // ---------- CNIC formatting ----------
+        function formatCNIC(input) {
+            let value = input.value.replace(/\D/g, '');
+            if (value.length > 13) value = value.substring(0, 13);
+            if (value.length > 5) {
+                value = value.substring(0, 5) + '-' + value.substring(5);
+            }
+            if (value.length > 13) {
+                value = value.substring(0, 13) + '-' + value.substring(13);
+            }
+            input.value = value;
+        }
+
+        // ---------- Load districts from API ----------
+        async function loadDistricts() {
+            try {
+                const res = await fetch("/api/Gis/ExecuteStoredProcedure", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify({
+                        procedureName: "sp_GetAllDistricts",
+                        parameters: {}
+                    })
+                });
+
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                const data = await res.json();
+                districts = data.response || data;
+                console.log("Districts loaded:", districts.length);
+                return districts;
+            } catch (error) {
+                console.error("Error loading districts:", error);
+                showNotification("Error loading districts: " + error.message, "error");
+                return [];
+            }
+        }
+
+        // ---------- Load all departmental users (RoleId = 7) ----------
+        async function loadDepartmentalUsers() {
+            try {
+                const res = await fetch("/api/Gis/ExecuteStoredProcedure", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify({
+                        procedureName: "sp_ManageUsers",
+                        parameters: { Action: "GET" }
+                    })
+                });
+
+                if (!res.ok) throw new Error("Failed to load users");
+                const data = await res.json();
+                const allUsers = data.response || data;
+                // Filter only RoleId = 7 (Departmental User)
+                allDepartmentalUsers = allUsers.filter(u => u.RoleId === 7);
+                renderUsersTable();
+            } catch (error) {
+                console.error("Error loading departmental users:", error);
+                showNotification("Error loading users: " + error.message, "error");
+            }
+        }
+
+        // ---------- Render the list of departmental users ----------
+        function renderUsersTable() {
+            const tbody = document.getElementById('usersTableBody');
+            if (!allDepartmentalUsers || allDepartmentalUsers.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:20px;">No departmental users found.</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = allDepartmentalUsers.map(user => {
+                // For simplicity, we'll just show the first district/tehsil in the list.
+                // In a real scenario you might want to count assignments.
+                const districtDisplay = user.DistrictName || 'N/A';
+                const tehsilDisplay = user.TehsilName ? user.TehsilName : (user.TehsilId === null ? 'All Tehsils' : 'N/A');
+                const statusClass = user.IsActive ? 'status-active' : 'status-inactive';
+                return `
+                    <tr>
+                        <td><strong>${user.Name || 'N/A'}</strong></td>
+                        <td>${user.CNIC || 'N/A'}</td>
+                        <td>${districtDisplay} / ${tehsilDisplay}</td>
+                        <td><span style="display:inline-block; padding:4px 10px; border-radius:12px; font-size:12px; font-weight:500; background:${user.IsActive ? '#c6f6d5' : '#fed7d7'}; color:${user.IsActive ? '#22543d' : '#742a2a'}">${user.IsActive ? 'Active' : 'Inactive'}</span></td>
+                        <td>
+                            <button class="btn btn-primary btn-sm" onclick="editUser(${user.UserId})">Edit</button>
+                            <button class="btn btn-danger btn-sm" onclick="toggleUserStatus(${user.UserId}, ${user.srNo})">${user.IsActive ? 'Deactivate' : 'Activate'}</button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // ---------- Load tehsils for a given district (with caching) ----------
+        async function getTehsils(districtId) {
+            if (tehsilsCache[districtId]) return tehsilsCache[districtId];
+            try {
+                const res = await fetch("/api/Gis/ExecuteStoredProcedure", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify({
+                        procedureName: "sp_GetTehsilByDId",
+                        parameters: { DistrictId: districtId }
+                    })
+                });
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                const data = await res.json();
+                const tehsils = data.response || data;
+                tehsilsCache[districtId] = tehsils;
+                return tehsils;
+            } catch (error) {
+                console.error("Error loading tehsils:", error);
+                return [];
+            }
+        }
+
+        // ---------- Add a new empty assignment row (or pre-filled if editing) ----------
+        function addAssignmentRow(assignment = null) {
+            const tbody = document.getElementById('assignmentsBody');
+            const row = document.createElement('tr');
+
+            // Build district options HTML from the districts array
+            let districtOptions = '<option value="">Select District</option>';
+            districts.forEach(d => {
+                const districtId = d.DistrictId || d.districtId || d.Id;
+                const districtName = d.District || d.districtName || d.Name || d.DistrictName;
+                districtOptions += `<option value="${districtId}" data-name="${districtName}">${districtName}</option>`;
+            });
+
+            row.innerHTML = `
+                <td>
+                    <select class="district-select" required onchange="loadTehsilsForRow(this)">
+                        ${districtOptions}
+                    </select>
+                </td>
+                <td>
+                    <select class="tehsil-select">
+                        <option value="">Select Tehsil (optional)</option>
+                        <option value="null">-- All Tehsils --</option>
+                    </select>
+                </td>
+                <td>
+                    <button type="button" class="btn btn-danger btn-sm" onclick="this.closest('tr').remove()">Remove</button>
+                </td>
+            `;
+            tbody.appendChild(row);
+
+            // If editing, pre-fill values
+            if (assignment) {
+                const districtSelect = row.querySelector('.district-select');
+                const tehsilSelect = row.querySelector('.tehsil-select');
+
+                // Set district
+                districtSelect.value = assignment.DistrictId;
+
+                // Load tehsils and then set tehsil
+                loadTehsilsForRow(districtSelect).then(() => {
+                    if (assignment.TehsilId === null || assignment.TehsilId === 'null') {
+                        tehsilSelect.value = 'null';
+                    } else {
+                        tehsilSelect.value = assignment.TehsilId;
+                    }
+                });
+            }
+        }
+
+        // ---------- Load tehsils for a specific row based on selected district ----------
+        async function loadTehsilsForRow(districtSelect) {
+            const row = districtSelect.closest('tr');
+            const tehsilSelect = row.querySelector('.tehsil-select');
+            const districtId = districtSelect.value;
+
+            if (!districtId) {
+                tehsilSelect.innerHTML = '<option value="">Select Tehsil (optional)</option><option value="null">-- All Tehsils --</option>';
+                return;
+            }
+
+            tehsilSelect.disabled = true;
+            tehsilSelect.innerHTML = '<option value="">Loading...</option>';
+
+            const tehsils = await getTehsils(districtId);
+            let options = '<option value="">Select Tehsil (optional)</option><option value="null">-- All Tehsils --</option>';
+            tehsils.forEach(t => {
+                const tehsilId = t.TehsilId || t.tehsil_id;
+                const tehsilName = t.TehsilName || t.tehsil_name_english || t.Tehsil;
+                options += `<option value="${tehsilId}">${tehsilName}</option>`;
+            });
+            tehsilSelect.innerHTML = options;
+            tehsilSelect.disabled = false;
+        }
+
+        // ---------- Handle form submission ----------
+        async function handleFormSubmit(e) {
+            e.preventDefault();
+
+            const submitBtn = document.getElementById('submitBtn');
+            const submitText = document.getElementById('submit-text');
+            const submitLoading = document.getElementById('submit-loading');
+
+            submitBtn.disabled = true;
+            submitText.style.display = 'none';
+            submitLoading.style.display = 'inline-block';
+
+            try {
+                // Validate at least one assignment row
+                const rows = document.querySelectorAll('#assignmentsBody tr');
+                if (rows.length === 0) {
+                    throw new Error("Please add at least one district assignment.");
+                }
+
+                const name = document.getElementById('name').value.trim();
+                const cnic = document.getElementById('cnic').value.trim();
+                const userId = document.getElementById('userId').value;
+
+                if (!name || !cnic) throw new Error("Name and CNIC are required.");
+                const cnicRegex = /^\d{5}-\d{7}-\d{1}$/;
+                if (!cnicRegex.test(cnic)) throw new Error("CNIC must be in format: XXXXX-XXXXXXX-X");
+
+                // ---------- Step 1: Save/Update the user (sp_ManageUsers) ----------
+                const userAction = userId ? 'UPDATE' : 'INSERT';
+                const userPayload = {
+                    procedureName: "sp_ManageUsers",
+                    parameters: {
+                        Action: userAction,
+                        Name: name,
+                        CNIC: cnic,
+                        RoleId: 7,
+                        // dummy district/tehsil (ignored for departmental user)
+                        DistrictId: 0,
+                        TehsilId: null,
+                        District: '',
+                        Tehsil: '',
+                        UserId: userId || null,
+                        srNo: null,
+                        AssignmentId: null
+                    }
+                };
+
+                const userRes = await fetch("/api/Gis/ExecuteStoredProcedure", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify(userPayload)
+                });
+
+                if (!userRes.ok) throw new Error("Failed to save user");
+                const userData = await userRes.json();
+                const userResult = Array.isArray(userData) ? userData[0] : (userData.response || userData);
+
+                if (userResult.Status === 'Error') throw new Error(userResult.Message);
+
+                const newUserId = userResult.UserId || userId;
+
+                // ---------- Step 2: Build assignments array from rows ----------
+                const assignments = [];
+                for (let row of rows) {
+                    const districtSelect = row.querySelector('.district-select');
+                    const tehsilSelect = row.querySelector('.tehsil-select');
+
+                    const districtId = districtSelect.value;
+                    const districtName = districtSelect.options[districtSelect.selectedIndex]?.getAttribute('data-name') || '';
+
+                    if (!districtId) throw new Error("Please select a district for each assignment.");
+
+                    let tehsilId = tehsilSelect.value;
+                    let tehsilName = '';
+
+                    if (tehsilId === 'null') {
+                        tehsilId = null;          // All Tehsils
+                        tehsilName = '';
+                    } else if (tehsilId) {
+                        tehsilName = tehsilSelect.options[tehsilSelect.selectedIndex]?.text || '';
+                    } else {
+                        // If no tehsil selected, treat as All Tehsils (optional)
+                        tehsilId = null;
+                        tehsilName = '';
+                    }
+
+                    assignments.push({
+                        DistrictId: parseInt(districtId),
+                        TehsilId: tehsilId ? parseInt(tehsilId) : null,
+                        DistrictName: districtName,
+                        TehsilName: tehsilName
+                    });
+                }
+
+                // ---------- Step 3: Save assignments via sp_ManageUserAssignments ----------
+                const assignRes = await fetch("/api/Gis/ExecuteStoredProcedure", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify({
+                        procedureName: "sp_ManageUserAssignments",
+                        parameters: {
+                            UserId: newUserId,
+                            AssignmentsJson: JSON.stringify(assignments)
+                        }
+                    })
+                });
+
+                if (!assignRes.ok) throw new Error("Failed to save assignments");
+                const assignData = await assignRes.json();
+                const assignResult = Array.isArray(assignData) ? assignData[0] : (assignData.response || assignData);
+
+                if (assignResult.Status === 'Error') throw new Error(assignResult.Message);
+
+                showNotification("Departmental User saved successfully!", "success");
+                // Refresh the list and reset form
+                await loadDepartmentalUsers();
+                resetForm();
+
+            } catch (error) {
+                console.error("Error:", error);
+                showNotification(error.message, "error");
+            } finally {
+                submitBtn.disabled = false;
+                submitText.style.display = 'inline';
+                submitLoading.style.display = 'none';
+            }
+        }
+
+        // ---------- Load user data for editing (populate form) ----------
+        async function editUser(userId) {
+            try {
+                // Find the user in our list (or fetch fresh)
+                let user = allDepartmentalUsers.find(u => u.UserId == userId);
+                if (!user) {
+                    // If not in list, fetch all users again
+                    await loadDepartmentalUsers();
+                    user = allDepartmentalUsers.find(u => u.UserId == userId);
+                    if (!user) throw new Error("User not found");
+                }
+
+                document.getElementById('formTitle').textContent = 'Edit Departmental User';
+                document.getElementById('userId').value = user.UserId;
+                document.getElementById('name').value = user.Name;
+                document.getElementById('cnic').value = user.CNIC;
+
+                // Fetch user's active assignments (sp_GetUserAssignments)
+                const assignRes = await fetch("/api/Gis/ExecuteStoredProcedure", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify({
+                        procedureName: "sp_GetUserAssignments",
+                        parameters: { UserId: userId }
+                    })
+                });
+
+                if (!assignRes.ok) throw new Error("Failed to fetch assignments");
+                const assignData = await assignRes.json();
+                const assignments = assignData.response || assignData;
+
+                // Clear existing rows and add rows for each assignment
+                document.getElementById('assignmentsBody').innerHTML = '';
+                if (assignments.length === 0) {
+                    addAssignmentRow(); // at least one empty row
+                } else {
+                    assignments.forEach(a => addAssignmentRow(a));
+                }
+
+                // Scroll to form
+                document.querySelector('.form-container').scrollIntoView({ behavior: 'smooth' });
+
+            } catch (error) {
+                showNotification("Error loading user: " + error.message, "error");
+            }
+        }
+
+        // ---------- Toggle user active status (activate/deactivate) ----------
+        async function toggleUserStatus(userId, srNo) {
+            if (!confirm("Are you sure you want to change this user's status?")) return;
+
+            try {
+                const res = await fetch("/api/Gis/ExecuteStoredProcedure", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify({
+                        procedureName: "sp_ManageUsers",
+                        parameters: {
+                            Action: "DELETE",
+                            UserId: userId,
+                            srNo: srNo
+                        }
+                    })
+                });
+
+                if (!res.ok) throw new Error("Failed to update status");
+                const data = await res.json();
+                const result = Array.isArray(data) ? data[0] : (data.response || data);
+
+                if (result.Status === 'Error') throw new Error(result.Message);
+
+                showNotification(result.Message, "success");
+                await loadDepartmentalUsers(); // refresh list
+            } catch (error) {
+                showNotification("Error: " + error.message, "error");
+            }
+        }
+
+        // ---------- Reset form ----------
+        function resetForm() {
+            document.getElementById('userForm').reset();
+            document.getElementById('userId').value = '';
+            document.getElementById('assignmentsBody').innerHTML = '';
+            addAssignmentRow();  // add one empty row
+            document.getElementById('formTitle').textContent = 'Add New Departmental User';
+        }
+
+        // ---------- Show notification ----------
+        function showNotification(message, type) {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.className = `notification ${type}`;
+            notification.style.display = 'block';
+            setTimeout(() => { notification.style.display = 'none'; }, 3000);
+        }
+    </script>
+
+    <!-- 
+        ========== REQUIRED STORED PROCEDURES ==========
+        Make sure these exist on your database:
+
+        1. sp_ManageUserAssignments
+        2. sp_GetUserAssignments
+
+        If not, create them as described earlier.
+    -->
+</body>
+</html>
