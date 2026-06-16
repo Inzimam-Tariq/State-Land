@@ -630,16 +630,6 @@
             <a class="navbar-brand text-white" href="#">
                 <i class="fas fa-map-marked-alt"></i>  State Land Management System
             </a>
-            <!-- Update the navbar section in your HTML (add after the logout button): -->
-            <!--<div class="me-2">
-
-                <a class="navbar-brand text-white" href="/lot-create.html">
-                    <i class="fas fa-plus"></i> Create Lots
-                </a>
-                <a class="navbar-brand text-white" href="/lot-dashboard.html">
-                    <i class="fas fa-bolt"></i> Dashboard(Lots)
-                </a>
-            </div>-->
             <div class="profile-view d-flex align-items-center">
 
                 <div class="profile-avatar me-2">
@@ -709,8 +699,6 @@
                     </div>
                 </div>
 
-                <!-- KPI Counts -->
-                <!-- KPI Counts - UPDATED with clearer labels -->
                 <!-- KPI Counts - UPDATED with clearer labels -->
                 <div class="kpi-counts">
                     <div class="count-item">
@@ -825,15 +813,6 @@
                     </label>
                     <div class="form-check form-switch">
                         <input class="form-check-input" type="checkbox" id="toggleAdminLayer" checked>
-                    </div>
-                </div>
-                <div class="layer-item">
-                    <label>
-                        <i class="fas fa-tractor" style="color: #2ecc71; font-size: 0.9rem;"></i>
-                        <span>Lots</span>
-                    </label>
-                    <div class="form-check form-switch">
-                        <input class="form-check-input" type="checkbox" id="toggleLotsLayer" checked>
                     </div>
                 </div>
                 <div class="layer-item">
@@ -1420,6 +1399,24 @@
                         </div>
                     </div>
 
+
+                    <div class="form-row">
+                        <div class="form-label-cell">
+                            <label for="valuationAmount" class="form-label">Valuation Amount(Estimate/Base Price)</label>
+                        </div>
+                        <div class="form-control-cell">
+                            <input type="text" class="form-control form-control-sm" id="valuationAmount" rows="2" placeholder="Enter valuation amount(Estimate/Base Price)" />
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-label-cell">
+                            <label for="PossibleUse" class="form-label">Possible Use</label>
+                        </div>
+                        <div class="form-control-cell">
+                            <input type="text" class="form-control form-control-sm" id="possibleUse" rows="2" placeholder="Enter Possible Use" />
+                        </div>
+                    </div>
+
                     <!-- Remarks (Common for both flows) -->
                     <div class="form-row">
                         <div class="form-label-cell">
@@ -1884,7 +1881,7 @@
 
     <script>
         // Global variables
-        let map, view, statelandLayer, lotsLayer, adminBoundariesLayer, verificationGraphicsLayer, khasraLabelsGraphicsLayer;
+        let map, view, statelandLayer, adminBoundariesLayer, verificationGraphicsLayer, khasraLabelsGraphicsLayer;
         let esriFeatureLayer = null;
         let esriMapImageLayer = null;
         const authToken = localStorage.getItem("pulse_token");
@@ -2962,12 +2959,12 @@
                         const loadingSwal = Swal.fire({
                             title: 'Initializing Map...',
                             html: `
-                                        <div class="text-center">
-                                            <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;"></div>
-                                            <p class="mt-3">Connecting to GIS Resources</p>
-                                            <small class="text-muted">Please wait while we initialize the mapping system</small>
-                                        </div>
-                                    `,
+                                            <div class="text-center">
+                                                <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;"></div>
+                                                <p class="mt-3">Connecting to GIS Resources</p>
+                                                <small class="text-muted">Please wait while we initialize the mapping system</small>
+                                            </div>
+                                        `,
                             allowOutsideClick: false,
                             allowEscapeKey: false,
                             showConfirmButton: false,
@@ -2977,12 +2974,12 @@
                         // Step 1: Get authentication token
                         Swal.update({
                             html: `
-                                        <div class="text-center">
-                                            <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;"></div>
-                                            <p class="mt-3">Authenticating with GIS Server</p>
-                                            <small class="text-muted">Establishing secure connection...</small>
-                                        </div>
-                                    `
+                                            <div class="text-center">
+                                                <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;"></div>
+                                                <p class="mt-3">Authenticating with GIS Server</p>
+                                                <small class="text-muted">Establishing secure connection...</small>
+                                            </div>
+                                        `
                         });
 
                         const response = await fetch("/api/gis/token");
@@ -2994,12 +2991,12 @@
                         // Step 2: Register token and initialize GIS components
                         Swal.update({
                             html: `
-                                        <div class="text-center">
-                                            <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;"></div>
-                                            <p class="mt-3">Loading Map Components</p>
-                                            <small class="text-muted">Setting up base maps and layers...</small>
-                                        </div>
-                                    `
+                                            <div class="text-center">
+                                                <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;"></div>
+                                                <p class="mt-3">Loading Map Components</p>
+                                                <small class="text-muted">Setting up base maps and layers...</small>
+                                            </div>
+                                        `
                         });
 
                         // Register token
@@ -3039,15 +3036,15 @@
                         // Step 3: Initialize layers
                         Swal.update({
                             html: `
-                                        <div class="text-center">
-                                            <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;"></div>
-                                            <p class="mt-3">Loading GIS Layers</p>
-                                            <small class="text-muted">Connecting to State Land and Admin Boundaries...</small>
-                                            <div class="progress mt-3" style="height: 6px;">
-                                                <div class="progress-bar progress-bar-striped progress-bar-animated" style="width: 50%"></div>
-                                            </div>
+                                    <div class="text-center">
+                                        <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;"></div>
+                                        <p class="mt-3">Loading GIS Layers</p>
+                                        <small class="text-muted">Connecting to State Land and Admin Boundaries...</small>
+                                        <div class="progress mt-3" style="height: 6px;">
+                                            <div class="progress-bar progress-bar-striped progress-bar-animated" style="width: 50%"></div>
                                         </div>
-                                    `
+                                    </div>
+                                `
                         });
                         await loadDistrictData();
                         // await initLayers();
@@ -3056,15 +3053,15 @@
                         // Step 4: Setup components
                         Swal.update({
                             html: `
-                                        <div class="text-center">
-                                            <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;"></div>
-                                            <p class="mt-3">Setting Up Interface Components</p>
-                                            <small class="text-muted">Preparing map controls and verification layers...</small>
-                                            <div class="progress mt-3" style="height: 6px;">
-                                                <div class="progress-bar progress-bar-striped progress-bar-animated" style="width: 75%"></div>
-                                            </div>
+                                    <div class="text-center">
+                                        <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;"></div>
+                                        <p class="mt-3">Setting Up Interface Components</p>
+                                        <small class="text-muted">Preparing map controls and verification layers...</small>
+                                        <div class="progress mt-3" style="height: 6px;">
+                                            <div class="progress-bar progress-bar-striped progress-bar-animated" style="width: 75%"></div>
                                         </div>
-                                    `
+                                    </div>
+                                `
                         });
 
                         // Create verification graphics layer
@@ -3103,15 +3100,15 @@
                         // Step 5: Load district data
                         Swal.update({
                             html: `
-                                        <div class="text-center">
-                                            <div class="spinner-border text-success" style="width: 3rem; height: 3rem;"></div>
-                                            <p class="mt-3">Loading District Data</p>
-                                            <small class="text-muted">Fetching tehsils and administrative boundaries...</small>
-                                            <div class="progress mt-3" style="height: 6px;">
-                                                <div class="progress-bar progress-bar-striped progress-bar-animated" style="width: 90%"></div>
-                                            </div>
+                                    <div class="text-center">
+                                        <div class="spinner-border text-success" style="width: 3rem; height: 3rem;"></div>
+                                        <p class="mt-3">Loading District Data</p>
+                                        <small class="text-muted">Fetching tehsils and administrative boundaries...</small>
+                                        <div class="progress mt-3" style="height: 6px;">
+                                            <div class="progress-bar progress-bar-striped progress-bar-animated" style="width: 90%"></div>
                                         </div>
-                                    `
+                                    </div>
+                                `
                         });
 
 
@@ -3120,12 +3117,12 @@
                             icon: 'success',
                             title: 'System Ready!',
                             html: `
-                                        <div class="text-center">
-                                            <i class="fas fa-check-circle fa-3x text-success mb-3"></i>
-                                            <p>Land Management System Initialized Successfully</p>
-                                            <small class="text-muted">Select a tehsil and mouza to begin verification</small>
-                                        </div>
-                                    `,
+                                    <div class="text-center">
+                                        <i class="fas fa-check-circle fa-3x text-success mb-3"></i>
+                                        <p>Land Management System Initialized Successfully</p>
+                                        <small class="text-muted">Select a tehsil and mouza to begin verification</small>
+                                    </div>
+                                `,
                             showConfirmButton: true,
                             confirmButtonText: 'Start Verification',
                             timer: 3000,
@@ -3163,12 +3160,12 @@
                         const loadingSwal = Swal.fire({
                             title: 'Loading District Data',
                             html: `
-                                        <div class="text-center">
-                                            <div class="spinner-border text-primary mb-3" style="width: 2rem; height: 2rem;"></div>
-                                            <p>Fetching administrative boundaries</p>
-                                            <small class="text-muted">Please wait...</small>
-                                        </div>
-                                    `,
+                                    <div class="text-center">
+                                        <div class="spinner-border text-primary mb-3" style="width: 2rem; height: 2rem;"></div>
+                                        <p>Fetching administrative boundaries</p>
+                                        <small class="text-muted">Please wait...</small>
+                                    </div>
+                                `,
                             allowOutsideClick: false,
                             showConfirmButton: false
                         });
@@ -3243,7 +3240,7 @@
                                                 <div><strong>Area (Sq Ft):</strong> {Shape_Area} sq units</div>
                                                 <div><strong>Type:</strong> {Type}</div>
                                             </div>
-                                        `
+                                            `
                             },
                             renderer: {
                                 type: "simple",
@@ -3257,44 +3254,6 @@
                                 }
                             },
                             opacity: 0.8,
-                            visible: true
-                        });
-
-                        lotsLayer = new FeatureLayerClass({
-                            url: "https://gismaps.pulse.gop.pk/arcgis/rest/services/ApnaKhaytApnaRozgar/PnaKhaytApnaRozgar/MapServer/0",
-                            title: "Lots",
-                            definitionExpression: "1=1",
-                            outFields: ["*"],
-                            popupTemplate: null,
-                            labelingInfo: [{
-                                labelExpressionInfo: {
-                                    expression: ""
-                                },
-                                symbol: {
-                                    type: "text",
-                                    color: "black",
-                                    haloColor: "white",
-                                    haloSize: "1px",
-                                    font: {
-                                        size: 12,
-                                        family: "Arial",
-                                        weight: "bold"
-                                    }
-                                },
-                                labelPlacement: "center-center"
-                            }],
-                            renderer: {
-                                type: "simple",
-                                symbol: {
-                                    type: "simple-fill",
-                                    color: [255, 255, 0, 0.15],
-                                    outline: {
-                                        color: [255, 204, 0, 1],
-                                        width: 2
-                                    }
-                                }
-                            },
-                            opacity: 0.5,
                             visible: true
                         });
 
@@ -3312,12 +3271,9 @@
 
                         // Add layers to map
                         map.add(statelandLayer);
-                        map.add(lotsLayer);
                         map.add(adminBoundariesLayer);
 
                         console.log("DEBUG: Layers created and added to map");
-
-                        await lotsLayer.load();
                         await adminBoundariesLayer.load();
 
                         console.log("DEBUG: Admin boundaries layer loaded");
@@ -3346,15 +3302,6 @@
                             }
                         });
 
-                        document.getElementById('toggleLotsLayer').addEventListener('change', function () {
-
-                            // Toggle stateland layer
-                            lotsLayer.visible = this.checked;
-                            showToast('info', 'Layer Toggled',
-                                this.checked ? 'Lots layer shown' : 'Lots layer hidden');
-
-                        });
-
                         console.log("DEBUG: Layers initialized successfully");
 
                     } catch (error) {
@@ -3367,17 +3314,17 @@
                     return Swal.fire({
                         title: title,
                         html: `
-                                    <div class="text-center">
-                                        <div class="spinner-border text-primary mb-3" style="width: 3rem; height: 3rem;"></div>
-                                        <p class="mb-1">${message}</p>
-                                        <small class="text-muted d-block mb-2">Communicating with GIS Resources...</small>
-                                        <div class="progress" style="height: 8px;">
-                                            <div class="progress-bar progress-bar-striped progress-bar-animated"
-                                                 style="width: ${progress}%"></div>
-                                        </div>
-                                        <small class="text-muted mt-2">${progress}% complete</small>
+                                <div class="text-center">
+                                    <div class="spinner-border text-primary mb-3" style="width: 3rem; height: 3rem;"></div>
+                                    <p class="mb-1">${message}</p>
+                                    <small class="text-muted d-block mb-2">Communicating with GIS Resources...</small>
+                                    <div class="progress" style="height: 8px;">
+                                        <div class="progress-bar progress-bar-striped progress-bar-animated"
+                                                style="width: ${progress}%"></div>
                                     </div>
-                                `,
+                                    <small class="text-muted mt-2">${progress}% complete</small>
+                                </div>
+                            `,
                         allowOutsideClick: false,
                         showConfirmButton: false,
                         backdrop: 'rgba(0, 0, 0, 0.5)'
@@ -3462,15 +3409,15 @@
                     popupTemplate: {
                         title: "State Land - {Mouza}",
                         content: `
-                            <div style="font-size: 0.85rem; line-height: 1.4;">
-                                <div><strong>District:</strong> {District}</div>
-                                <div><strong>Tehsil:</strong> {Tehsil}</div>
-                                <div><strong>Mouza:</strong> {Mouza}</div>
-                                <div><strong>Khasra No:</strong> {K}</div>
-                                <div><strong>Khasra ID:</strong> {Khasra_ID}</div>
-                                <div><strong>Area (Sq Ft):</strong> {Shape_Area} sq units</div>
-                                <div><strong>Type:</strong> {Type}</div>
-                            </div>
+                                <div style="font-size: 0.85rem; line-height: 1.4;">
+                                    <div><strong>District:</strong> {District}</div>
+                                    <div><strong>Tehsil:</strong> {Tehsil}</div>
+                                    <div><strong>Mouza:</strong> {Mouza}</div>
+                                    <div><strong>Khasra No:</strong> {K}</div>
+                                    <div><strong>Khasra ID:</strong> {Khasra_ID}</div>
+                                    <div><strong>Area (Sq Ft):</strong> {Shape_Area} sq units</div>
+                                    <div><strong>Type:</strong> {Type}</div>
+                                </div>
 `
                     },
                     renderer: {
@@ -3554,16 +3501,16 @@
                             popupTemplate: {
                                 title: "State Land - {Mouza}",
                                 content: `
-                                            <div style="font-size: 0.85rem; line-height: 1.4;">
-                                            <div><strong>District:</strong> {District}</div>
-                                            <div><strong>Tehsil:</strong> {Tehsil}</div>
-                                            <div><strong>Mouza:</strong> {Mouza}</div>
-                                            <div><strong>Khasra No:</strong> {K}</div>
-                                            <div><strong>Khasra ID:</strong> {Khasra_ID}</div>
-                                            <div><strong>Area (Sq Ft):</strong> {Shape_Area} sq units</div>
-                                            <div><strong>Type:</strong> {Type}</div>
-                                            </div>
-                                        `
+                                                <div style="font-size: 0.85rem; line-height: 1.4;">
+                                                <div><strong>District:</strong> {District}</div>
+                                                <div><strong>Tehsil:</strong> {Tehsil}</div>
+                                                <div><strong>Mouza:</strong> {Mouza}</div>
+                                                <div><strong>Khasra No:</strong> {K}</div>
+                                                <div><strong>Khasra ID:</strong> {Khasra_ID}</div>
+                                                <div><strong>Area (Sq Ft):</strong> {Shape_Area} sq units</div>
+                                                <div><strong>Type:</strong> {Type}</div>
+                                                </div>
+                                            `
                             },
                             renderer: {
                                 type: "simple",
@@ -4296,30 +4243,30 @@
                 Swal.fire({
                     title: 'Khasra List Help',
                     html: `
-                        <div class="text-start">
-                            <div class="mb-3">
-                                <h6><i class="fas fa-search text-primary me-2"></i>Search</h6>
-                                <p class="small">Type in search box to filter khasras by number or area</p>
-                            </div>
-                            <div class="mb-3">
-                                <h6><i class="fas fa-filter text-success me-2"></i>Filters</h6>
-                                <p class="small">Toggle verified/unverified checkboxes to show/hide</p>
-                            </div>
-                            <div class="mb-3">
-                                <h6><i class="fas fa-badge text-warning me-2"></i>Status Badges</h6>
-                                <div class="small">
-                                    <span class="badge bg-success me-1">✓</span> BOR Available<br>
-                                    <span class="badge bg-danger me-1">✗</span> BOR Not Available<br>
-                                    <span class="badge bg-primary me-1">D</span> Under Department<br>
-                                    <span class="badge bg-secondary me-1">?</span> Unverified
+                            <div class="text-start">
+                                <div class="mb-3">
+                                    <h6><i class="fas fa-search text-primary me-2"></i>Search</h6>
+                                    <p class="small">Type in search box to filter khasras by number or area</p>
+                                </div>
+                                <div class="mb-3">
+                                    <h6><i class="fas fa-filter text-success me-2"></i>Filters</h6>
+                                    <p class="small">Toggle verified/unverified checkboxes to show/hide</p>
+                                </div>
+                                <div class="mb-3">
+                                    <h6><i class="fas fa-badge text-warning me-2"></i>Status Badges</h6>
+                                    <div class="small">
+                                        <span class="badge bg-success me-1">✓</span> BOR Available<br>
+                                        <span class="badge bg-danger me-1">✗</span> BOR Not Available<br>
+                                        <span class="badge bg-primary me-1">D</span> Under Department<br>
+                                        <span class="badge bg-secondary me-1">?</span> Unverified
+                                    </div>
+                                </div>
+                                <div>
+                                    <h6><i class="fas fa-mouse-pointer text-info me-2"></i>Navigation</h6>
+                                    <p class="small">Click any khasra to select it and show details</p>
                                 </div>
                             </div>
-                            <div>
-                                <h6><i class="fas fa-mouse-pointer text-info me-2"></i>Navigation</h6>
-                                <p class="small">Click any khasra to select it and show details</p>
-                            </div>
-                        </div>
-                    `,
+                        `,
                     icon: 'info',
                     confirmButtonText: 'Got it!',
                     width: '500px'
@@ -4354,9 +4301,9 @@
                     // Create the option display with colored background
                     const $result = $(
                         `<div class="d-flex justify-content-between align-items-center">
-                                        <span>${data.text.replace(`<span class="option-status-badge ${statusClass}">${statusText}</span>`, '')}</span>
-                                        <span class="option-status-badge ${statusClass}">${statusText}</span>
-                                    </div>`
+                                            <span>${data.text.replace(`<span class="option-status-badge ${statusClass}">${statusText}</span>`, '')}</span>
+                                            <span class="option-status-badge ${statusClass}">${statusText}</span>
+                                        </div>`
                     );
 
                     // Add status data attribute for CSS styling
@@ -5051,23 +4998,23 @@
                 item.dataset.index = index;
 
                 item.innerHTML = `
-                            <div class="compact-khasra-info">
-                                <div class="d-flex align-items-center justify-content-between">
-                                    <span class="compact-khasra-number" title="${statusTitle}"
-                                          data-original-text="${displayKhasraNo}">
-                                        ${displayKhasraNo}
-                                    </span>
-                                    <div class="compact-khasra-icons">${statusIcons}</div>
-                                </div>
-                                <small class="text-muted" style="font-size: 0.7rem;">
-                                    Area: ${feature.attributes.Shape_Area ?
+                                <div class="compact-khasra-info">
+                                    <div class="d-flex align-items-center justify-content-between">
+                                        <span class="compact-khasra-number" title="${statusTitle}"
+                                              data-original-text="${displayKhasraNo}">
+                                            ${displayKhasraNo}
+                                        </span>
+                                        <div class="compact-khasra-icons">${statusIcons}</div>
+                                    </div>
+                                    <small class="text-muted" style="font-size: 0.7rem;">
+                                        Area: ${feature.attributes.Shape_Area ?
                         convertSqFtToAKM(feature.attributes.Shape_Area) : 'N/A'}
-                                </small>
-                            </div>
-                            <span class="compact-verification-badge ${badgeClass}" title="${statusTitle}">
-                                ${badgeText}
-                            </span>
-                        `;
+                                    </small>
+                                </div>
+                                <span class="compact-verification-badge ${badgeClass}" title="${statusTitle}">
+                                    ${badgeText}
+                                </span>
+                            `;
 
                 item.addEventListener('click', () => {
                     selectKhasraFromList(khasraId);
@@ -5237,6 +5184,8 @@
             document.getElementById('correctAreaK').value = '';
             document.getElementById('correctAreaM').value = '';
             document.getElementById('remarks').value = '';
+            document.getElementById('valuationAmount').value = '';
+            document.getElementById('possibleUse').value = '';
 
             // Hide all conditional fields
             clearAllConditionalFields();
@@ -5577,9 +5526,9 @@
             if (filteredOwners.length > 0) {
                 const ownerNames = filteredOwners.map(o => o.name).join(', ');
                 document.getElementById('ownerFilteredList').innerHTML = `
-                                                <div class="owner-names">${ownerNames}</div>
-                                                <small class="text-muted">(${filteredOwners.length} owner(s))</small>
-                                            `;
+                                                    <div class="owner-names">${ownerNames}</div>
+                                                    <small class="text-muted">(${filteredOwners.length} owner(s))</small>
+                                                `;
             } else {
                 document.getElementById('ownerFilteredList').innerHTML =
                     '<div class="text-muted">No owners found</div>';
@@ -5589,18 +5538,18 @@
             if (allOwners.length > 0) {
                 const allOwnerNames = allOwners.map(o => o.name).join(', ');
                 document.getElementById('ownerFullList').innerHTML = `
-                                                <div class="owner-names">${allOwnerNames}</div>
-                                                <small class="text-muted">(${allOwners.length} total owner(s))</small>
-                                            `;
+                                                    <div class="owner-names">${allOwnerNames}</div>
+                                                    <small class="text-muted">(${allOwners.length} total owner(s))</small>
+                                                `;
             }
 
             // Display filtered kashtkars
             if (filteredKashtkars.length > 0) {
                 const kashtkarNames = filteredKashtkars.join(', ');
                 document.getElementById('kashtkarFilteredList').innerHTML = `
-                                                <div class="kashtkar-names">${kashtkarNames}</div>
-                                                <small class="text-muted">(${filteredKashtkars.length} filtered kashtkar(s))</small>
-                                            `;
+                                                    <div class="kashtkar-names">${kashtkarNames}</div>
+                                                    <small class="text-muted">(${filteredKashtkars.length} filtered kashtkar(s))</small>
+                                                `;
             } else {
                 document.getElementById('kashtkarFilteredList').innerHTML =
                     '<div class="text-muted">No kashtkars</div>';
@@ -5610,9 +5559,9 @@
             if (allKashtkars.length > 0) {
                 const allKashtkarNames = allKashtkars.join(', ');
                 document.getElementById('kashtkarFullList').innerHTML = `
-                                                <div class="kashtkar-names">${allKashtkarNames}</div>
-                                                <small class="text-muted">(${allKashtkars.length} total kashtkar(s))</small>
-                                            `;
+                                                    <div class="kashtkar-names">${allKashtkarNames}</div>
+                                                    <small class="text-muted">(${allKashtkars.length} total kashtkar(s))</small>
+                                                `;
             }
 
             // Reset toggles
@@ -6429,6 +6378,8 @@
 
                 // Common fields
                 Remarks: document.getElementById('remarks').value || null,
+                ValuationAmount: document.getElementById('valuationAmount').value || null,
+                PossibleUse: document.getElementById('possibleUse').value || null,
 
                 // Validation fields (keep as is)
                 IsKhasraCorrect: getRadioValue('isKhasraCorrect'),
@@ -6787,16 +6738,16 @@
         function showToast(type, title, message) {
             const toastId = 'toast-' + Date.now();
             const toastHtml = `
-                                            <div id="${toastId}" class="toast" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="5000">
-                                                <div class="toast-header bg-${type} text-white">
-                                                    <strong class="me-auto">${title}</strong>
-                                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
+                                                <div id="${toastId}" class="toast" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="5000">
+                                                    <div class="toast-header bg-${type} text-white">
+                                                        <strong class="me-auto">${title}</strong>
+                                                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
+                                                    </div>
+                                                    <div class="toast-body">
+                                                        ${message}
+                                                    </div>
                                                 </div>
-                                                <div class="toast-body">
-                                                    ${message}
-                                                </div>
-                                            </div>
-                                        `;
+                                            `;
 
             document.getElementById('toastContainer').insertAdjacentHTML('beforeend', toastHtml);
 
@@ -6929,12 +6880,12 @@
         function initializeKhasraTable() {
             const tableBody = document.getElementById('khasraListTable');
             tableBody.innerHTML = `
-                            <tr id="noKhasraRow">
-                                <td colspan="4" class="text-center text-muted py-3">
-                                    <i class="fas fa-info-circle"></i> No new khasras added yet
-                                </td>
-                            </tr>
-                        `;
+                                <tr id="noKhasraRow">
+                                    <td colspan="4" class="text-center text-muted py-3">
+                                        <i class="fas fa-info-circle"></i> No new khasras added yet
+                                    </td>
+                                </tr>
+                            `;
 
             // Clear input fields
             document.getElementById('newKhewatNo').value = '';
@@ -6958,16 +6909,16 @@
             const newRow = document.createElement('tr');
             newRow.id = rowId;
             newRow.innerHTML = `
-                            <td>${khewatNo}</td>
-                            <td>${khasraNo}</td>
-                            <td>${murabaNo}</td>
-                            <td>${area}</td>
-                            <td>
-                                <button type="button" class="btn btn-sm btn-danger" onclick="removeKhasraFromTable('${rowId}')">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </td>
-                        `;
+                                <td>${khewatNo}</td>
+                                <td>${khasraNo}</td>
+                                <td>${murabaNo}</td>
+                                <td>${area}</td>
+                                <td>
+                                    <button type="button" class="btn btn-sm btn-danger" onclick="removeKhasraFromTable('${rowId}')">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </td>
+                            `;
 
             tableBody.appendChild(newRow);
 
@@ -7388,17 +7339,17 @@
 
             // Create toast HTML
             const toastHtml = `
-                        <div id="${toastId}" class="toast" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="${duration}">
-                            <div class="toast-header bg-${type} text-white">
-                                <i class="fas ${icons[type] || 'fa-info-circle'} me-2"></i>
-                                <strong class="me-auto">${title}</strong>
-                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
+                            <div id="${toastId}" class="toast" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="${duration}">
+                                <div class="toast-header bg-${type} text-white">
+                                    <i class="fas ${icons[type] || 'fa-info-circle'} me-2"></i>
+                                    <strong class="me-auto">${title}</strong>
+                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
+                                </div>
+                                <div class="toast-body">
+                                    ${message}
+                                </div>
                             </div>
-                            <div class="toast-body">
-                                ${message}
-                            </div>
-                        </div>
-                    `;
+                        `;
 
             // Add to toast container
             document.getElementById('toastContainer').insertAdjacentHTML('beforeend', toastHtml);
@@ -7537,55 +7488,55 @@
             const helpCardsContainer = document.createElement('div');
             helpCardsContainer.className = 'help-cards-container';
             helpCardsContainer.style.cssText = `
-                    position: fixed;
-                    bottom: 20px;
-                    left: 20px;
-                    z-index: 1000;
-                    display: none;
-                `;
+                        position: fixed;
+                        bottom: 20px;
+                        left: 20px;
+                        z-index: 1000;
+                        display: none;
+                    `;
 
             // Status help card
             const statusCard = document.createElement('div');
             statusCard.className = 'card help-card mb-2 border-primary';
             statusCard.innerHTML = `
-                    <div class="card-body p-2">
-                        <h6 class="card-title mb-1">
-                            <i class="fas fa-info-circle text-primary me-1"></i>Status Legend
-                        </h6>
-                        <div class="d-flex flex-wrap gap-1">
-                            <span class="badge bg-success">✓ Verified</span>
-                            <span class="badge bg-danger">✗ BOR Not Avail</span>
-                            <span class="badge bg-success">✓ BOR Avail</span>
-                            <span class="badge bg-primary">D Dept</span>
-                            <span class="badge bg-secondary">? Unverified</span>
+                        <div class="card-body p-2">
+                            <h6 class="card-title mb-1">
+                                <i class="fas fa-info-circle text-primary me-1"></i>Status Legend
+                            </h6>
+                            <div class="d-flex flex-wrap gap-1">
+                                <span class="badge bg-success">✓ Verified</span>
+                                <span class="badge bg-danger">✗ BOR Not Avail</span>
+                                <span class="badge bg-success">✓ BOR Avail</span>
+                                <span class="badge bg-primary">D Dept</span>
+                                <span class="badge bg-secondary">? Unverified</span>
+                            </div>
                         </div>
-                    </div>
-                `;
+                    `;
 
             // Navigation help card
             const navCard = document.createElement('div');
             navCard.className = 'card help-card border-info';
             navCard.innerHTML = `
-                    <div class="card-body p-2">
-                        <h6 class="card-title mb-1">
-                            <i class="fas fa-compass text-info me-1"></i>Quick Nav
-                        </h6>
-                        <div class="d-flex gap-1">
-                            <button class="btn btn-sm btn-outline-secondary" title="Previous">
-                                <i class="fas fa-chevron-left"></i>
-                            </button>
-                            <button class="btn btn-sm btn-outline-secondary" title="Next">
-                                <i class="fas fa-chevron-right"></i>
-                            </button>
-                            <button class="btn btn-sm btn-outline-secondary" title="First Unverified">
-                                <i class="fas fa-forward"></i>
-                            </button>
-                            <button class="btn btn-sm btn-outline-secondary" title="Scroll to Current">
-                                <i class="fas fa-crosshairs"></i>
-                            </button>
+                        <div class="card-body p-2">
+                            <h6 class="card-title mb-1">
+                                <i class="fas fa-compass text-info me-1"></i>Quick Nav
+                            </h6>
+                            <div class="d-flex gap-1">
+                                <button class="btn btn-sm btn-outline-secondary" title="Previous">
+                                    <i class="fas fa-chevron-left"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-secondary" title="Next">
+                                    <i class="fas fa-chevron-right"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-secondary" title="First Unverified">
+                                    <i class="fas fa-forward"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-secondary" title="Scroll to Current">
+                                    <i class="fas fa-crosshairs"></i>
+                                </button>
+                            </div>
                         </div>
-                    </div>
-                `;
+                    `;
 
             helpCardsContainer.appendChild(statusCard);
             helpCardsContainer.appendChild(navCard);
@@ -7666,40 +7617,40 @@
             const legendContainer = document.createElement('div');
             legendContainer.className = 'mouza-status-legend';
             legendContainer.style.cssText = `
-                    position: absolute;
-                    top: 60px;
-                    right: 20px;
-                    background: white;
-                    padding: 10px;
-                    border-radius: 8px;
-                    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-                    z-index: 1000;
-                    display: none;
-                    font-size: 0.85rem;
-                    min-width: 200px;
-                `;
+                        position: absolute;
+                        top: 60px;
+                        right: 20px;
+                        background: white;
+                        padding: 10px;
+                        border-radius: 8px;
+                        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+                        z-index: 1000;
+                        display: none;
+                        font-size: 0.85rem;
+                        min-width: 200px;
+                    `;
 
             legendContainer.innerHTML = `
-                    <h6 class="mb-2"><i class="fas fa-legend me-1"></i>Mouza Status</h6>
-                    <div class="legend-item d-flex align-items-center mb-1">
-                        <span class="badge bg-success me-2" style="width: 20px;">&nbsp;</span>
-                        <span>Online / Verified</span>
-                    </div>
-                    <div class="legend-item d-flex align-items-center mb-1">
-                        <span class="badge bg-danger me-2" style="width: 20px;">&nbsp;</span>
-                        <span>Offline</span>
-                    </div>
-                    <div class="legend-item d-flex align-items-center mb-1">
-                        <span class="badge bg-warning me-2" style="width: 20px;">&nbsp;</span>
-                        <span>NewMauza</span>
-                    </div>
-                    <div class="legend-item d-flex align-items-center">
-                        <span class="badge bg-info me-2" style="width: 20px;">&nbsp;</span>
-                        <span>Pending</span>
-                    </div>
-                    <hr class="my-2">
-                    <small class="text-muted">Click status badge to filter</small>
-                `;
+                        <h6 class="mb-2"><i class="fas fa-legend me-1"></i>Mouza Status</h6>
+                        <div class="legend-item d-flex align-items-center mb-1">
+                            <span class="badge bg-success me-2" style="width: 20px;">&nbsp;</span>
+                            <span>Online / Verified</span>
+                        </div>
+                        <div class="legend-item d-flex align-items-center mb-1">
+                            <span class="badge bg-danger me-2" style="width: 20px;">&nbsp;</span>
+                            <span>Offline</span>
+                        </div>
+                        <div class="legend-item d-flex align-items-center mb-1">
+                            <span class="badge bg-warning me-2" style="width: 20px;">&nbsp;</span>
+                            <span>NewMauza</span>
+                        </div>
+                        <div class="legend-item d-flex align-items-center">
+                            <span class="badge bg-info me-2" style="width: 20px;">&nbsp;</span>
+                            <span>Pending</span>
+                        </div>
+                        <hr class="my-2">
+                        <small class="text-muted">Click status badge to filter</small>
+                    `;
 
             document.querySelector('.filter-section').appendChild(legendContainer);
 
@@ -7729,16 +7680,16 @@
                 Swal.fire({
                     title: 'Great! You selected your first khasra',
                     html: `
-                            <div class="text-center">
-                                <i class="fas fa-map-marked-alt fa-3x text-success mb-3"></i>
-                                <p class="mb-2">Now you can:</p>
-                                <div class="text-start">
-                                    <p><i class="fas fa-check-circle text-success me-2"></i>Fill verification details</p>
-                                    <p><i class="fas fa-save text-primary me-2"></i>Save your assessment</p>
-                                    <p><i class="fas fa-arrow-right text-info me-2"></i>Navigate to next khasra</p>
+                                <div class="text-center">
+                                    <i class="fas fa-map-marked-alt fa-3x text-success mb-3"></i>
+                                    <p class="mb-2">Now you can:</p>
+                                    <div class="text-start">
+                                        <p><i class="fas fa-check-circle text-success me-2"></i>Fill verification details</p>
+                                        <p><i class="fas fa-save text-primary me-2"></i>Save your assessment</p>
+                                        <p><i class="fas fa-arrow-right text-info me-2"></i>Navigate to next khasra</p>
+                                    </div>
                                 </div>
-                            </div>
-                        `,
+                            `,
                     icon: 'info',
                     confirmButtonText: 'Start Verification',
                     confirmButtonColor: '#198754',
