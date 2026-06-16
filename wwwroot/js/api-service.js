@@ -9,7 +9,7 @@ async function executeSP(procName, parameters = {}, isPublic = false, timeoutMs 
         endpoint = "./api/Gis/ExecuteStoredProcedureAnonymous";
 
     try {
-        debugger
+        //debugger
         const res = await fetch(endpoint, {
             method: "POST",
             headers: {

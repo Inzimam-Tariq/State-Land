@@ -852,22 +852,60 @@
                     <i class="fas fa-clipboard-check"></i> Land Assessment
                 </h4>
                 <form id="landForm" class="compact-form">
-                    <!-- Land Suitability -->
                     <div class="form-row">
                         <div class="form-label-cell">
-                            <label class="form-label">Zone Info</label>
+                            <label class="form-label">Possible Use</label>
                         </div>
                         <div class="form-control-cell">
-                            <div class="option-group horizontal">
-                                <div class="option-item">
-                                    <input type="radio" id="fitAgriculture" name="suitability" value="Inside Prohibited Zone">
-                                    <label for="fitAgriculture">Inside Prohibited Zone</label>
-                                </div>
-                                <div class="option-item">
-                                    <input type="radio" id="fitLivestock" name="suitability" value="Outside Prohibited Zone">
-                                    <label for="fitLivestock">Outside Prohibited Zone</label>
-                                </div>
-                            </div>
+                            <select class="form-control form-control-sm" id="possibleUse">
+                                <option value="" selected>-- Select Possible Use --</option>
+                                <option value="Agriculture">Agriculture</option>
+                                <option value="Residential">Residential</option>
+                                <option value="Commercial">Commercial</option>
+                                <option value="Industrial">Industrial</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row" id="possibleUseOtherRow" style="display:none">
+                        <div class="form-label-cell">
+                            <label for="possibleUseOther" class="form-label">
+                                Possible Use (Other)
+                            </label>
+                        </div>
+                        <div class="form-control-cell">
+                            <input type="text"
+                                   class="form-control form-control-sm"
+                                   id="possibleUseOther"
+                                   placeholder="Enter Other Possible Use" />
+                        </div>
+                    </div>
+
+                    <div class="form-row" id="possibleUseSubRow" style="display:none">
+                        <div class="form-label-cell">
+                            <label class="form-label">Possible Use - Sub Category</label>
+                        </div>
+                        <div class="form-control-cell">
+                            <select class="form-control form-control-sm" id="possibleUseSub">
+                                <option value="">-- Select Possible Use - Sub Category --</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-label-cell">
+                            <label for="dcRateValue" class="form-label">DC Rate Value</label>
+                        </div>
+                        <div class="form-control-cell">
+                            <input type="number" class="form-control form-control-sm" id="dcRateValue" placeholder="Enter Price/ DC Rate Value" />
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-label-cell">
+                            <label for="marketValue" class="form-label">Market Value</label>
+                        </div>
+                        <div class="form-control-cell">
+                            <input type="number" class="form-control form-control-sm" id="marketValue" placeholder="Enter Market Price/Value" />
                         </div>
                     </div>
 
@@ -875,7 +913,7 @@
                         <div class="form-label-cell"></div>
                         <div class="form-control-cell">
                             <div class="button-group">
-                                <button type="button" class="btn-custom btn-submit" id="btnSubmit" disabled>
+                                <button type="button" class="btn-custom btn-submit" id="btnSubmit">
                                     <i class="fas fa-save"></i> Save
                                 </button>
                                 <button type="button" class="btn-custom btn-clear" id="btnClear">
@@ -1039,6 +1077,10 @@
             console.log('Select2 dropdowns initialized');
         }
 
+        document.addEventListener("DOMContentLoaded", function () {
+            document.getElementById("possibleUse").value = "";
+        });
+
         // Update your $(document).ready function to include search setup
         $(document).ready(function () {
             // Initialize Select2 ONCE
@@ -1062,6 +1104,77 @@
             // Setup form buttons
             document.getElementById('btnSubmit').addEventListener('click', submitForm);
             document.getElementById('btnClear').addEventListener('click', clearForm);
+
+            const possibleUse = document.getElementById("possibleUse");
+            const possibleUseSub = document.getElementById("possibleUseSub");
+            const possibleUseSubRow = document.getElementById("possibleUseSubRow");
+            const possibleUseOtherRow = document.getElementById("possibleUseOtherRow");
+            const possibleUseOther = document.getElementById("possibleUseOther");
+
+            const subCategories = {
+                Residential: [
+                    "Housing Society",
+                    "Residential Plot",
+                    "House / Villa",
+                    "Apartment / Flat",
+                    "Farm House",
+                    "Government Housing"
+                ],
+                Agriculture: [
+                    "Cultivated Land",
+                    "Orchard",
+                    "Livestock Farm",
+                    "Poultry Farm",
+                    "Dairy Farm",
+                    "Nursery"
+                ],
+                Commercial: [
+                    "Shop",
+                    "Market / Bazaar",
+                    "Shopping Plaza / Mall",
+                    "Office",
+                    "Petrol Pump",
+                    "Hotel / Motel",
+                    "Restaurant / Cafe",
+                    "Warehouse"
+                ],
+                Industrial: [
+                    "Factory",
+                    "Industrial Plot",
+                    "Manufacturing Unit",
+                    "Processing Plant",
+                    "Warehouse / Storage",
+                    "Industrial Estate",
+                    "Workshop",
+                    "Power / Utility Facility"
+                ]
+            };
+
+            possibleUse.addEventListener("change", function () {
+
+                const value = this.value;
+
+                possibleUseSub.innerHTML =
+                    '<option value="">-- Select Possible Use - Sub Category --</option>';
+
+                possibleUseSubRow.style.display = "none";
+                possibleUseOtherRow.style.display = "none";
+                possibleUseOther.value = "";
+
+                if (value === "Other") {
+                    possibleUseOtherRow.style.display = "";
+                    return;
+                }
+
+                if (subCategories[value]) {
+
+                    subCategories[value].forEach(item => {
+                        possibleUseSub.add(new Option(item, item));
+                    });
+
+                    possibleUseSubRow.style.display = "";
+                }
+            });
 
             //for tags
             // Remove single tag
@@ -1090,6 +1203,7 @@
 
             // Initialize map
             initMap();
+            clearForm();
         });
 
         // Initialize Select2 properly
@@ -1144,12 +1258,12 @@
                         const loadingSwal = Swal.fire({
                             title: 'Initializing Map...',
                             html: `
-                                    <div class="text-center">
-                                        <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;"></div>
-                                        <p class="mt-3">Connecting to GIS Resources</p>
-                                        <small class="text-muted">Please wait while we initialize the mapping system</small>
-                                    </div>
-                                `,
+                                        <div class="text-center">
+                                            <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;"></div>
+                                            <p class="mt-3">Connecting to GIS Resources</p>
+                                            <small class="text-muted">Please wait while we initialize the mapping system</small>
+                                        </div>
+                                    `,
                             allowOutsideClick: false,
                             allowEscapeKey: false,
                             showConfirmButton: false,
@@ -1159,12 +1273,12 @@
                         // Step 1: Get authentication token
                         Swal.update({
                             html: `
-                                    <div class="text-center">
-                                        <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;"></div>
-                                        <p class="mt-3">Authenticating with GIS Server</p>
-                                        <small class="text-muted">Establishing secure connection...</small>
-                                    </div>
-                                `
+                                        <div class="text-center">
+                                            <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;"></div>
+                                            <p class="mt-3">Authenticating with GIS Server</p>
+                                            <small class="text-muted">Establishing secure connection...</small>
+                                        </div>
+                                    `
                         });
 
                         const response = await fetch("/api/gis/token");
@@ -1176,12 +1290,12 @@
                         // Step 2: Register token and initialize GIS components
                         Swal.update({
                             html: `
-                                    <div class="text-center">
-                                        <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;"></div>
-                                        <p class="mt-3">Loading Map Components</p>
-                                        <small class="text-muted">Setting up base maps and layers...</small>
-                                    </div>
-                                `
+                                        <div class="text-center">
+                                            <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;"></div>
+                                            <p class="mt-3">Loading Map Components</p>
+                                            <small class="text-muted">Setting up base maps and layers...</small>
+                                        </div>
+                                    `
                         });
 
                         // Register token
@@ -1221,15 +1335,15 @@
                         // Step 3: Initialize layers
                         Swal.update({
                             html: `
-                                    <div class="text-center">
-                                        <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;"></div>
-                                        <p class="mt-3">Loading GIS Layers</p>
-                                        <small class="text-muted">Connecting to State Land and Admin Boundaries...</small>
-                                        <div class="progress mt-3" style="height: 6px;">
-                                            <div class="progress-bar progress-bar-striped progress-bar-animated" style="width: 50%"></div>
+                                        <div class="text-center">
+                                            <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;"></div>
+                                            <p class="mt-3">Loading GIS Layers</p>
+                                            <small class="text-muted">Connecting to State Land and Admin Boundaries...</small>
+                                            <div class="progress mt-3" style="height: 6px;">
+                                                <div class="progress-bar progress-bar-striped progress-bar-animated" style="width: 50%"></div>
+                                            </div>
                                         </div>
-                                    </div>
-                                `
+                                    `
                         });
 
                         await initLayers();
@@ -1237,15 +1351,15 @@
                         // Step 4: Setup components
                         Swal.update({
                             html: `
-                                    <div class="text-center">
-                                        <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;"></div>
-                                        <p class="mt-3">Setting Up Interface Components</p>
-                                        <small class="text-muted">Preparing map controls and verification layers...</small>
-                                        <div class="progress mt-3" style="height: 6px;">
-                                            <div class="progress-bar progress-bar-striped progress-bar-animated" style="width: 75%"></div>
+                                        <div class="text-center">
+                                            <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;"></div>
+                                            <p class="mt-3">Setting Up Interface Components</p>
+                                            <small class="text-muted">Preparing map controls and verification layers...</small>
+                                            <div class="progress mt-3" style="height: 6px;">
+                                                <div class="progress-bar progress-bar-striped progress-bar-animated" style="width: 75%"></div>
+                                            </div>
                                         </div>
-                                    </div>
-                                `
+                                    `
                         });
 
                         // Create verification graphics layer
@@ -1284,15 +1398,15 @@
                         // Step 5: Load district data
                         Swal.update({
                             html: `
-                                    <div class="text-center">
-                                        <div class="spinner-border text-success" style="width: 3rem; height: 3rem;"></div>
-                                        <p class="mt-3">Loading District Data</p>
-                                        <small class="text-muted">Fetching tehsils and administrative boundaries...</small>
-                                        <div class="progress mt-3" style="height: 6px;">
-                                            <div class="progress-bar progress-bar-striped progress-bar-animated" style="width: 90%"></div>
+                                        <div class="text-center">
+                                            <div class="spinner-border text-success" style="width: 3rem; height: 3rem;"></div>
+                                            <p class="mt-3">Loading District Data</p>
+                                            <small class="text-muted">Fetching tehsils and administrative boundaries...</small>
+                                            <div class="progress mt-3" style="height: 6px;">
+                                                <div class="progress-bar progress-bar-striped progress-bar-animated" style="width: 90%"></div>
+                                            </div>
                                         </div>
-                                    </div>
-                                `
+                                    `
                         });
 
                         await loadDistrictData();
@@ -1302,12 +1416,12 @@
                             icon: 'success',
                             title: 'System Ready!',
                             html: `
-                                    <div class="text-center">
-                                        <i class="fas fa-check-circle fa-3x text-success mb-3"></i>
-                                        <p>Land Management System Initialized Successfully</p>
-                                        <small class="text-muted">Select a tehsil and mouza to begin verification</small>
-                                    </div>
-                                `,
+                                        <div class="text-center">
+                                            <i class="fas fa-check-circle fa-3x text-success mb-3"></i>
+                                            <p>Land Management System Initialized Successfully</p>
+                                            <small class="text-muted">Select a tehsil and mouza to begin verification</small>
+                                        </div>
+                                    `,
                             showConfirmButton: true,
                             confirmButtonText: 'Start Verification',
                             timer: 3000,
@@ -1328,9 +1442,9 @@
                             icon: 'Error',
                             title: 'Continue On Map',
                             html: `
-                                    <div class="text-center">
-                                        </div>
-                                `,
+                                        <div class="text-center">
+                                            </div>
+                                    `,
                             allowOutsideClick: true,
                             allowEscapeKey: false
                         });
@@ -1349,12 +1463,12 @@
                         const loadingSwal = Swal.fire({
                             title: 'Loading District Data',
                             html: `
-                                    <div class="text-center">
-                                        <div class="spinner-border text-primary mb-3" style="width: 2rem; height: 2rem;"></div>
-                                        <p>Fetching administrative boundaries</p>
-                                        <small class="text-muted">Please wait...</small>
-                                    </div>
-                                `,
+                                        <div class="text-center">
+                                            <div class="spinner-border text-primary mb-3" style="width: 2rem; height: 2rem;"></div>
+                                            <p>Fetching administrative boundaries</p>
+                                            <small class="text-muted">Please wait...</small>
+                                        </div>
+                                    `,
                             allowOutsideClick: false,
                             showConfirmButton: false
                         });
@@ -1409,16 +1523,16 @@
                             popupTemplate: {
                                 title: "State Land - {Mouza}",
                                 content: `
-                                            <div style="font-size: 0.85rem; line-height: 1.4;">
-                                                <div><strong>District:</strong> {District}</div>
-                                                <div><strong>Tehsil:</strong> {Tehsil}</div>
-                                                <div><strong>Mouza:</strong> {Mouza}</div>
-                                                <div><strong>Khasra No:</strong> {K}</div>
-                                                <div><strong>Khasra ID:</strong> {Khasra_ID}</div>
-                                                <div><strong>Area (Sq Ft):</strong> {Shape_Area} sq units</div>
-                                                <div><strong>Type:</strong> {Type}</div>
-                                            </div>
-                                        `
+                                                <div style="font-size: 0.85rem; line-height: 1.4;">
+                                                    <div><strong>District:</strong> {District}</div>
+                                                    <div><strong>Tehsil:</strong> {Tehsil}</div>
+                                                    <div><strong>Mouza:</strong> {Mouza}</div>
+                                                    <div><strong>Khasra No:</strong> {K}</div>
+                                                    <div><strong>Khasra ID:</strong> {Khasra_ID}</div>
+                                                    <div><strong>Area (Sq Ft):</strong> {Shape_Area} sq units</div>
+                                                    <div><strong>Type:</strong> {Type}</div>
+                                                </div>
+                                            `
                             },
                             renderer: {
                                 type: "simple",
@@ -1484,17 +1598,17 @@
                     return Swal.fire({
                         title: title,
                         html: `
-                                <div class="text-center">
-                                    <div class="spinner-border text-primary mb-3" style="width: 3rem; height: 3rem;"></div>
-                                    <p class="mb-1">${message}</p>
-                                    <small class="text-muted d-block mb-2">Communicating with GIS Resources...</small>
-                                    <div class="progress" style="height: 8px;">
-                                        <div class="progress-bar progress-bar-striped progress-bar-animated"
-                                                style="width: ${progress}%"></div>
+                                    <div class="text-center">
+                                        <div class="spinner-border text-primary mb-3" style="width: 3rem; height: 3rem;"></div>
+                                        <p class="mb-1">${message}</p>
+                                        <small class="text-muted d-block mb-2">Communicating with GIS Resources...</small>
+                                        <div class="progress" style="height: 8px;">
+                                            <div class="progress-bar progress-bar-striped progress-bar-animated"
+                                                    style="width: ${progress}%"></div>
+                                        </div>
+                                        <small class="text-muted mt-2">${progress}% complete</small>
                                     </div>
-                                    <small class="text-muted mt-2">${progress}% complete</small>
-                                </div>
-                            `,
+                                `,
                         allowOutsideClick: false,
                         showConfirmButton: false,
                         backdrop: 'rgba(0, 0, 0, 0.5)'
@@ -1606,15 +1720,6 @@
                 searchInput.focus();
                 clearSearchBtn.style.display = 'none';
             });
-
-            // Toggle filters visibility
-            //toggleFiltersBtn.addEventListener('click', function () {
-            //    const filterControls = document.querySelector('.compact-filter-controls');
-            //    const isHidden = filterControls.style.display === 'none';
-            //    filterControls.style.display = isHidden ? 'flex' : 'none';
-            //    this.innerHTML = isHidden ? '<i class="fas fa-filter"></i>' : '<i class="fas fa-eye-slash"></i>';
-            //    this.title = isHidden ? 'Hide filters' : 'Show filters';
-            //});
 
             // Scroll to current khasra button
             scrollToCurrentBtn.addEventListener('click', function () {
@@ -2089,10 +2194,10 @@
                     // Still need to load GIS features for map visualization
                     Swal.update({
                         html: `
-                                <div class="text-center">
-                                    <small class="text-muted">Loading GIS Features...</small>
-                                </div>
-                            `
+                                    <div class="text-center">
+                                        <small class="text-muted">Loading GIS Features...</small>
+                                    </div>
+                                `
                     });
                     await loadGISFeaturesForMouza(mouzaId);
 
@@ -2108,10 +2213,10 @@
                     // Show compact khasra list
                     Swal.update({
                         html: `
-                                <div class="text-center">
-                                    <small class="text-muted">Preparing Khasra Listing...</small>
-                                </div>
-                            `
+                                    <div class="text-center">
+                                        <small class="text-muted">Preparing Khasra Listing...</small>
+                                    </div>
+                                `
                     });
                     showCompactKhasraList();
 
@@ -2608,19 +2713,19 @@
                 }
 
                 item.innerHTML = `
-                                    <div class="compact-khasra-info">
-                                        <div class="d-flex align-items-center justify-content-between">
-                                            <span class="compact-khasra-number" title="${statusTitle}" data-original-text="${displayKhasraNo}">${displayKhasraNo}</span>
-                                            <div class="compact-khasra-icons">${statusIcons}</div>
+                                        <div class="compact-khasra-info">
+                                            <div class="d-flex align-items-center justify-content-between">
+                                                <span class="compact-khasra-number" title="${statusTitle}" data-original-text="${displayKhasraNo}">${displayKhasraNo}</span>
+                                                <div class="compact-khasra-icons">${statusIcons}</div>
+                                            </div>
+                                            <small class="text-muted" style="font-size: 0.7rem;">
+                                                Area: ${feature.attributes.Shape_Area ? convertSqFtToAkmV2(feature.attributes.Shape_Area) : 'N/A'}
+                                            </small>
                                         </div>
-                                        <small class="text-muted" style="font-size: 0.7rem;">
-                                            Area: ${feature.attributes.Shape_Area ? convertSqFtToAkmV2(feature.attributes.Shape_Area) : 'N/A'}
-                                        </small>
-                                    </div>
-                                    <span class="compact-verification-badge ${badgeClass}" title="${statusTitle}">
-                                        ${badgeText}
-                                    </span>
-                                `;
+                                        <span class="compact-verification-badge ${badgeClass}" title="${statusTitle}">
+                                            ${badgeText}
+                                        </span>
+                                    `;
 
                 item.addEventListener('click', () => {
                     selectKhasraFromList(khasraId);
@@ -2840,7 +2945,7 @@
             debugger
             showToast('warning', 'Creation Time Passed', 'Lot creation time has passed, no more lots creation allowed.');
             //showToast('warning', 'Lot Creation Resumed Tempurarily', 'Lots Updation has been temporarily opened to adjust lots and Khasras as per the shared schedule.');
-            return;
+            //return;
             const submitBtn = document.getElementById('btnSubmit');
             const originalText = submitBtn.innerHTML;
 
@@ -2858,15 +2963,15 @@
                     return;
                 }
 
-                const totalSqFt = selectedPayload.reduce((sum, item) => {
-                    var area = item.khasraArea;
-                    return sum + item.KhasraArea; // assuming property name is Area
-                }, 0);
+                //const totalSqFt = selectedPayload.reduce((sum, item) => {
+                //    var area = item.khasraArea;
+                //    return sum + item.KhasraArea; // assuming property name is Area
+                //}, 0);
 
-                if (totalSqFt > 217800) {
-                    showToast('danger', 'Area Limit Reached', 'Total selected area exceeds 5 Acres.');
-                    return;
-                }
+                //if (totalSqFt > 217800) {
+                //    showToast('danger', 'Area Limit Reached', 'Total selected area exceeds 5 Acres.');
+                //    return;
+                //}
 
                 // ────────────────────────────────────────────────
                 // Common inputs
@@ -2880,9 +2985,22 @@
                 const suitabilityCsv = suitability.join(',');
                 const remarks = document.getElementById('remarks')?.value?.trim() || '';
                 const leasePerAcre = parseFloat(document.getElementById('leasePerAcre')?.value) || null;
+                const possibleUse = document.getElementById("possibleUse").value;
+                const possibleUseSub = document.getElementById("possibleUseSub").value;
+                const possibleUseOther = document.getElementById("possibleUseOther").value.trim();
+                const dcRateValue = document.getElementById("dcRateValue").value;
+                const marketValue = document.getElementById("marketValue").value;
 
-                if (!suitabilityCsv && !remarks) {
-                    showToast('warning', 'Incomplete', 'Select suitability or enter remarks.');
+                console.log({
+                    possibleUse,
+                    possibleUseSub,
+                    possibleUseOther,
+                    dcRateValue,
+                    marketValue
+                });
+
+                if (!possibleUse || !dcRateValue || !marketValue) {
+                    showToast('warning', 'Incomplete', 'Selection of Possible Use, DC Rate, Market Rate is necessary.');
                     return;
                 }
 
@@ -2897,7 +3015,12 @@
                     Suitability: suitabilityCsv,
                     LeasePerAcre: 0,
                     Remarks: '',
-                    UniqueId: uniqueId
+                    UniqueId: uniqueId,
+                    PossibleUse: possibleUse,
+                    PossibleUseOther: possibleUseOther,
+                    PossibleUseSub: possibleUseSub,
+                    DcRateValue: dcRateValue,
+                    MarketValue: marketValue
                 };
                 const response = await executeSP("i_SaveLotBandi_V1", params);
 
@@ -2940,6 +3063,12 @@
             selectedKhasraIds.clear();
 
             $('input[type="radio"]').prop('checked', false);
+            $('input[type="checkbox"]').prop('checked', false);
+            document.getElementById("possibleUse").value = '';
+            document.getElementById("possibleUseSub").value = '';
+            document.getElementById("possibleUseOther").value.trim();
+            document.getElementById("dcRateValue").value = '';
+            document.getElementById("marketValue").value = '';
 
             updateSelectedTagsDisplay();
             updateCompactKhasraListDisplay();
@@ -2951,16 +3080,16 @@
         function showToast(type, title, message) {
             const toastId = 'toast-' + Date.now();
             const toastHtml = `
-                                            <div id="${toastId}" class="toast" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="5000">
-                                                <div class="toast-header bg-${type} text-white">
-                                                    <strong class="me-auto">${title}</strong>
-                                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
+                                                <div id="${toastId}" class="toast" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="5000">
+                                                    <div class="toast-header bg-${type} text-white">
+                                                        <strong class="me-auto">${title}</strong>
+                                                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
+                                                    </div>
+                                                    <div class="toast-body">
+                                                        ${message}
+                                                    </div>
                                                 </div>
-                                                <div class="toast-body">
-                                                    ${message}
-                                                </div>
-                                            </div>
-                                        `;
+                                            `;
 
             document.getElementById('toastContainer').insertAdjacentHTML('beforeend', toastHtml);
 
@@ -3026,26 +3155,26 @@
                 }
 
                 tag.innerHTML = `
-                                <div class="tag-main">
-                                    <div class="tag-meta">
-                                        <span><strong>Khewat No.: </strong> ${khasraObj.KhewatNo || '—'}</span>
-                                        <span><strong>Muraba No.: </strong> ${muraba || '—'}</span>
-                                        <span><strong>Khasra No.: </strong> ${khasra || '—'}</span><br/>
-                                        <span><strong>Khasra Area: </strong> ${area || '—'}</span><br/>
+                                    <div class="tag-main">
+                                        <div class="tag-meta">
+                                            <span><strong>Khewat No.: </strong> ${khasraObj.KhewatNo || '—'}</span>
+                                            <span><strong>Muraba No.: </strong> ${muraba || '—'}</span>
+                                            <span><strong>Khasra No.: </strong> ${khasra || '—'}</span><br/>
+                                            <span><strong>Khasra Area: </strong> ${area || '—'}</span><br/>
+                                        </div>
                                     </div>
-                                </div>
 
-                                <button class="remove-btn"
-                                        data-khasra-id="${id}"
-                                        title="Remove parcel">×</button>
+                                    <button class="remove-btn"
+                                            data-khasra-id="${id}"
+                                            title="Remove parcel">×</button>
 
-                                <!-- Hidden JSON payload -->
-                                <div class="khasra-json-holder"
-                                        data-khasra-id="${id}"
-                                        style="display:none;">
-                                    ${JSON.stringify(khasraObj)}
-                                </div>
-                            `;
+                                    <!-- Hidden JSON payload -->
+                                    <div class="khasra-json-holder"
+                                            data-khasra-id="${id}"
+                                            style="display:none;">
+                                        ${JSON.stringify(khasraObj)}
+                                    </div>
+                                `;
 
                 // Click on tag (excluding remove button) → focus parcel
                 tag.addEventListener('click', e => {

@@ -154,8 +154,9 @@ builder.Services.AddCors(options =>
     {
         policy.WithOrigins(
                 "http://localhost:4200",
-                "https://akar.pulse.gop.pk",
-                "https://akardev.pulse.gop.pk"
+                "https://localhost:7147",
+                "https://auction.pulse.gop.pk",
+                "https://dev-auction.pulse.gop.pk"
             )
             .AllowAnyHeader()
             .AllowAnyMethod()

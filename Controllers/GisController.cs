@@ -65,7 +65,7 @@ namespace StateLand.Controllers
                 {
             new KeyValuePair<string, string>("username", username),
             new KeyValuePair<string, string>("password", password),
-            new KeyValuePair<string, string>("referer", tokenUrlRef),
+            new KeyValuePair<string, string>("referer", "*"),
             new KeyValuePair<string, string>("f", "json")
         });
 

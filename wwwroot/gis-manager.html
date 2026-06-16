@@ -989,11 +989,11 @@
                         <div class="form-control-cell">
                             <div class="option-group horizontal">
                                 <div class="option-item">
-                                    <input type="radio" id="landUnderBOR" name="landUnder" value="BOR">
+                                    <input type="radio" id="landUnderBOR" name="landUnder" value="BOR" checked>
                                     <label for="landUnderBOR">BOR</label>
                                 </div>
                                 <div class="option-item">
-                                    <input type="radio" id="landUnderDepartment" name="landUnder" value="Department" checked>
+                                    <input type="radio" id="landUnderDepartment" name="landUnder" value="Department">
                                     <label for="landUnderDepartment">Under Department</label>
                                 </div>
                             </div>
@@ -1071,17 +1071,21 @@
                     <!-- Land Availability (Different titles based on selection) -->
                     <div class="form-row" id="landAvailabilityRow">
                         <div class="form-label-cell">
-                            <label class="form-label" id="landAvailableLabel">Land available for Allotment?</label>
+                            <label class="form-label" id="landAvailableLabel">Land available for?</label>
                         </div>
                         <div class="form-control-cell">
                             <div class="option-group horizontal">
                                 <div class="option-item">
-                                    <input type="radio" id="landAvailableYes" name="landAvailable" value="yes">
-                                    <label for="landAvailableYes" id="landAvailableYesLabel">Yes</label>
+                                    <input type="radio" id="landAvailableYes" name="landAvailable" value="sale">
+                                    <label for="landAvailableYes" id="landAvailableYesLabel">Sale</label>
+                                </div>
+                                <div class="option-item">
+                                    <input type="radio" id="landAvailableForLease" name="landAvailable" value="lease">
+                                    <label for="landAvailableForLease" id="landAvailableForLeaseLabel">Lease</label>
                                 </div>
                                 <div class="option-item">
                                     <input type="radio" id="landAvailableNo" name="landAvailable" value="no">
-                                    <label for="landAvailableNo" id="landAvailableNoLabel">No</label>
+                                    <label for="landAvailableNo" id="landAvailableNoLabel">Not Available</label>
                                 </div>
                             </div>
                         </div>
@@ -1301,9 +1305,6 @@
                                 <div class="form-label-cell">
                                     <label for="schemeName" class="form-label">Scheme Name</label>
                                 </div>
-                                <!--<div class="form-control-cell">
-                    <input type="text" class="form-control form-control-sm" id="schemeName" placeholder="Enter scheme name">
-                </div>-->
                                 <select class="form-control form-control-sm" id="schemeName">
                                     <option value="">-- Select Land Type --</option>
                                     <option value="جناح آبادی  سکیم">جناح آبادی  سکیم</option>
@@ -1400,23 +1401,8 @@
                     </div>
 
 
-                    <div class="form-row">
-                        <div class="form-label-cell">
-                            <label for="dcRateValue" class="form-label">DC Rate Value</label>
-                        </div>
-                        <div class="form-control-cell">
-                            <input type="number" class="form-control form-control-sm" id="dcRateValue" placeholder="Enter Price/ DC Rate Value" />
-                        </div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-label-cell">
-                            <label for="marketValue" class="form-label">Market Value</label>
-                        </div>
-                        <div class="form-control-cell">
-                            <input type="text" class="form-control form-control-sm" id="marketValue" placeholder="Enter Market Price/Value" />
-                        </div>
-                    </div>
-                    <div class="form-row">
+
+                    <!--<div class="form-row">
                         <div class="form-label-cell">
                             <label class="form-label">Possible Use</label>
                         </div>
@@ -1443,6 +1429,23 @@
                                    placeholder="Enter Other Possible Use" />
                         </div>
                     </div>
+
+                    <div class="form-row">
+                        <div class="form-label-cell">
+                            <label for="dcRateValue" class="form-label">DC Rate Value</label>
+                        </div>
+                        <div class="form-control-cell">
+                            <input type="number" class="form-control form-control-sm" id="dcRateValue" placeholder="Enter Price/ DC Rate Value" />
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-label-cell">
+                            <label for="marketValue" class="form-label">Market Value</label>
+                        </div>
+                        <div class="form-control-cell">
+                            <input type="text" class="form-control form-control-sm" id="marketValue" placeholder="Enter Market Price/Value" />
+                        </div>
+                    </div>-->
 
                     <!-- Remarks (Common for both flows) -->
                     <div class="form-row">
@@ -2030,18 +2033,18 @@
             }
         }
 
-        const possibleUse = document.getElementById("possibleUse");
-        const possibleUseOtherRow = document.getElementById("possibleUseOtherRow");
+        //const possibleUse = document.getElementById("possibleUse");
+        //const possibleUseOtherRow = document.getElementById("possibleUseOtherRow");
 
-        possibleUse.addEventListener("change", function () {
+        //possibleUse.addEventListener("change", function () {
 
-            if (this.value === "Other") {
-                possibleUseOtherRow.style.display = "";
-            } else {
-                possibleUseOtherRow.style.display = "none";
-                document.getElementById("possibleUseOther").value = "";
-            }
-        });
+        //    if (this.value === "Other") {
+        //        possibleUseOtherRow.style.display = "";
+        //    } else {
+        //        possibleUseOtherRow.style.display = "none";
+        //        document.getElementById("possibleUseOther").value = "";
+        //    }
+        //});
 
         // Make the DIV element draggable:
         //dragElement(document.getElementById("compactKhasraList"));
@@ -2576,52 +2579,55 @@
                 const landAvailableFields = document.getElementById('landAvailableFields');
                 const landNotAvailableFields = document.getElementById('landNotAvailableFields');
 
-                if (this.value === 'yes') {
+                const landAvailableRadio = document.querySelector('input[name="landAvailable"]:checked');
+                const isAvailable = ["sale", "lease"].includes(landAvailableRadio.value);
+
+                if (isAvailable) {
                     console.log('Land Available: Yes, showing available fields');
 
                     // Show Available fields
-                    if (landAvailableFields) {
-                        landAvailableFields.style.display = 'block';
-                        landAvailableFields.style.visibility = 'visible';
-                        landAvailableFields.style.opacity = '1';
-                        landAvailableFields.offsetHeight;
-                    }
+                    //if (landAvailableFields) {
+                    //    landAvailableFields.style.display = 'block';
+                    //    landAvailableFields.style.visibility = 'visible';
+                    //    landAvailableFields.style.opacity = '1';
+                    //    landAvailableFields.offsetHeight;
+                    //}
 
-                    // Hide Not Available fields
-                    if (landNotAvailableFields) {
-                        landNotAvailableFields.style.display = 'none';
-                        landNotAvailableFields.style.visibility = 'hidden';
-                        landNotAvailableFields.style.opacity = '0';
+                    //// Hide Not Available fields
+                    //if (landNotAvailableFields) {
+                    //    landNotAvailableFields.style.display = 'none';
+                    //    landNotAvailableFields.style.visibility = 'hidden';
+                    //    landNotAvailableFields.style.opacity = '0';
 
-                        // Clear "Not Available" fields
-                        $('#litigationYes').prop('checked', false);
-                        $('#underScheme').prop('checked', false);
-                        $('#ghairMumkin').prop('checked', false);
-                        $('#schemeName').val('');
-                        $('#leaseFrom').val('');
-                        $('#leaseTo').val('');
-                        $('#landUse').val('');
-                        $('#otherLandUse').val('');
-                        $('#encroached').prop('checked', false);
-                        $('#encroachmentDetails').val('');
+                    //    // Clear "Not Available" fields
+                    //    $('#litigationYes').prop('checked', false);
+                    //    $('#underScheme').prop('checked', false);
+                    //    $('#ghairMumkin').prop('checked', false);
+                    //    $('#schemeName').val('');
+                    //    $('#leaseFrom').val('');
+                    //    $('#leaseTo').val('');
+                    //    $('#landUse').val('');
+                    //    $('#otherLandUse').val('');
+                    //    $('#encroached').prop('checked', false);
+                    //    $('#encroachmentDetails').val('');
 
-                        // Hide conditional sections
-                        $('#schemeFields').hide();
-                        $('#ghairMumkinFields').hide();
-                        $('#otherLandUseField').hide();
-                        $('#encroachedFields').hide();
-                    }
+                    //    // Hide conditional sections
+                    //    $('#schemeFields').hide();
+                    //    $('#ghairMumkinFields').hide();
+                    //    $('#otherLandUseField').hide();
+                    //    $('#encroachedFields').hide();
+                    //}
 
-                    // Reset and hide cultivable fields initially
-                    document.getElementById('cultivableFields').style.display = 'none';
-                    document.getElementById('nonCultivableFields').style.display = 'none';
-                    $('input[name="isCultivated"]').prop('checked', false);
-                    $('input[name="waterAvailable"]').prop('checked', false);
-                    $('#waterSource').val('');
-                    $('#waterSourceFields').hide();
-                    $('#landType').val('');
-                    $('#otherLandType').val('');
-                    $('#otherLandTypeField').hide();
+                    //// Reset and hide cultivable fields initially
+                    //document.getElementById('cultivableFields').style.display = 'none';
+                    //document.getElementById('nonCultivableFields').style.display = 'none';
+                    //$('input[name="isCultivated"]').prop('checked', false);
+                    //$('input[name="waterAvailable"]').prop('checked', false);
+                    //$('#waterSource').val('');
+                    //$('#waterSourceFields').hide();
+                    //$('#landType').val('');
+                    //$('#otherLandType').val('');
+                    //$('#otherLandTypeField').hide();
 
                 } else if (this.value === 'no') {
                     console.log('Land Available: No, showing not available fields');
@@ -4807,9 +4813,8 @@
                             outlineColor = [41, 128, 185, 1];
                             status = 'department';
                         } else if (verifiedData.LandUnder === 'BOR') {
-                            const isAvailable = verifiedData.LandAvailable === true ||
-                                verifiedData.LandAvailable === 1 ||
-                                verifiedData.LandAvailable === 'yes';
+                            const isAvailable = verifiedData.LandAvailable === 'lease' ||
+                                verifiedData.LandAvailable === 'sale';
 
                             if (isAvailable) {
                                 // BOR Available - GREEN
@@ -5009,9 +5014,8 @@
                         badgeText = 'D';
                         statusTitle = 'Department';
                     } else if (verifiedData.LandUnder === 'BOR') {
-                        const isAvailable = verifiedData.LandAvailable === true ||
-                            verifiedData.LandAvailable === 1 ||
-                            verifiedData.LandAvailable === 'yes';
+                        const isAvailable = verifiedData.LandAvailable === 'sale' ||
+                            verifiedData.LandAvailable === 'lease';
 
                         if (isAvailable) {
                             badgeClass = 'compact-badge-bor-available';
@@ -5224,16 +5228,11 @@
             document.getElementById('correctAreaK').value = '';
             document.getElementById('correctAreaM').value = '';
             document.getElementById('remarks').value = '';
-            $('#dcRateValue').val('');
-            $('#marketValue').val('');
-            $('#possibleUse').val('');
-            $('#possibleUseOther').val('');
 
             // Hide all conditional fields
             clearAllConditionalFields();
 
             // Hide validation correction fields
-            //document.getElementById('possibleUseOther').style.display = 'none';
             document.getElementById('correctKhasraFields').style.display = 'none';
             document.getElementById('correctKhewatFields').style.display = 'none';
             document.getElementById('correctAreaFields').style.display = 'none';
@@ -5378,10 +5377,8 @@
                     departmentCount++;
                 } else if (khasra.LandUnder === 'BOR') {
                     // Check if LandAvailable is boolean or string
-                    const isAvailable = khasra.LandAvailable === true ||
-                        khasra.LandAvailable === 1 ||
-                        khasra.LandAvailable === 'yes' ||
-                        khasra.LandAvailable === 'true';
+                    const isAvailable = khasra.LandAvailable === 'sale' ||
+                        khasra.LandAvailable === 'lease';
 
                     if (isAvailable) {
                         borAvailableCount++;
@@ -5723,7 +5720,7 @@
                 // 2. Land Available/Not Available
                 if (data.LandAvailable !== null && data.LandAvailable !== undefined) {
                     console.log('DEBUG: Setting LandAvailable to:', data.LandAvailable);
-                    const landAvailableValue = data.LandAvailable ? 'yes' : 'no';
+                    const landAvailableValue = data.LandAvailable;
                     const landAvailableRadio = document.querySelector(`input[name="landAvailable"][value="${landAvailableValue}"]`);
 
                     if (landAvailableRadio) {
@@ -5786,7 +5783,7 @@
 
             // 2. Land Available/Not Available
             if (data.LandAvailable !== null && data.LandAvailable !== undefined) {
-                const landAvailableValue = data.LandAvailable ? 'yes' : 'no';
+                const landAvailableValue = data.LandAvailable;
                 const landAvailableRadio = document.querySelector(`input[name="landAvailable"][value="${landAvailableValue}"]`);
 
                 if (landAvailableRadio) {
@@ -6143,7 +6140,7 @@
 
             if (landUnder === 'BOR') {
                 // Update labels for BOR
-                document.getElementById('landAvailableLabel').textContent = 'Land available for Allotment?';
+                document.getElementById('landAvailableLabel').textContent = 'Land available for?';
                 document.getElementById('landAvailableYesLabel').textContent = 'Available';
                 document.getElementById('landAvailableNoLabel').textContent = 'Not Available';
                 document.getElementById('ghairMumkinLabel').textContent = 'Ghair Mumkin?';
@@ -6166,8 +6163,8 @@
 
             } else if (landUnder === 'Department') {
                 // Update labels for Department
-                document.getElementById('landAvailableLabel').textContent = 'Land available for Allotment?';
-                document.getElementById('landAvailableYesLabel').textContent = 'Available/Surplus';
+                document.getElementById('landAvailableLabel').textContent = 'Land available for?';
+                document.getElementById('landAvailableYesLabel').textContent = 'Sale';
                 document.getElementById('landAvailableNoLabel').textContent = 'Not Available';
                 document.getElementById('ghairMumkinLabel').textContent = 'Under Department Use?';
                 document.getElementById('ghairMumkinText').textContent = 'Yes';
@@ -6375,6 +6372,9 @@
             const landUnderRadio = document.querySelector('input[name="landUnder"]:checked');
             const landUnder = landUnderRadio ? landUnderRadio.value : null;
 
+            const landAvailableRadio = document.querySelector('input[name="landAvailable"]:checked');
+            const landAvailable = landAvailableRadio ? landAvailableRadio.value : null;
+
             const formData = {
                 KhasraId: parseInt(currentKhasraId),
                 MauzaId: currentMouzaId ? parseInt(currentMouzaId) : null,
@@ -6385,7 +6385,7 @@
                 LandUnder: landUnder,
 
                 // Land availability (common for both)
-                LandAvailable: getRadioValue('landAvailable'),
+                LandAvailable: landAvailable,
 
                 // Fields for Land Available = Yes (common for both)
                 IsCultivated: getRadioValue('landAvailable') ? getRadioValue('isCultivated') : null,
@@ -6421,10 +6421,6 @@
 
                 // Common fields
                 Remarks: document.getElementById('remarks').value || null,
-                DcRateValue: document.getElementById('dcRateValue').value || null,
-                MarketValue: document.getElementById('marketValue').value || null,
-                PossibleUse: document.getElementById('possibleUse').value || null,
-                PossibleUseOther: document.getElementById('possibleUseOther').value || null,
 
                 // Validation fields (keep as is)
                 IsKhasraCorrect: getRadioValue('isKhasraCorrect'),
@@ -6528,6 +6524,7 @@
 
         // Add this function to your existing script, preferably near other validation functions
         function validateAssessmentForm() {
+            debugger
             let isValid = true;
             const errors = [];
 
@@ -6537,22 +6534,22 @@
                 isValid = false;
                 errors.push('Please select Land Availability');
             } else {
-                const isAvailable = landAvailableRadio.value === 'yes';
+                const isAvailable = ["sale", "lease"].includes(landAvailableRadio.value);
 
                 if (isAvailable) {
                     // 2. For Land Available = YES, check soil condition and land suitability
-                    const soilConditions = document.querySelectorAll('input[name="soilCondition"]:checked');
-                    const suitabilities = document.querySelectorAll('input[name="suitability"]:checked');
+                    //const soilConditions = document.querySelectorAll('input[name="soilCondition"]:checked');
+                    //const suitabilities = document.querySelectorAll('input[name="suitability"]:checked');
 
-                    if (soilConditions.length === 0) {
-                        isValid = false;
-                        errors.push('Please select at least one Soil Condition');
-                    }
+                    //if (soilConditions.length === 0) {
+                    //    isValid = false;
+                    //    errors.push('Please select at least one Soil Condition');
+                    //}
 
-                    if (suitabilities.length === 0) {
-                        isValid = false;
-                        errors.push('Please select at least one Land Suitability');
-                    }
+                    //if (suitabilities.length === 0) {
+                    //    isValid = false;
+                    //    errors.push('Please select at least one Land Suitability');
+                    //}
                 } else {
                     // 3. For Land Available = NO, check at least one sub-option is selected
                     const litigationChecked = document.getElementById('litigationYes')?.checked || false;
@@ -6633,13 +6630,15 @@
             }
 
             // Validate land availability (mandatory)
-            const landAvailable = document.querySelector('input[name="landAvailable"]:checked');
-            if (!landAvailable) {
+            const landAvailableRadio = document.querySelector('input[name="landAvailable"]:checked');
+            if (!landAvailableRadio) {
                 showToast('warning', 'Missing Information', 'Please select land availability.');
                 return false;
             }
 
-            if (landAvailable.value === 'yes') {
+            const isAvailable = ["sale", "lease"].includes(landAvailableRadio.value);
+
+            if (isAvailable) {
                 // Land is available - validate available fields
                 const isCultivated = document.querySelector('input[name="isCultivated"]:checked');
                 if (!isCultivated) {
@@ -7758,14 +7757,6 @@
                 setTimeout(showFirstKhasraWelcome, 500);
             });
         }
-
-
-
-
-
-
-
-
 
     </script>
 </body>
