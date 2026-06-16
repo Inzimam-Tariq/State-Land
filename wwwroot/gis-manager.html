@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>State Land Management Dashboard</title>
+    <title>State Land Auction Management Module</title>
 
     <!-- Bootstrap 5 -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -628,7 +628,7 @@
         <div class="container-fluid" style="background: forestgreen">
             <i class="fas fa-bars menu-toggle" id="btnToggleSidebar"></i>
             <a class="navbar-brand text-white" href="#">
-                <i class="fas fa-map-marked-alt"></i>  State Land Management System
+                <i class="fas fa-map-marked-alt"></i>  State Land Auction Management Module
             </a>
             <div class="profile-view d-flex align-items-center">
 
@@ -989,11 +989,11 @@
                         <div class="form-control-cell">
                             <div class="option-group horizontal">
                                 <div class="option-item">
-                                    <input type="radio" id="landUnderBOR" name="landUnder" value="BOR" checked>
+                                    <input type="radio" id="landUnderBOR" name="landUnder" value="BOR">
                                     <label for="landUnderBOR">BOR</label>
                                 </div>
                                 <div class="option-item">
-                                    <input type="radio" id="landUnderDepartment" name="landUnder" value="Department">
+                                    <input type="radio" id="landUnderDepartment" name="landUnder" value="Department" checked>
                                     <label for="landUnderDepartment">Under Department</label>
                                 </div>
                             </div>
@@ -1302,8 +1302,8 @@
                                     <label for="schemeName" class="form-label">Scheme Name</label>
                                 </div>
                                 <!--<div class="form-control-cell">
-                                    <input type="text" class="form-control form-control-sm" id="schemeName" placeholder="Enter scheme name">
-                                </div>-->
+                    <input type="text" class="form-control form-control-sm" id="schemeName" placeholder="Enter scheme name">
+                </div>-->
                                 <select class="form-control form-control-sm" id="schemeName">
                                     <option value="">-- Select Land Type --</option>
                                     <option value="جناح آبادی  سکیم">جناح آبادی  سکیم</option>
@@ -1402,18 +1402,45 @@
 
                     <div class="form-row">
                         <div class="form-label-cell">
-                            <label for="valuationAmount" class="form-label">Valuation Amount(Estimate/Base Price)</label>
+                            <label for="dcRateValue" class="form-label">DC Rate Value</label>
                         </div>
                         <div class="form-control-cell">
-                            <input type="text" class="form-control form-control-sm" id="valuationAmount" rows="2" placeholder="Enter valuation amount(Estimate/Base Price)" />
+                            <input type="number" class="form-control form-control-sm" id="dcRateValue" placeholder="Enter Price/ DC Rate Value" />
                         </div>
                     </div>
                     <div class="form-row">
                         <div class="form-label-cell">
-                            <label for="PossibleUse" class="form-label">Possible Use</label>
+                            <label for="marketValue" class="form-label">Market Value</label>
                         </div>
                         <div class="form-control-cell">
-                            <input type="text" class="form-control form-control-sm" id="possibleUse" rows="2" placeholder="Enter Possible Use" />
+                            <input type="text" class="form-control form-control-sm" id="marketValue" placeholder="Enter Market Price/Value" />
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-label-cell">
+                            <label class="form-label">Possible Use</label>
+                        </div>
+                        <div class="form-control-cell">
+                            <select class="form-control form-control-sm" id="possibleUse">
+                                <option value="">-- Select Possible Use --</option>
+                                <option value="Agriculture">Agriculture</option>
+                                <option value="Residential">Residential</option>
+                                <option value="Commercial">Commercial</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row" id="possibleUseOtherRow" style="display:none">
+                        <div class="form-label-cell">
+                            <label for="possibleUseOther" class="form-label">
+                                Possible Use (Other)
+                            </label>
+                        </div>
+                        <div class="form-control-cell">
+                            <input type="text"
+                                   class="form-control form-control-sm"
+                                   id="possibleUseOther"
+                                   placeholder="Enter Other Possible Use" />
                         </div>
                     </div>
 
@@ -1439,16 +1466,16 @@
                         <div class="form-label-cell"></div>
                         <div class="form-control-cell">
                             <!--<div class="button-group">
-                                <button type="button" class="btn-custom btn-submit" id="btnSubmit">
-                                    <i class="fas fa-save"></i> Save
-                                </button>
-                                <button type="button" hidden class="btn-custom btn-validate" id="btnValidate">
-                                    <i class="fas fa-check-double"></i> Validate & Save
-                                </button>
-                                <button type="button" class="btn-custom btn-clear" id="btnClear">
-                                    <i class="fas fa-eraser"></i> Clear
-                                </button>
-                            </div>-->
+                <button type="button" class="btn-custom btn-submit" id="btnSubmit">
+                    <i class="fas fa-save"></i> Save
+                </button>
+                <button type="button" hidden class="btn-custom btn-validate" id="btnValidate">
+                    <i class="fas fa-check-double"></i> Validate & Save
+                </button>
+                <button type="button" class="btn-custom btn-clear" id="btnClear">
+                    <i class="fas fa-eraser"></i> Clear
+                </button>
+            </div>-->
                             <!-- Edit Request Remarks (hidden by default) -->
                             <div id="editRequestRemarksContainer" style="display:none;" class="mb-3">
                                 <label for="editRequestRemarks" class="form-label">Remarks for Edit Request</label>
@@ -1617,7 +1644,7 @@
             <div class="modal-content">
                 <div class="modal-header bg-primary text-white">
                     <h5 class="modal-title" id="helpModalLabel">
-                        <i class="fas fa-graduation-cap me-2"></i>State Land Management System - User Guide
+                        <i class="fas fa-graduation-cap me-2"></i>State Land Auction Management Module - User Guide
                     </h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
@@ -1858,7 +1885,7 @@
             <div class="d-flex justify-content-between align-items-center">
                 <div>
                     <i class="fas fa-star me-2"></i>
-                    <strong>Welcome to State Land Management System!</strong>
+                    <strong>Welcome to State Land Auction Management Module!</strong>
                     <span class="ms-2">Start by selecting a tehsil and mouza.</span>
                 </div>
                 <div>
@@ -2002,6 +2029,19 @@
                 }, 24 * 60 * 60 * 1000);
             }
         }
+
+        const possibleUse = document.getElementById("possibleUse");
+        const possibleUseOtherRow = document.getElementById("possibleUseOtherRow");
+
+        possibleUse.addEventListener("change", function () {
+
+            if (this.value === "Other") {
+                possibleUseOtherRow.style.display = "";
+            } else {
+                possibleUseOtherRow.style.display = "none";
+                document.getElementById("possibleUseOther").value = "";
+            }
+        });
 
         // Make the DIV element draggable:
         //dragElement(document.getElementById("compactKhasraList"));
@@ -5184,13 +5224,16 @@
             document.getElementById('correctAreaK').value = '';
             document.getElementById('correctAreaM').value = '';
             document.getElementById('remarks').value = '';
-            document.getElementById('valuationAmount').value = '';
-            document.getElementById('possibleUse').value = '';
+            $('#dcRateValue').val('');
+            $('#marketValue').val('');
+            $('#possibleUse').val('');
+            $('#possibleUseOther').val('');
 
             // Hide all conditional fields
             clearAllConditionalFields();
 
             // Hide validation correction fields
+            //document.getElementById('possibleUseOther').style.display = 'none';
             document.getElementById('correctKhasraFields').style.display = 'none';
             document.getElementById('correctKhewatFields').style.display = 'none';
             document.getElementById('correctAreaFields').style.display = 'none';
@@ -6378,8 +6421,10 @@
 
                 // Common fields
                 Remarks: document.getElementById('remarks').value || null,
-                ValuationAmount: document.getElementById('valuationAmount').value || null,
+                DcRateValue: document.getElementById('dcRateValue').value || null,
+                MarketValue: document.getElementById('marketValue').value || null,
                 PossibleUse: document.getElementById('possibleUse').value || null,
+                PossibleUseOther: document.getElementById('possibleUseOther').value || null,
 
                 // Validation fields (keep as is)
                 IsKhasraCorrect: getRadioValue('isKhasraCorrect'),
@@ -7466,7 +7511,7 @@
                 modalInstance.hide();
 
                 // Show welcome toast
-                showToast('success', 'Welcome!', 'You are ready to use the State Land Management System');
+                showToast('success', 'Welcome!', 'You are ready to use the State Land Auction Management Module');
             });
 
             // Reset to step 1 when modal opens
