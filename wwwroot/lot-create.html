@@ -1258,12 +1258,12 @@
                         const loadingSwal = Swal.fire({
                             title: 'Initializing Map...',
                             html: `
-                                        <div class="text-center">
-                                            <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;"></div>
-                                            <p class="mt-3">Connecting to GIS Resources</p>
-                                            <small class="text-muted">Please wait while we initialize the mapping system</small>
-                                        </div>
-                                    `,
+                                <div class="text-center">
+                                    <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;"></div>
+                                    <p class="mt-3">Connecting to GIS Resources</p>
+                                    <small class="text-muted">Please wait while we initialize the mapping system</small>
+                                </div>
+                            `,
                             allowOutsideClick: false,
                             allowEscapeKey: false,
                             showConfirmButton: false,
@@ -1273,12 +1273,12 @@
                         // Step 1: Get authentication token
                         Swal.update({
                             html: `
-                                        <div class="text-center">
-                                            <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;"></div>
-                                            <p class="mt-3">Authenticating with GIS Server</p>
-                                            <small class="text-muted">Establishing secure connection...</small>
-                                        </div>
-                                    `
+                                <div class="text-center">
+                                    <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;"></div>
+                                    <p class="mt-3">Authenticating with GIS Server</p>
+                                    <small class="text-muted">Establishing secure connection...</small>
+                                </div>
+                            `
                         });
 
                         const response = await fetch("/api/gis/token");
@@ -1290,12 +1290,12 @@
                         // Step 2: Register token and initialize GIS components
                         Swal.update({
                             html: `
-                                        <div class="text-center">
-                                            <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;"></div>
-                                            <p class="mt-3">Loading Map Components</p>
-                                            <small class="text-muted">Setting up base maps and layers...</small>
-                                        </div>
-                                    `
+                                <div class="text-center">
+                                    <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;"></div>
+                                    <p class="mt-3">Loading Map Components</p>
+                                    <small class="text-muted">Setting up base maps and layers...</small>
+                                </div>
+                            `
                         });
 
                         // Register token
@@ -1335,15 +1335,15 @@
                         // Step 3: Initialize layers
                         Swal.update({
                             html: `
-                                        <div class="text-center">
-                                            <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;"></div>
-                                            <p class="mt-3">Loading GIS Layers</p>
-                                            <small class="text-muted">Connecting to State Land and Admin Boundaries...</small>
-                                            <div class="progress mt-3" style="height: 6px;">
-                                                <div class="progress-bar progress-bar-striped progress-bar-animated" style="width: 50%"></div>
-                                            </div>
-                                        </div>
-                                    `
+                                <div class="text-center">
+                                    <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;"></div>
+                                    <p class="mt-3">Loading GIS Layers</p>
+                                    <small class="text-muted">Connecting to State Land and Admin Boundaries...</small>
+                                    <div class="progress mt-3" style="height: 6px;">
+                                        <div class="progress-bar progress-bar-striped progress-bar-animated" style="width: 50%"></div>
+                                    </div>
+                                </div>
+                            `
                         });
 
                         await initLayers();
@@ -1351,15 +1351,15 @@
                         // Step 4: Setup components
                         Swal.update({
                             html: `
-                                        <div class="text-center">
-                                            <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;"></div>
-                                            <p class="mt-3">Setting Up Interface Components</p>
-                                            <small class="text-muted">Preparing map controls and verification layers...</small>
-                                            <div class="progress mt-3" style="height: 6px;">
-                                                <div class="progress-bar progress-bar-striped progress-bar-animated" style="width: 75%"></div>
-                                            </div>
-                                        </div>
-                                    `
+                                <div class="text-center">
+                                    <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;"></div>
+                                    <p class="mt-3">Setting Up Interface Components</p>
+                                    <small class="text-muted">Preparing map controls and verification layers...</small>
+                                    <div class="progress mt-3" style="height: 6px;">
+                                        <div class="progress-bar progress-bar-striped progress-bar-animated" style="width: 75%"></div>
+                                    </div>
+                                </div>
+                            `
                         });
 
                         // Create verification graphics layer
@@ -1398,15 +1398,15 @@
                         // Step 5: Load district data
                         Swal.update({
                             html: `
-                                        <div class="text-center">
-                                            <div class="spinner-border text-success" style="width: 3rem; height: 3rem;"></div>
-                                            <p class="mt-3">Loading District Data</p>
-                                            <small class="text-muted">Fetching tehsils and administrative boundaries...</small>
-                                            <div class="progress mt-3" style="height: 6px;">
-                                                <div class="progress-bar progress-bar-striped progress-bar-animated" style="width: 90%"></div>
-                                            </div>
-                                        </div>
-                                    `
+                                <div class="text-center">
+                                    <div class="spinner-border text-success" style="width: 3rem; height: 3rem;"></div>
+                                    <p class="mt-3">Loading District Data</p>
+                                    <small class="text-muted">Fetching tehsils and administrative boundaries...</small>
+                                    <div class="progress mt-3" style="height: 6px;">
+                                        <div class="progress-bar progress-bar-striped progress-bar-animated" style="width: 90%"></div>
+                                    </div>
+                                </div>
+                            `
                         });
 
                         await loadDistrictData();
@@ -1416,12 +1416,12 @@
                             icon: 'success',
                             title: 'System Ready!',
                             html: `
-                                        <div class="text-center">
-                                            <i class="fas fa-check-circle fa-3x text-success mb-3"></i>
-                                            <p>Land Management System Initialized Successfully</p>
-                                            <small class="text-muted">Select a tehsil and mouza to begin verification</small>
-                                        </div>
-                                    `,
+                                <div class="text-center">
+                                    <i class="fas fa-check-circle fa-3x text-success mb-3"></i>
+                                    <p>Land Management System Initialized Successfully</p>
+                                    <small class="text-muted">Select a tehsil and mouza to begin verification</small>
+                                </div>
+                            `,
                             showConfirmButton: true,
                             confirmButtonText: 'Start Verification',
                             timer: 3000,
@@ -1463,12 +1463,12 @@
                         const loadingSwal = Swal.fire({
                             title: 'Loading District Data',
                             html: `
-                                        <div class="text-center">
-                                            <div class="spinner-border text-primary mb-3" style="width: 2rem; height: 2rem;"></div>
-                                            <p>Fetching administrative boundaries</p>
-                                            <small class="text-muted">Please wait...</small>
-                                        </div>
-                                    `,
+                                <div class="text-center">
+                                    <div class="spinner-border text-primary mb-3" style="width: 2rem; height: 2rem;"></div>
+                                    <p>Fetching administrative boundaries</p>
+                                    <small class="text-muted">Please wait...</small>
+                                </div>
+                            `,
                             allowOutsideClick: false,
                             showConfirmButton: false
                         });
@@ -1523,16 +1523,16 @@
                             popupTemplate: {
                                 title: "State Land - {Mouza}",
                                 content: `
-                                                <div style="font-size: 0.85rem; line-height: 1.4;">
-                                                    <div><strong>District:</strong> {District}</div>
-                                                    <div><strong>Tehsil:</strong> {Tehsil}</div>
-                                                    <div><strong>Mouza:</strong> {Mouza}</div>
-                                                    <div><strong>Khasra No:</strong> {K}</div>
-                                                    <div><strong>Khasra ID:</strong> {Khasra_ID}</div>
-                                                    <div><strong>Area (Sq Ft):</strong> {Shape_Area} sq units</div>
-                                                    <div><strong>Type:</strong> {Type}</div>
-                                                </div>
-                                            `
+                                    <div style="font-size: 0.85rem; line-height: 1.4;">
+                                        <div><strong>District:</strong> {District}</div>
+                                        <div><strong>Tehsil:</strong> {Tehsil}</div>
+                                        <div><strong>Mouza:</strong> {Mouza}</div>
+                                        <div><strong>Khasra No:</strong> {K}</div>
+                                        <div><strong>Khasra ID:</strong> {Khasra_ID}</div>
+                                        <div><strong>Area (Sq Ft):</strong> {Shape_Area} sq units</div>
+                                        <div><strong>Type:</strong> {Type}</div>
+                                    </div>
+                                `
                             },
                             renderer: {
                                 type: "simple",
@@ -1598,17 +1598,17 @@
                     return Swal.fire({
                         title: title,
                         html: `
-                                    <div class="text-center">
-                                        <div class="spinner-border text-primary mb-3" style="width: 3rem; height: 3rem;"></div>
-                                        <p class="mb-1">${message}</p>
-                                        <small class="text-muted d-block mb-2">Communicating with GIS Resources...</small>
-                                        <div class="progress" style="height: 8px;">
-                                            <div class="progress-bar progress-bar-striped progress-bar-animated"
-                                                    style="width: ${progress}%"></div>
-                                        </div>
-                                        <small class="text-muted mt-2">${progress}% complete</small>
-                                    </div>
-                                `,
+                            <div class="text-center">
+                                <div class="spinner-border text-primary mb-3" style="width: 3rem; height: 3rem;"></div>
+                                <p class="mb-1">${message}</p>
+                                <small class="text-muted d-block mb-2">Communicating with GIS Resources...</small>
+                                <div class="progress" style="height: 8px;">
+                                    <div class="progress-bar progress-bar-striped progress-bar-animated"
+                                            style="width: ${progress}%"></div>
+                                </div>
+                                <small class="text-muted mt-2">${progress}% complete</small>
+                            </div>
+                        `,
                         allowOutsideClick: false,
                         showConfirmButton: false,
                         backdrop: 'rgba(0, 0, 0, 0.5)'
@@ -2943,7 +2943,7 @@
         // Submit form
         async function submitForm() {
             debugger
-            showToast('warning', 'Creation Time Passed', 'Lot creation time has passed, no more lots creation allowed.');
+            //showToast('warning', 'Creation Time Passed', 'Lot creation time has passed, no more lots creation allowed.');
             //showToast('warning', 'Lot Creation Resumed Tempurarily', 'Lots Updation has been temporarily opened to adjust lots and Khasras as per the shared schedule.');
             //return;
             const submitBtn = document.getElementById('btnSubmit');
