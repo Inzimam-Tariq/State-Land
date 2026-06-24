@@ -189,34 +189,58 @@
         <!-- Section 2: Current Hierarchy Overview -->
         <div class="card shadow-sm mb-3" id="currentOverviewCard">
             <div class="card-header bg-success text-white fw-bold">
-                <i class="fas fa-chart-bar me-2"></i> Current Level Overview — <span id="currentLevelName">Punjab</span>
+                <i class="fas fa-chart-bar me-2"></i>
+                Current Level Overview —
+                <span id="currentLevelName">Punjab</span>
             </div>
+
             <div class="card-body">
                 <div class="row g-3 text-center">
-                    <div class="col-md-3">
+
+                    <div class="col-md-2">
                         <div class="kpi-card p-3 rounded shadow-sm">
                             <h6>Total Lots</h6>
                             <h4 id="kpiTotalLots">0</h4>
                         </div>
                     </div>
-                    <div class="col-md-3">
+
+                    <div class="col-md-2">
                         <div class="kpi-card p-3 rounded shadow-sm">
                             <h6>Total Khasras</h6>
                             <h4 id="kpiTotalKhasras">0</h4>
                         </div>
                     </div>
+
                     <div class="col-md-3">
                         <div class="kpi-card p-3 rounded shadow-sm">
                             <h6>Total Area</h6>
                             <h4 id="kpiTotalArea">0</h4>
                         </div>
                     </div>
-                    <div class="col-md-3">
+
+                    <div class="col-md-2">
                         <div class="kpi-card p-3 rounded shadow-sm">
-                            <h6>Possible Use</h6>
-                            <h5 id="kpiLandSuitability">—</h5>
+                            <h6>Total DC Rate</h6>
+                            <h5 id="kpiTotalDcRate">0</h5>
                         </div>
                     </div>
+
+                    <div class="col-md-3">
+                        <div class="kpi-card p-3 rounded shadow-sm">
+                            <h6>Total Market Value</h6>
+                            <h5 id="kpiTotalMarketValue">0</h5>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="kpi-card p-3 rounded shadow-sm">
+                            <h6>Possible Use Distribution</h6>
+                            <div id="kpiPossibleUseStats" class="small text-start">
+                                —
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
             </div>
         </div>
@@ -841,7 +865,7 @@
                 if (paramName) params[paramName] = currentId;
             }
 
-            const rawSets = await executeSP("i_GetLotBandiHierarchyDashboard_V1", params);
+            const rawSets = await executeSP("i_GetLotBandiHierarchyDashboard_V3", params);
 
             if (rawSets.length < 3) {
                 console.warn("Expected 3 result sets, got", rawSets.length);
@@ -850,8 +874,10 @@
             }
 
             const overview = rawSets[0]?.rows?.[0] || {};
-            const children = rawSets[1]?.rows || [];
-            const lots = rawSets[2]?.rows || [];
+            const possibleUseStats = rawSets[1]?.rows || [];
+            const financialSummary = rawSets[2]?.rows?.[0] || {};
+            const children = rawSets[3]?.rows || [];
+            const lots = rawSets[4]?.rows || [];
 
             console.log("Overview:", overview);
             console.log("Children:", children);
@@ -862,7 +888,51 @@
             $("#kpiTotalLots").text(formatVal(overview.TotalLots ?? 0));
             $("#kpiTotalKhasras").text(formatVal(overview.TotalKhasras ?? 0));
             $("#kpiTotalArea").text(convertSqFtToAkmV2(overview.TotalArea ?? 0));
-            $("#kpiLandSuitability").text(overview.PossibleUseOther || overview.PossibleUse + " - " + overview.PossibleUseSub);
+
+            const colorMap = {
+                Agriculture: "bg-success",
+                Residential: "bg-primary",
+                Commercial: "bg-warning",
+                Industrial: "bg-danger",
+                Other: "bg-secondary"
+            };
+            
+            const html = possibleUseStats
+                .map(x => {
+                    const percentage = Number(x.Percentage || 0);
+                    const barClass = colorMap[x.PossibleUse] || "bg-info";
+
+                    return `
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between mb-1">
+                                <span class="fw-semibold">${x.PossibleUse}</span>
+                                <span>${percentage.toFixed(1)}%</span>
+                            </div>
+
+                            <div class="progress" style="height:18px;">
+                                <div
+                                    class="progress-bar ${barClass}"
+                                    role="progressbar"
+                                    style="width:${percentage}%"
+                                    aria-valuenow="${percentage}"
+                                    aria-valuemin="0"
+                                    aria-valuemax="100">
+                                    ${percentage.toFixed(1)}%
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                })
+                .join("");
+
+            $("#kpiPossibleUseStats").html(html || "—");
+            $("#kpiTotalDcRate").text(
+                formatVal(financialSummary.TotalDcRateValue ?? 0)
+            );
+
+            $("#kpiTotalMarketValue").text(
+                formatVal(financialSummary.TotalMarketRateValue ?? 0)
+            );
 
             // Section 3
             $("#childCardsRow").empty();
@@ -927,11 +997,9 @@
                 MurabaNo: r.MurabaNo ?? '',
                 KhasraNo: r.KhasraNo ?? '',
                 KhasraArea: convertSqFtToAkmV2(r.KhasraArea ?? 0),
-                LandSuitability:
-                    r.PossibleUseOther ||
-                    `${r.PossibleUse || ''}${r.PossibleUseSub ? ' -> ' + r.PossibleUseSub : ''}`,
-                DcRateValue: r.DcRateValue == 0 ? '' : r.DcRateValue,
-                MarketValue: r.MarketRateValue == 0 ? '' : r.MarketRateValue,
+                LandSuitability: r.PossibleUseOther || `${r.PossibleUse || ''}${r.PossibleUseSub ? ' -> ' + r.PossibleUseSub : ''}`,
+                DcRateValue: r.DcRateValue == 0 ? '' : formatVal(r.DcRateValue),
+                MarketValue: r.MarketRateValue == 0 ? '' : formatVal(r.MarketRateValue),
                 LeasePerAcre: r.LeasePerAcre == 0 ? '' : r.LeasePerAcre,
 
                 // User A
