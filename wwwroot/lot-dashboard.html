@@ -213,7 +213,7 @@
                     </div>
                     <div class="col-md-3">
                         <div class="kpi-card p-3 rounded shadow-sm">
-                            <h6>Zone</h6>
+                            <h6>Possible Use</h6>
                             <h5 id="kpiLandSuitability">—</h5>
                         </div>
                     </div>
@@ -247,7 +247,9 @@
                                 <th>Muraba</th>
                                 <th>Khasra</th>
                                 <th>Area</th>
-                                <th>Zone</th>
+                                <th>Posible Use</th>
+                                <th>DC Rate Value</th>
+                                <th>Market Value</th>
                                 <th>Lease Amount</th>
                                 <th>Remarks</th>
                                 <th>Approval Status</th>
@@ -719,8 +721,8 @@
             if (totalLots === 0) {
                 $("#currentOverviewCard .card-body").prepend(
                     `<div class="alert alert-info small mt-2">
-                                            ${currentLevel} level: No lots found
-                                        </div>`
+                        ${currentLevel} level: No lots found
+                    </div>`
                 );
             }
 
@@ -860,7 +862,7 @@
             $("#kpiTotalLots").text(formatVal(overview.TotalLots ?? 0));
             $("#kpiTotalKhasras").text(formatVal(overview.TotalKhasras ?? 0));
             $("#kpiTotalArea").text(convertSqFtToAkmV2(overview.TotalArea ?? 0));
-            $("#kpiLandSuitability").text(overview.LandSuitability || "—");
+            $("#kpiLandSuitability").text(overview.PossibleUseOther || overview.PossibleUse + " - " + overview.PossibleUseSub);
 
             // Section 3
             $("#childCardsRow").empty();
@@ -868,19 +870,19 @@
                 $("#childCardsContainer").show();
                 children.forEach(child => {
                     const card = $(`
-                                    <div class="col-md-3">
-                                        <div class="card hierarchy-card shadow-sm ${child.ChildId == currentId ? 'active' : ''}">
-                                            <div class="card-body text-center">
-                                                <h5>${child.ChildName || 'Unnamed'}</h5>
-                                                <div class="small text-muted">${child.ChildLevel || ''}</div>
-                                                <hr class="my-2">
-                                                <div><strong>Lots:</strong> ${formatVal(child.TotalLots ?? 0)}</div>
-                                                <div><strong>Khasras:</strong> ${formatVal(child.TotalKhasras ?? 0)}</div>
-                                                <div><strong>Area:</strong> ${convertSqFtToAkmV2(child.TotalArea ?? 0)}</div>
-                                            </div>
+                                <div class="col-md-3">
+                                    <div class="card hierarchy-card shadow-sm ${child.ChildId == currentId ? 'active' : ''}">
+                                        <div class="card-body text-center">
+                                            <h5>${child.ChildName || 'Unnamed'}</h5>
+                                            <div class="small text-muted">${child.ChildLevel || ''}</div>
+                                            <hr class="my-2">
+                                            <div><strong>Lots:</strong> ${formatVal(child.TotalLots ?? 0)}</div>
+                                            <div><strong>Khasras:</strong> ${formatVal(child.TotalKhasras ?? 0)}</div>
+                                            <div><strong>Area:</strong> ${convertSqFtToAkmV2(child.TotalArea ?? 0)}</div>
                                         </div>
                                     </div>
-                                `);
+                                </div>
+                            `);
                     card.on('click', async function () {
                         $('.hierarchy-card').removeClass('active');
                         $(this).addClass('active');
@@ -925,7 +927,11 @@
                 MurabaNo: r.MurabaNo ?? '',
                 KhasraNo: r.KhasraNo ?? '',
                 KhasraArea: convertSqFtToAkmV2(r.KhasraArea ?? 0),
-                LandSuitability: r.LandSuitability ?? '',
+                LandSuitability:
+                    r.PossibleUseOther ||
+                    `${r.PossibleUse || ''}${r.PossibleUseSub ? ' -> ' + r.PossibleUseSub : ''}`,
+                DcRateValue: r.DcRateValue == 0 ? '' : r.DcRateValue,
+                MarketValue: r.MarketRateValue == 0 ? '' : r.MarketRateValue,
                 LeasePerAcre: r.LeasePerAcre == 0 ? '' : r.LeasePerAcre,
 
                 // User A
@@ -998,6 +1004,8 @@
                     { data: 'KhasraNo', defaultContent: '' },
                     { data: 'KhasraArea', defaultContent: '' },
                     { data: 'LandSuitability', defaultContent: '' },
+                    { data: 'DcRateValue', defaultContent: '' },
+                    { data: 'MarketValue', defaultContent: '' },
                     { data: 'LeasePerAcre', defaultContent: '' },
                     { data: 'Remarks', defaultContent: '' },
 
@@ -1015,6 +1023,7 @@
                     $(row).find('td').slice(0, 4).html('');
                     // Put TOTAL in the Khasra column (column index 7)
                     $(row).find('td').eq(7).html('<strong>TOTAL</strong>');
+                    $(row).find('td').eq(11).html('');
 
                     // Get last detail row of this lot
                     const lotRow = lastLotRowByOrder[data.LotOrder];
